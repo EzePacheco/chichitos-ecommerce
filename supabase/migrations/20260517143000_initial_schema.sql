@@ -1,7 +1,10 @@
-﻿-- Chichitos Web initial Supabase schema.
+-- Chichitos Web initial Supabase schema.
 -- Source of truth: versioned migrations, not dashboard-only changes.
 
 create extension if not exists pgcrypto with schema extensions;
+
+create schema if not exists private;
+revoke all on schema private from public;
 
 -- Enumerated domain states. Keep app transitions explicit in server-side use cases.
 do $$
@@ -310,23 +313,26 @@ create trigger set_product_variant_stock_updated_at
 before update on public.product_variant_stock
 for each row execute function public.set_updated_at();
 
-create or replace function public.is_admin()
+drop function if exists public.is_admin();
+
+create or replace function private.is_admin()
 returns boolean
 language sql
 security definer
-set search_path = public
+set search_path = ''
 stable
 as $$
   select exists (
     select 1
     from public.admin_users
-    where user_id = auth.uid()
+    where user_id = (select auth.uid())
       and is_active = true
   );
 $$;
 
-revoke all on function public.is_admin() from public;
-grant execute on function public.is_admin() to anon, authenticated;
+revoke all on function private.is_admin() from public;
+grant usage on schema private to authenticated, service_role;
+grant execute on function private.is_admin() to authenticated, service_role;
 
 alter table public.admin_users enable row level security;
 alter table public.store_settings enable row level security;
@@ -343,8 +349,8 @@ alter table public.payments enable row level security;
 alter table public.payment_webhook_events enable row level security;
 alter table public.product_variant_stock enable row level security;
 
-revoke all on all tables in schema public from anon, authenticated;
-grant usage on schema public to anon, authenticated;
+revoke all on all tables in schema public from anon, authenticated, service_role;
+grant usage on schema public to anon, authenticated, service_role;
 
 grant select on
   public.store_settings,
@@ -371,7 +377,7 @@ grant select, insert, update, delete on
   public.payments,
   public.payment_webhook_events,
   public.product_variant_stock
-to authenticated;
+to authenticated, service_role;
 
 create policy "public can read store settings"
 on public.store_settings
@@ -383,8 +389,8 @@ create policy "admins can manage store settings"
 on public.store_settings
 for all
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using ((select private.is_admin()))
+with check ((select private.is_admin()));
 
 create policy "public can read active products"
 on public.products
@@ -396,8 +402,8 @@ create policy "admins can manage products"
 on public.products
 for all
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using ((select private.is_admin()))
+with check ((select private.is_admin()));
 
 create policy "public can read active product sizes"
 on public.product_sizes
@@ -409,8 +415,8 @@ create policy "admins can manage product sizes"
 on public.product_sizes
 for all
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using ((select private.is_admin()))
+with check ((select private.is_admin()));
 
 create policy "public can read active product colors"
 on public.product_colors
@@ -422,8 +428,8 @@ create policy "admins can manage product colors"
 on public.product_colors
 for all
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using ((select private.is_admin()))
+with check ((select private.is_admin()));
 
 create policy "public can read active designs"
 on public.designs
@@ -435,8 +441,8 @@ create policy "admins can manage designs"
 on public.designs
 for all
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using ((select private.is_admin()))
+with check ((select private.is_admin()));
 
 create policy "public can read active product designs"
 on public.product_designs
@@ -451,8 +457,8 @@ create policy "admins can manage product designs"
 on public.product_designs
 for all
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using ((select private.is_admin()))
+with check ((select private.is_admin()));
 
 create policy "public can read active product personalization"
 on public.product_personalization_options
@@ -464,62 +470,62 @@ create policy "admins can manage product personalization"
 on public.product_personalization_options
 for all
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using ((select private.is_admin()))
+with check ((select private.is_admin()));
 
 create policy "admins can read admin users"
 on public.admin_users
 for select
 to authenticated
-using (public.is_admin());
+using ((select private.is_admin()));
 
 create policy "admins can manage admin users"
 on public.admin_users
 for all
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using ((select private.is_admin()))
+with check ((select private.is_admin()));
 
 create policy "admins can manage orders"
 on public.orders
 for all
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using ((select private.is_admin()))
+with check ((select private.is_admin()));
 
 create policy "admins can manage order items"
 on public.order_items
 for all
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using ((select private.is_admin()))
+with check ((select private.is_admin()));
 
 create policy "admins can manage deliveries"
 on public.deliveries
 for all
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using ((select private.is_admin()))
+with check ((select private.is_admin()));
 
 create policy "admins can manage payments"
 on public.payments
 for all
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using ((select private.is_admin()))
+with check ((select private.is_admin()));
 
 create policy "admins can read webhook events"
 on public.payment_webhook_events
 for select
 to authenticated
-using (public.is_admin());
+using ((select private.is_admin()));
 
 create policy "admins can manage stock"
 on public.product_variant_stock
 for all
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using ((select private.is_admin()))
+with check ((select private.is_admin()));
 
 comment on table public.products is 'Data classification: public. Public catalog products.';
 comment on table public.designs is 'Data classification: public. Chichitos-owned DTF designs.';

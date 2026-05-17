@@ -1,82 +1,121 @@
 ﻿import type { Metadata } from "next";
+import { Eyebrow, Icon } from "@/components/ui/design-system";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
 import {
   getActiveCatalogProducts,
   getCatalogCategories,
-  getProductsByCategory,
 } from "@/features/catalog/data/featured-products";
 
 export const metadata: Metadata = {
-  title: "Catalogo | Chichitos",
-  description: "Catalogo de ropa infantil Chichitos con prendas estampadas a pedido, talles, colores y disenos propios.",
+  title: "Catálogo | Chichitos",
+  description:
+    "Catálogo de ropa infantil Chichitos con prendas estampadas a pedido, talles, colores y diseños propios.",
 };
+
+const sizeFilters = ["0-12m", "2", "4", "6", "8", "10", "12"];
+const colorFilters = [
+  { label: "Crema", hex: "#F7EFE0" },
+  { label: "Blanco", hex: "#FCF7EC" },
+  { label: "Durazno", hex: "#F5C9A8" },
+  { label: "Salvia", hex: "#B4C9A4" },
+  { label: "Celeste", hex: "#B7D2E6" },
+  { label: "Coral", hex: "#E08868" },
+  { label: "Mostaza", hex: "#E4B254" },
+  { label: "Rosa", hex: "#F2B9B9" },
+];
 
 export default function CatalogoPage() {
   const products = getActiveCatalogProducts();
   const categories = getCatalogCategories(products);
 
   return (
-    <>
-      <section className="catalog-hero">
-        <div className="container catalog-hero-grid">
-          <div className="catalog-copy">
-            <span className="eyebrow">Catalogo</span>
-            <h1 className="display">Prendas listas para convertir en una pieza unica.</h1>
-            <p className="lead">
-              Cada producto se arma a pedido: elegis talle, color, diseno propio de Chichitos y personalizacion cuando aplique.
-            </p>
-            <div className="category-strip" aria-label="Categorias del catalogo">
-              {categories.map((category) => (
-                <a className="chip" href={`#categoria-${category.id}`} key={category.id}>
-                  {category.label} ({category.count})
-                </a>
-              ))}
-            </div>
-          </div>
-          <aside className="card catalog-summary" aria-label="Resumen del catalogo">
-            <strong>{products.length} productos activos</strong>
-            <p>Mock tipado para validar navegacion publica antes de conectar Supabase y el admin.</p>
-            <span className="chip">Produccion a pedido</span>
-          </aside>
+    <section className="catalog">
+      <div className="container">
+        <div className="section__head">
+          <Eyebrow>Catálogo completo</Eyebrow>
+          <h1 className="display-l">Todas las prendas</h1>
+          <p>
+            Productos mock tipados para validar el flujo visual fiel al UI Kit
+            antes de conectar Supabase.
+          </p>
         </div>
-      </section>
 
-      {categories.map((category) => {
-        const categoryProducts = getProductsByCategory(category.id, products);
-
-        return (
-          <section className="section catalog-section" id={`categoria-${category.id}`} key={category.id}>
-            <div className="container">
-              <div className="section-heading">
-                <div>
-                  <span className="eyebrow">{category.label}</span>
-                  <h2 className="section-title">{category.label} para combinar.</h2>
-                </div>
-                <p className="lead">
-                  Precios base visibles para orientar la compra. El precio final se recalcula server-side en checkout.
-                </p>
-              </div>
-              <div className="product-grid">
-                {categoryProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+        <div className="catalog__layout">
+          <aside className="filters" aria-label="Filtros de catálogo">
+            <div className="filter-group">
+              <h4>Prenda</h4>
+              <div className="filter-row">
+                <span className="chip is-active">Todo</span>
+                {categories.map((category) => (
+                  <a
+                    className="chip"
+                    href={`#categoria-${category.id}`}
+                    key={category.id}
+                  >
+                    {category.label}
+                  </a>
                 ))}
               </div>
             </div>
-          </section>
-        );
-      })}
 
-      <section className="section">
-        <div className="container">
-          <div className="card catalog-notice">
-            <span className="eyebrow">Siguiente corte</span>
-            <h2>Configuracion y carrito.</h2>
-            <p>
-              Este incremento deja navegacion publica y detalle por producto. El proximo paso conecta la seleccion de talle, color, diseno y personalizacion con el carrito.
-            </p>
+            <div className="filter-group">
+              <h4>Talle</h4>
+              <div className="filter-row">
+                {sizeFilters.map((size) => (
+                  <span className="chip" key={size}>
+                    {size}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="filter-group">
+              <h4>Color base</h4>
+              <div className="filter-row" style={{ gap: 10 }}>
+                {colorFilters.map((color, index) => (
+                  <span
+                    aria-label={color.label}
+                    className={`swatch ${index === 0 ? "is-active" : ""}`}
+                    key={color.label}
+                    style={{ background: color.hex }}
+                    title={color.label}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="filter-group">
+              <h4>Diseño</h4>
+              <span className="chip chip--dashed">
+                <Icon name="sparkles" size={14} /> Sólo personalizables
+              </span>
+            </div>
+          </aside>
+
+          <div>
+            <div className="catalog__toolbar">
+              <span className="catalog__count">{products.length} prendas</span>
+              <select
+                className="select"
+                defaultValue="featured"
+                aria-label="Ordenar catálogo"
+                style={{ maxWidth: 220 }}
+              >
+                <option value="featured">Destacados primero</option>
+                <option value="price-asc">Menor precio</option>
+                <option value="price-desc">Mayor precio</option>
+                <option value="newest">Lo más nuevo</option>
+              </select>
+            </div>
+
+            <div className="product-grid">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

@@ -1,34 +1,58 @@
-﻿import type { CSSProperties } from "react";
-import Link from "next/link";
+﻿import Link from "next/link";
+import {
+  GarmentPlaceholder,
+  GarmentTag,
+  Icon,
+} from "@/components/ui/design-system";
 import { formatMoney } from "@/lib/money";
-import { catalogCategoryLabels, type CatalogProduct } from "../data/featured-products";
+import {
+  getGarmentType,
+  getProductBaseColor,
+  getProductDesignVisual,
+  getProductTagVariant,
+} from "../design";
+import {
+  catalogCategoryLabels,
+  type CatalogProduct,
+} from "../data/featured-products";
 
 type ProductCardProps = {
   product: CatalogProduct;
 };
 
 export function ProductCard({ product }: ProductCardProps) {
+  const design = getProductDesignVisual(product);
+
   return (
-    <article className="card product-card">
-      <div className="product-art" style={{ "--accent-color": product.accentColor } as CSSProperties}>
-        <span className="product-art-shape" aria-hidden="true" />
-      </div>
-      <div>
-        <span className="product-category">{catalogCategoryLabels[product.category]}</span>
-        <h3>{product.name}</h3>
-        <p>{product.summary}</p>
-      </div>
-      <strong>Desde {formatMoney(product.basePriceCents)}</strong>
-      <div className="button-row" aria-label="Etiquetas de producto">
-        {product.badges.map((badge) => (
-          <span className="chip" key={badge}>
-            {badge}
+    <Link className="product-card" href={`/producto/${product.slug}`}>
+      <div className="product-card__media">
+        {product.badges[0] ? (
+          <span className="product-card__tag">
+            <GarmentTag variant={getProductTagVariant(product)}>
+              {product.badges[0]}
+            </GarmentTag>
           </span>
-        ))}
+        ) : null}
+        <span className="product-card__fav" aria-hidden="true">
+          <Icon name="heart" size={16} />
+        </span>
+        <GarmentPlaceholder
+          type={getGarmentType(product)}
+          color={getProductBaseColor(product)}
+          designShape={design.shape}
+          designColor={design.color}
+        />
       </div>
-      <Link className="button button-ghost product-card-button" href={`/producto/${product.slug}`}>
-        Ver detalle
-      </Link>
-    </article>
+      <div className="product-card__body">
+        <h3 className="product-card__title">{product.name}</h3>
+        <span className="product-card__meta">
+          {catalogCategoryLabels[product.category]} · {product.sizes.length}{" "}
+          talles · {product.colors.length} colores
+        </span>
+        <span className="product-card__price">
+          {formatMoney(product.basePriceCents)} <small>desde</small>
+        </span>
+      </div>
+    </Link>
   );
 }

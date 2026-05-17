@@ -19,6 +19,13 @@ El formato sigue Keep a Changelog y el versionado sera SemVer durante el MVP.
 - Funcion testeada para calcular costo de envio por radio base y tramos adicionales.
 - Catalogo publico navegable con datos mock tipados, categorias, detalle por `/producto/[slug]` y CTA contextual de WhatsApp cuando exista numero configurado.
 - Tests unitarios para helpers de catalogo publico.
+- Migracion inicial de Supabase con schema de catalogo, settings, pedidos, pagos, webhooks, admin users, stock futuro y RLS.
+- Funcion RLS de admin ubicada en schema privado `private.is_admin()` y grants explicitos para Data API.
+- Documentacion operativa de Supabase y resumen del schema de base de datos.
+- Dependencias oficiales de Supabase para Next.js SSR (`@supabase/supabase-js` y `@supabase/ssr`).
+- Helper compartido para generar links de WhatsApp con telefono sanitizado.
+- SPEC-002 de fidelidad visual al UI Kit y referencia obligatoria a `docs/design` para futuros cambios visuales.
+- Alineacion visual de Home, Catalogo, Producto, Carrito, Checkout, Header, Footer, WhatsApp float y Admin con el UI Kit exportado.
 
 ### Decisions
 

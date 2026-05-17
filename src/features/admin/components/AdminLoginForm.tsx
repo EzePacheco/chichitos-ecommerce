@@ -1,0 +1,67 @@
+"use client";
+
+import { useState } from "react";
+import { Icon } from "@/components/ui/design-system";
+import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
+
+type AdminLoginFormProps = {
+  nextPath: string;
+};
+
+export function AdminLoginForm({ nextPath }: AdminLoginFormProps) {
+  const [errorMessage, setErrorMessage] = useState<string>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleGoogleLogin() {
+    setErrorMessage(undefined);
+    setIsSubmitting(true);
+
+    try {
+      const redirectTo = new URL("/auth/callback", window.location.origin);
+      redirectTo.searchParams.set("next", nextPath);
+
+      const supabase = createBrowserSupabaseClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: redirectTo.toString(),
+          queryParams: {
+            prompt: "select_account",
+          },
+        },
+      });
+
+      if (error) {
+        setErrorMessage(
+          "No pudimos iniciar sesión con Google. Probá nuevamente.",
+        );
+        setIsSubmitting(false);
+      }
+    } catch {
+      setErrorMessage(
+        "Falta configuración pública de Supabase para iniciar sesión.",
+      );
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="flex-col mt-6">
+      <button
+        className="btn btn--primary btn--lg"
+        type="button"
+        onClick={handleGoogleLogin}
+        disabled={isSubmitting}
+      >
+        <Icon name="user" size={18} />
+        {isSubmitting ? "Redirigiendo a Google..." : "Ingresar con Google"}
+      </button>
+      {errorMessage ? (
+        <div className="disclaimer" role="alert">
+          <Icon name="info" size={18} />
+          <span>{errorMessage}</span>
+        </div>
+      ) : null}
+    </div>
+  );
+}

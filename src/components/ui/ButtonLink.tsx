@@ -1,12 +1,20 @@
 ﻿type ButtonLinkProps = {
   children: React.ReactNode;
   href: string;
-  variant?: "primary" | "ghost";
+  variant?: "primary" | "ghost" | "soft" | "whatsapp";
+  size?: "sm" | "md" | "lg";
 };
 
-export function ButtonLink({ children, href, variant = "primary" }: ButtonLinkProps) {
+export function ButtonLink({
+  children,
+  href,
+  variant = "primary",
+  size = "md",
+}: ButtonLinkProps) {
+  const sizeClass = size === "md" ? "" : ` btn--${size}`;
+
   return (
-    <a className={`button button-${variant}`} href={href}>
+    <a className={`btn btn--${variant}${sizeClass}`} href={href}>
       {children}
     </a>
   );

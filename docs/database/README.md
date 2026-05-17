@@ -1,4 +1,4 @@
-﻿# Database Schema
+# Database Schema
 
 ## Objetivo
 
@@ -34,7 +34,8 @@ Schema inicial para soportar el MVP de Chichitos sin acoplar el frontend a detal
 
 - Publico anonimo: lectura de productos/disenos/opciones activas y settings publicos.
 - Admin autenticado autorizado: gestion de catalogo, settings, pedidos, pagos visibles y stock futuro.
-- Backend con service role: creacion de ordenes, pagos, webhook events y bootstrap admin.
+- Backend con secret key/service role: creacion de ordenes, pagos, webhook events y bootstrap admin.
+- Admin autenticado: policies RLS delegan el chequeo de rol en `private.is_admin()` fuera del schema expuesto.
 
 ## Datos sensibles
 

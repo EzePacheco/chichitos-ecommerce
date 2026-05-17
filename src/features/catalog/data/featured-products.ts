@@ -1,4 +1,6 @@
-﻿export type ProductCategory = "remeras" | "bodies" | "abrigos" | "sets" | "accesorios";
+import { buildWhatsAppHref } from "../../../lib/whatsapp";
+
+export type ProductCategory = "remeras" | "bodies" | "abrigos" | "sets" | "accesorios";
 
 export type ProductStatus = "active" | "draft";
 
@@ -277,11 +279,5 @@ export function buildProductWhatsAppMessage(product: CatalogProduct) {
 }
 
 export function buildProductWhatsAppHref(product: CatalogProduct, phoneNumber?: string) {
-  const digitsOnly = phoneNumber?.replace(/\D/g, "");
-
-  if (!digitsOnly) {
-    return undefined;
-  }
-
-  return `https://wa.me/${digitsOnly}?text=${encodeURIComponent(buildProductWhatsAppMessage(product))}`;
+  return buildWhatsAppHref(phoneNumber, buildProductWhatsAppMessage(product));
 }

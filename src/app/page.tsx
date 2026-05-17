@@ -1,45 +1,107 @@
-﻿import Image from "next/image";
+﻿import Link from "next/link";
+import {
+  DesignSvg,
+  Eyebrow,
+  GarmentPlaceholder,
+  GarmentTag,
+  Icon,
+} from "@/components/ui/design-system";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
+import { designVisuals } from "@/features/catalog/design";
 import { featuredProducts } from "@/features/catalog/data/featured-products";
+
+const steps = [
+  {
+    n: "01",
+    title: "Elegí la prenda",
+    text: "Remera, buzo, body o set. Mirá la guía de talles si dudás.",
+  },
+  {
+    n: "02",
+    title: "Configurá",
+    text: "Talle, color base y diseño DTF. Sumá un nombre si querés personalizar.",
+  },
+  {
+    n: "03",
+    title: "Pagás online",
+    text: "Con Mercado Pago, en cuotas o efectivo. Todo seguro.",
+  },
+  {
+    n: "04",
+    title: "Recibís o retirás",
+    text: "Envío a domicilio con tarifa por distancia o retiro en el taller.",
+  },
+];
 
 export default function Home() {
   return (
     <>
       <section className="hero">
-        <div className="container hero-grid">
-          <div className="hero-copy">
-            <span className="eyebrow">Hecha para jugar</span>
-            <h1 className="display">Ropa infantil con alma de taller.</h1>
-            <p className="lead">
-              Chichitos crea prendas infantiles estampadas con DTF, disenos propios y produccion a pedido. Elegis prenda, talle, color y diseno; la compra se cierra online y las dudas van por WhatsApp.
-            </p>
-            <div className="button-row">
-              <a className="button button-primary" href="/catalogo">Ver catalogo</a>
-              <a className="button button-ghost" href="/checkout">Probar checkout</a>
+        <div className="container">
+          <div className="hero__grid">
+            <div>
+              <div className="hero__eyebrow">
+                <Eyebrow>Hecha para jugar, lista para soñar</Eyebrow>
+              </div>
+              <h1 className="display-xl hero__title">
+                Ropa infantil con <span className="script">alma</span> de
+                taller.
+              </h1>
+              <p className="hero__sub">
+                Diseños propios, estampados a pedido en nuestro taller con
+                tecnología DTF que dura lavado tras lavado. Elegí prenda, talle,
+                color y diseño — o sumamos el nombre del chichito.
+              </p>
+              <div className="hero__ctas">
+                <Link className="btn btn--primary btn--lg" href="/catalogo">
+                  <Icon name="bag" /> Comprar online
+                </Link>
+                <Link className="btn btn--ghost btn--lg" href="/catalogo">
+                  Consultar por WhatsApp
+                </Link>
+              </div>
+              <div className="trust-strip" aria-label="Beneficios de compra">
+                <div className="trust-strip__item">
+                  <Icon name="truck" />
+                  <small>Envío a todo el país</small>
+                </div>
+                <div className="trust-strip__item">
+                  <Icon name="card" />
+                  <small>Mercado Pago en cuotas</small>
+                </div>
+                <div className="trust-strip__item">
+                  <Icon name="sparkles" />
+                  <small>Diseños de autoría propia</small>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="card hero-logo-card" aria-label="Logo de Chichitos">
-            <Image
-              src="/brand/logo-chichitos-full.png"
-              alt="Chichitos, hecha para jugar lista para sonar"
-              width={360}
-              height={240}
-              priority
-            />
+
+            <div className="hero__art" aria-hidden="true">
+              <span className="hero__star hero__star--1">★</span>
+              <span className="hero__star hero__star--2">✦</span>
+              <span className="hero__star hero__star--3">★</span>
+              <GarmentPlaceholder
+                type="Remera"
+                color="var(--cream-50)"
+                designShape="cloud"
+                designColor="var(--celeste)"
+                scale={1.4}
+              />
+            </div>
           </div>
         </div>
       </section>
 
       <section className="section">
         <div className="container">
-          <div className="section-heading">
+          <div className="section__head section__head--row">
             <div>
-              <span className="eyebrow">Catalogo inicial</span>
-              <h2 className="section-title">Bases listas para combinar con disenos propios.</h2>
+              <Eyebrow>Lo más querido</Eyebrow>
+              <h2>Destacados de la semana</h2>
             </div>
-            <p className="lead">
-              Estos datos son placeholders del scaffold. Luego se reemplazan por productos reales desde Supabase y admin.
-            </p>
+            <Link className="btn btn--ghost btn--sm" href="/catalogo">
+              Ver todo el catálogo <Icon name="chevronR" size={16} />
+            </Link>
           </div>
           <div className="product-grid">
             {featuredProducts.map((product) => (
@@ -49,27 +111,70 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section section--alt">
         <div className="container">
-          <div className="section-heading">
+          <div className="dtf-grid">
             <div>
-              <span className="eyebrow">Flujo MVP</span>
-              <h2 className="section-title">Simple hoy, preparado para crecer.</h2>
+              <Eyebrow>Diseños propios</Eyebrow>
+              <h2>Cada estampa nace acá, en nuestro taller.</h2>
+              <p>
+                No revendemos diseños de terceros. Cada nubecita, estrellita y
+                cohete fue dibujado por nosotros y estampado a pedido con DTF —
+                una técnica que mantiene los colores vivos por más de 50
+                lavados.
+              </p>
+              <div className="filter-row mt-4">
+                <GarmentTag>Estampa a pedido</GarmentTag>
+                <GarmentTag variant="salvia">+50 lavados</GarmentTag>
+                <GarmentTag variant="celeste">Sin franquicias</GarmentTag>
+              </div>
+            </div>
+            <div className="design-tile-grid" aria-hidden="true">
+              {designVisuals.map((design) => (
+                <div className="card design-tile" key={design.id}>
+                  <svg viewBox="-20 -20 40 40">
+                    <DesignSvg shape={design.shape} color={design.color} />
+                  </svg>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="steps-grid">
-            <article className="card step-card">
-              <strong>1. Configurar</strong>
-              <p>El cliente elige talle, color, diseno y personalizacion cuando aplique.</p>
-            </article>
-            <article className="card step-card">
-              <strong>2. Pagar online</strong>
-              <p>La orden se crea server-side y Mercado Pago confirma por webhook validado.</p>
-            </article>
-            <article className="card step-card">
-              <strong>3. Producir a pedido</strong>
-              <p>El admin simple permite seguir pedido, politicas, envio y configuracion comercial.</p>
-            </article>
+        </div>
+      </section>
+
+      <section className="section" id="como-comprar">
+        <div className="container">
+          <div className="section__head">
+            <Eyebrow>Cómo comprar</Eyebrow>
+            <h2>Sencillo, sin vueltas.</h2>
+            <p>
+              Cuatro pasos desde que elegís la prenda hasta que llega a tus
+              manos.
+            </p>
+          </div>
+          <div className="steps">
+            {steps.map((step) => (
+              <article className="step" key={step.n}>
+                <div className="step__num">{step.n}</div>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section section--ink">
+        <div className="container text-center">
+          <Eyebrow color="var(--durazno)">Hecha en Argentina</Eyebrow>
+          <h2 className="display-l mt-4">
+            Imprimimos cada prenda <span className="script">a pedido</span>, sin
+            stock ni desperdicio.
+          </h2>
+          <div className="mt-6">
+            <Link className="btn btn--soft btn--lg" href="/catalogo">
+              <Icon name="bag" /> Ver el catálogo
+            </Link>
           </div>
         </div>
       </section>

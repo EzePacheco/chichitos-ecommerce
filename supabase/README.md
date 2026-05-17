@@ -1,4 +1,4 @@
-﻿# Supabase
+# Supabase
 
 Contrato operativo inicial para la base de datos de Chichitos Web.
 
@@ -15,9 +15,9 @@ Migracion inicial:
 1. Crear un proyecto Supabase para Chichitos.
 2. Copiar al `.env` local:
    - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-3. Mantener `SUPABASE_SERVICE_ROLE_KEY` solo server-side. Nunca usarla en componentes cliente ni exponerla con prefijo `NEXT_PUBLIC_`.
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   - `SUPABASE_SECRET_KEY` para backend server-side, o `SUPABASE_SERVICE_ROLE_KEY` como fallback legacy.
+3. Mantener la clave elevada de Supabase solo server-side. Nunca usarla en componentes cliente ni exponerla con prefijo `NEXT_PUBLIC_`.
 4. Configurar Google como provider de Auth en Supabase cuando se implemente login admin.
 5. Agregar URLs de redirect cuando exista la ruta de callback de auth:
    - Local: `http://localhost:3000/auth/callback`
@@ -47,14 +47,14 @@ Opcion temporal sin CLI:
 - RLS esta habilitado en todas las tablas publicas del dominio.
 - Catalogo activo es publico de solo lectura.
 - Pedidos, pagos, direcciones y webhook events no tienen acceso publico.
-- Admin se define por `public.admin_users` y la funcion `public.is_admin()`.
-- El bootstrap inicial debe hacerse desde backend con `ADMIN_BOOTSTRAP_EMAILS` y service role.
+- Admin se define por `public.admin_users` y la funcion privada `private.is_admin()`.
+- El bootstrap inicial debe hacerse desde backend con `ADMIN_BOOTSTRAP_EMAILS` y clave elevada server-side.
 
 ## Proximo corte tecnico
 
-1. Instalar `@supabase/supabase-js` cuando vayamos a conectar la app real.
+1. Crear los clientes de Supabase usando `@supabase/supabase-js` y `@supabase/ssr`, ya instalados en el proyecto.
 2. Crear clientes separados:
-   - browser/client con anon key para lectura publica y auth.
-   - server/admin con service role solo en server runtime.
+   - browser/client con publishable key para lectura publica y auth.
+   - server/admin con secret key o service role solo en server runtime.
 3. Implementar callback de auth y bootstrap admin.
 4. Reemplazar mock de catalogo por repositorio Supabase con fallback controlado durante desarrollo.
