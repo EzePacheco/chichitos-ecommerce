@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Icon } from "@/components/ui/design-system";
+import { Info, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type AdminLoginFormProps = {
@@ -47,18 +48,19 @@ export function AdminLoginForm({ nextPath }: AdminLoginFormProps) {
 
   return (
     <div className="flex-col mt-6">
-      <button
-        className="btn btn--primary btn--lg"
+      <Button
         type="button"
+        variant="primary"
+        size="lg"
         onClick={handleGoogleLogin}
         disabled={isSubmitting}
       >
-        <Icon name="user" size={18} />
+        <User size={18} />
         {isSubmitting ? "Redirigiendo a Google..." : "Ingresar con Google"}
-      </button>
+      </Button>
       {errorMessage ? (
         <div className="disclaimer" role="alert">
-          <Icon name="info" size={18} />
+          <Info size={18} />
           <span>{errorMessage}</span>
         </div>
       ) : null}

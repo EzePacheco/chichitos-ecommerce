@@ -1,8 +1,5 @@
 ﻿import type { Metadata } from "next";
 import { Caveat, DM_Serif_Display, Outfit } from "next/font/google";
-import { SiteFooter } from "@/components/layout/SiteFooter";
-import { SiteHeader } from "@/components/layout/SiteHeader";
-import { WhatsAppFloat } from "@/components/layout/WhatsAppFloat";
 import "./globals.css";
 
 const display = DM_Serif_Display({
@@ -35,15 +32,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es-AR" className={`${display.variable} ${sans.variable} ${script.variable}`}>
-      <body>
-        <SiteHeader />
-        <main id="contenido" className="site-main">
-          {children}
-        </main>
-        <SiteFooter />
-        <WhatsAppFloat phoneNumber={process.env.NEXT_PUBLIC_WHATSAPP_NUMBER} />
-      </body>
+    <html
+      lang="es-AR"
+      className={`${display.variable} ${sans.variable} ${script.variable}`}
+    >
+      <body>{children}</body>
     </html>
   );
 }

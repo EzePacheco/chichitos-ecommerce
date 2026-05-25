@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chichitos — Ropa infantil estampada con DTF</title>
+  <link rel="stylesheet" href="../../colors_and_type.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script src="data.js"></script>
+  <script type="text/babel" src="components.jsx"></script>
+  <script type="text/babel" src="Home.jsx"></script>
+  <script type="text/babel" src="Catalog.jsx"></script>
+  <script type="text/babel" src="Product.jsx"></script>
+  <script type="text/babel" src="Cart.jsx"></script>
+  <script type="text/babel" src="Checkout.jsx"></script>
+  <script type="text/babel" src="Admin.jsx"></script>
+
+  <script type="text/babel" data-presets="react">
+    const App = () => {
+      const [route, setRoute] = useState('home'); // home | catalog | product | cart | checkout | admin
+      const [product, setProduct] = useState(null);
+      const [cart, setCart] = useState([]);
+      const [toast, setToast] = useState(null);
+
+      const navigate = (r) => {
+        setRoute(r);
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      };
+
+      const openProduct = (p) => {
+        setProduct(p);
+        setRoute('product');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      };
+
+      const addToCart = (item) => {
+        setCart(prev => [...prev, item]);
+        setToast('Sumado al carrito');
+      };
+      const updateQty = (idx, q) => setCart(prev => prev.map((it, i) => i === idx ? { ...it, qty: q } : it));
+      const removeItem = (idx) => setCart(prev => prev.filter((_, i) => i !== idx));
+
+      const cartCount = cart.reduce((a, it) => a + it.qty, 0);
+
+      const isAdmin = route === 'admin';
+
+      return (
+        <div className="app" data-screen-label={`Chichitos · ${route}`}>
+          {!isAdmin && <Header route={route} navigate={navigate} cartCount={cartCount} />}
+
+          {route === 'home'     && <Home navigate={navigate} openProduct={openProduct} />}
+          {route === 'catalog'  && <Catalog openProduct={openProduct} />}
+          {route === 'product'  && product && <Product product={product} navigate={navigate} addToCart={addToCart} />}
+          {route === 'cart'     && <Cart items={cart} updateQty={updateQty} removeItem={removeItem} navigate={navigate} />}
+          {route === 'checkout' && <Checkout items={cart} navigate={navigate} />}
+          {route === 'admin'    && <Admin navigate={navigate} />}
+
+          {!isAdmin && <Footer />}
+          {!isAdmin && <WhatsAppFloat />}
+
+          {/* Hidden admin entry */}
+          {!isAdmin && (
+            <button
+              onClick={() => navigate('admin')}
+              style={{
+                position: 'fixed', bottom: 24, left: 24, zIndex: 40,
+                background: 'rgba(31,26,20,.85)', color: 'var(--cream-50)',
+                padding: '8px 12px', borderRadius: 'var(--r-pill)', border: 'none',
+                cursor: 'pointer', fontSize: 11, fontWeight: 600,
+                fontFamily: 'var(--font-sans)', letterSpacing: '0.05em',
+                textTransform: 'uppercase', boxShadow: 'var(--sh-md)',
+              }}>
+              ⚙ Vista admin
+            </button>
+          )}
+
+          {toast && <Toast message={toast} onDone={() => setToast(null)} />}
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

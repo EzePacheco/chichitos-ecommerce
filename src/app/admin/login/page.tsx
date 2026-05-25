@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Info } from "lucide-react";
 import { AdminLoginForm } from "@/features/admin/components/AdminLoginForm";
 import {
   Eyebrow,
   GarmentPlaceholder,
-  Icon,
   Logo,
 } from "@/components/ui/design-system";
 import { getAdminAuthorization } from "@/server/auth/admin-authorization";
@@ -74,14 +74,14 @@ export default async function AdminLoginPage({
 
             {callbackError && callbackErrorMessages[callbackError] ? (
               <div className="disclaimer" role="alert">
-                <Icon name="info" size={18} />
+                <Info size={18} />
                 <span>{callbackErrorMessages[callbackError]}</span>
               </div>
             ) : null}
 
             {authorization.status === "denied" ? (
               <div className="disclaimer" role="status">
-                <Icon name="info" size={18} />
+                <Info size={18} />
                 <div>
                   <strong>Sesión actual no autorizada.</strong>
                   <p style={{ margin: 0 }}>

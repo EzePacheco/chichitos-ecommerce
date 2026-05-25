@@ -1,0 +1,22 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>body{margin:0;padding:20px;background:var(--cream-50);font-family:var(--font-sans);}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+.status{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:var(--r-pill);font-size:12px;font-weight:500;}
+.status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;}
+.status--new{background:#DAEAF3;color:#3A6B86;}
+.status--prod{background:#F3E5C2;color:#8F6817;}
+.status--ready{background:#D8E5CE;color:#4F6A45;}
+.status--shipped{background:#FBE2D2;color:#A1532E;}
+.status--done{background:#EFE3CE;color:#3A312A;}
+.status--cancelled{background:#F2D4CD;color:#8C3520;}
+</style></head><body>
+<div class="row">
+  <span class="status status--new">Nuevo</span>
+  <span class="status status--prod">En producción</span>
+  <span class="status status--ready">Listo</span>
+  <span class="status status--shipped">Enviado</span>
+  <span class="status status--done">Completado</span>
+  <span class="status status--cancelled">Cancelado</span>
+</div>
+<div style="margin-top:12px;font-size:11px;color:var(--ink-500);font-weight:600;letter-spacing:.04em;text-transform:uppercase;">Estados de pedido (admin)</div>
+</body></html>

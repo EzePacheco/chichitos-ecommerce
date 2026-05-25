@@ -1,10 +1,11 @@
 ﻿import Link from "next/link";
+import { ChevronRight, CreditCard, ShoppingBag, Sparkles, Truck } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DesignSvg,
   Eyebrow,
   GarmentPlaceholder,
   GarmentTag,
-  Icon,
 } from "@/components/ui/design-system";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
 import { designVisuals } from "@/features/catalog/design";
@@ -53,24 +54,26 @@ export default function Home() {
                 color y diseño — o sumamos el nombre del chichito.
               </p>
               <div className="hero__ctas">
-                <Link className="btn btn--primary btn--lg" href="/catalogo">
-                  <Icon name="bag" /> Comprar online
-                </Link>
-                <Link className="btn btn--ghost btn--lg" href="/catalogo">
-                  Consultar por WhatsApp
-                </Link>
+                <Button asChild variant="primary" size="lg">
+                  <Link href="/catalogo">
+                    <ShoppingBag size={20} /> Comprar online
+                  </Link>
+                </Button>
+                <Button asChild variant="ghost" size="lg">
+                  <Link href="/catalogo">Consultar por WhatsApp</Link>
+                </Button>
               </div>
               <div className="trust-strip" aria-label="Beneficios de compra">
                 <div className="trust-strip__item">
-                  <Icon name="truck" />
+                  <Truck size={20} />
                   <small>Envío a todo el país</small>
                 </div>
                 <div className="trust-strip__item">
-                  <Icon name="card" />
+                  <CreditCard size={20} />
                   <small>Mercado Pago en cuotas</small>
                 </div>
                 <div className="trust-strip__item">
-                  <Icon name="sparkles" />
+                  <Sparkles size={20} />
                   <small>Diseños de autoría propia</small>
                 </div>
               </div>
@@ -99,9 +102,11 @@ export default function Home() {
               <Eyebrow>Lo más querido</Eyebrow>
               <h2>Destacados de la semana</h2>
             </div>
-            <Link className="btn btn--ghost btn--sm" href="/catalogo">
-              Ver todo el catálogo <Icon name="chevronR" size={16} />
-            </Link>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/catalogo">
+                Ver todo el catálogo <ChevronRight size={16} />
+              </Link>
+            </Button>
           </div>
           <div className="product-grid">
             {featuredProducts.map((product) => (
@@ -172,9 +177,11 @@ export default function Home() {
             stock ni desperdicio.
           </h2>
           <div className="mt-6">
-            <Link className="btn btn--soft btn--lg" href="/catalogo">
-              <Icon name="bag" /> Ver el catálogo
-            </Link>
+            <Button asChild variant="soft" size="lg">
+              <Link href="/catalogo">
+                <ShoppingBag size={20} /> Ver el catálogo
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

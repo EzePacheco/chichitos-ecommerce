@@ -9,8 +9,8 @@ export function SiteFooter() {
           <div className="footer__brand">
             <Logo variant="white" height={60} />
             <p>
-              Diseños propios, estampados a pedido. Hecha en Argentina, a mano,
-              con tiempo.
+              Indumentaria infantil estampada con DTF. Diseños propios, hecha en
+              Argentina, a mano y con tiempo.
             </p>
           </div>
 
@@ -21,13 +21,13 @@ export function SiteFooter() {
                 <Link href="/catalogo">Catálogo</Link>
               </li>
               <li>
-                <Link href="/#como-comprar">Cómo comprar</Link>
+                <Link href="/#como-comprar">Diseños propios</Link>
               </li>
               <li>
-                <Link href="/carrito">Carrito</Link>
+                <Link href="/producto/remera-algodon">Personalización</Link>
               </li>
               <li>
-                <Link href="/checkout">Checkout</Link>
+                <Link href="/catalogo">Tarjetas regalo</Link>
               </li>
             </ul>
           </div>
@@ -36,16 +36,16 @@ export function SiteFooter() {
             <h4>Ayuda</h4>
             <ul>
               <li>
-                <Link href="/producto/remera-algodon">Guía de talles</Link>
+                <Link href="/#como-comprar">Cómo comprar</Link>
+              </li>
+              <li>
+                <Link href="/producto/remera-algodon">Talles</Link>
               </li>
               <li>
                 <Link href="/checkout">Envíos y retiro</Link>
               </li>
               <li>
-                <Link href="/checkout">Mercado Pago</Link>
-              </li>
-              <li>
-                <Link href="/admin">Admin</Link>
+                <Link href="/checkout">Cambios y devoluciones</Link>
               </li>
             </ul>
           </div>
@@ -57,18 +57,24 @@ export function SiteFooter() {
                 <a href="mailto:hola@chichitos.local">hola@chichitos.local</a>
               </li>
               <li>
-                <Link href="/catalogo">Consultar por WhatsApp</Link>
+                <Link href="/catalogo">WhatsApp</Link>
               </li>
               <li>
-                <span>Buenos Aires, Argentina</span>
+                <a
+                  href="https://www.instagram.com/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Instagram
+                </a>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="footer__legal">
-          <span>© 2026 Chichitos</span>
-          <span>Hecha para jugar, lista para soñar.</span>
+          <span>© 2026 Chichitos. Hecha con paciencia en Argentina.</span>
+          <span>Pagás con Mercado Pago · Enviamos a todo el país</span>
         </div>
       </div>
     </footer>

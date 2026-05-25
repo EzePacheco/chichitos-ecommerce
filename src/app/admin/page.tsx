@@ -1,10 +1,22 @@
 ﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
+  Check,
+  ChevronLeft,
+  Home,
+  Info,
+  Layers,
+  Package,
+  Plus,
+  Settings,
+  Store,
+} from "lucide-react";
+import { saveStoreSettingsAction } from "./actions";
+import { Button } from "@/components/ui/button";
+import {
   DesignSvg,
   Eyebrow,
   GarmentPlaceholder,
-  Icon,
   Logo,
   OrderStatusBadge,
 } from "@/components/ui/design-system";
@@ -18,6 +30,13 @@ import { getActiveCatalogProducts } from "@/features/catalog/data/featured-produ
 import { formatMoney } from "@/lib/money";
 import { getAdminAuthorization } from "@/server/auth/admin-authorization";
 import { buildAdminLoginPath } from "@/server/auth/redirects";
+import {
+  formatCentsForAdminInput,
+  formatDecimalForAdminInput,
+  getMissingStoreSettingsFields,
+  getStoreSettings,
+  isStoreSettingsOnboardingComplete,
+} from "@/server/settings/store-settings";
 
 const deniedReasonLabels: Record<string, string> = {
   admin_lookup_failed:
@@ -31,6 +50,12 @@ const deniedReasonLabels: Record<string, string> = {
 };
 
 export const dynamic = "force-dynamic";
+
+type AdminPageProps = {
+  searchParams?: Promise<{
+    settings?: string | string[];
+  }>;
+};
 
 function getAdminDisplayName(email: string) {
   const localPart = email.split("@")[0] ?? "admin";
@@ -90,7 +115,13 @@ const orders = [
   },
 ];
 
-export default async function AdminPage() {
+function getFirstSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function AdminPage({ searchParams }: AdminPageProps) {
+  const params = searchParams ? await searchParams : undefined;
+  const settingsStatus = getFirstSearchParam(params?.settings);
   const authorization = await getAdminAuthorization();
 
   if (authorization.status === "unauthenticated") {
@@ -112,7 +143,7 @@ export default async function AdminPage() {
               <span className="chip">Cuenta actual: {authorization.email}</span>
             ) : null}
             <div className="disclaimer">
-              <Icon name="info" />
+              <Info size={20} />
               <div>
                 El panel mantiene los controles globales: sesión Google válida,
                 rol persistido en Supabase y bootstrap limitado por allowlist.
@@ -125,6 +156,9 @@ export default async function AdminPage() {
   }
 
   const products = getActiveCatalogProducts();
+  const storeSettings = await getStoreSettings();
+  const missingSettingsFields = getMissingStoreSettingsFields(storeSettings);
+  const settingsComplete = isStoreSettingsOnboardingComplete(storeSettings);
   const adminDisplayName = getAdminDisplayName(authorization.email);
   const adminInitial = adminDisplayName.charAt(0).toUpperCase();
 
@@ -136,25 +170,27 @@ export default async function AdminPage() {
         </div>
         <nav className="admin__nav" aria-label="Navegación de admin">
           <a className="active" href="#dashboard">
-            <Icon name="home" size={18} /> Dashboard
+            <Home size={18} /> Dashboard
           </a>
           <a href="#pedidos">
-            <Icon name="package" size={18} /> Pedidos
+            <Package size={18} /> Pedidos
           </a>
           <a href="#productos">
-            <Icon name="store" size={18} /> Productos
+            <Store size={18} /> Productos
           </a>
           <a href="#disenos">
-            <Icon name="layers" size={18} /> Diseños
+            <Layers size={18} /> Diseños
           </a>
           <a href="#configuracion">
-            <Icon name="settings" size={18} /> Configuración
+            <Settings size={18} /> Configuración
           </a>
         </nav>
         <div style={{ marginTop: "auto" }}>
-          <Link className="btn btn--soft btn--sm" href="/">
-            <Icon name="chevronL" size={16} /> Volver a la tienda
-          </Link>
+          <Button asChild variant="soft" size="sm">
+            <Link href="/">
+              <ChevronLeft size={16} /> Volver a la tienda
+            </Link>
+          </Button>
           <div
             className="flex-row mt-4"
             style={{ gap: 10, padding: "8px 12px" }}
@@ -193,7 +229,7 @@ export default async function AdminPage() {
             <h1>Panel de Chichitos ✨</h1>
           </div>
           <span className="btn btn--primary">
-            <Icon name="plus" /> Nuevo producto
+            <Plus size={20} /> Nuevo producto
           </span>
         </div>
 
@@ -295,7 +331,7 @@ export default async function AdminPage() {
               <h1>Productos</h1>
             </div>
             <span className="btn btn--primary">
-              <Icon name="plus" /> Nuevo producto
+              <Plus size={20} /> Nuevo producto
             </span>
           </div>
           <table className="table">
@@ -357,7 +393,7 @@ export default async function AdminPage() {
               <h1>Mis estampas</h1>
             </div>
             <span className="btn btn--primary">
-              <Icon name="plus" /> Subir diseño
+              <Plus size={20} /> Subir diseño
             </span>
           </div>
           <div
@@ -405,32 +441,201 @@ export default async function AdminPage() {
               <Eyebrow>Configuración</Eyebrow>
               <h1>Ajustes comerciales</h1>
             </div>
+            <span
+              className={`status ${settingsComplete ? "status--done" : "status--new"}`}
+            >
+              {settingsComplete
+                ? "Configuración completa"
+                : "Onboarding pendiente"}
+            </span>
           </div>
-          <div
+
+          {!settingsComplete ? (
+            <div className="disclaimer" style={{ maxWidth: 760 }}>
+              <Info size={20} />
+              <div>
+                <strong>Completá la configuración inicial.</strong>
+                <p style={{ margin: "4px 0 0" }}>
+                  Falta: {missingSettingsFields.join(", ")}. Estos datos se van
+                  a usar para checkout, envíos y mensajes públicos.
+                </p>
+              </div>
+            </div>
+          ) : null}
+
+          {settingsStatus === "saved" ? (
+            <div className="disclaimer" style={{ maxWidth: 760 }}>
+              <Check size={20} />
+              <div>Los ajustes comerciales se guardaron correctamente.</div>
+            </div>
+          ) : null}
+
+          {settingsStatus === "invalid" ? (
+            <div className="disclaimer" style={{ maxWidth: 760 }}>
+              <Info size={20} />
+              <div>
+                No pudimos guardar los ajustes. Revisá WhatsApp, distancias y
+                precios antes de volver a intentar.
+              </div>
+            </div>
+          ) : null}
+
+          <form
+            action={saveStoreSettingsAction}
             className="card"
-            style={{ padding: "var(--sp-6)", maxWidth: 760 }}
+            style={{ padding: "var(--sp-6)", maxWidth: 920 }}
           >
-            <h3 style={{ marginTop: 0 }}>Política de envíos</h3>
+            <h3 style={{ marginTop: 0 }}>Datos de tienda</h3>
             <div className="field-grid">
               <div className="field">
-                <label>Tarifa hasta 3 km</label>
-                <input className="input" defaultValue="2500" />
+                <label htmlFor="storeName">Nombre de tienda</label>
+                <input
+                  className="input"
+                  id="storeName"
+                  name="storeName"
+                  defaultValue={storeSettings.store_name}
+                />
               </div>
               <div className="field">
-                <label>Adicional cada 0,5 km</label>
-                <input className="input" defaultValue="400" />
+                <label htmlFor="whatsappNumber">WhatsApp</label>
+                <input
+                  className="input"
+                  id="whatsappNumber"
+                  name="whatsappNumber"
+                  inputMode="tel"
+                  placeholder="Ej: +54 9 11 1234 5678"
+                  defaultValue={storeSettings.whatsapp_number ?? ""}
+                />
               </div>
             </div>
+
             <div className="field">
-              <label>Cambios y devoluciones</label>
-              <textarea
-                className="textarea"
-                rows={5}
-                defaultValue="Aceptamos cambios dentro de los 15 días corridos desde la entrega, siempre que la prenda no haya sido usada ni lavada. Por ser productos personalizados, las prendas con nombre no admiten devolución salvo defecto de fábrica."
+              <label htmlFor="storeAddress">Dirección/origen del taller</label>
+              <input
+                className="input"
+                id="storeAddress"
+                name="storeAddress"
+                placeholder="Dirección usada para calcular envíos"
+                defaultValue={storeSettings.store_address ?? ""}
               />
             </div>
-            <span className="btn btn--primary">Guardar cambios</span>
-          </div>
+
+            <h3>Política de envíos</h3>
+            <div className="field-grid">
+              <div className="field">
+                <label htmlFor="deliveryBaseRadiusKm">Radio base en km</label>
+                <input
+                  className="input"
+                  id="deliveryBaseRadiusKm"
+                  name="deliveryBaseRadiusKm"
+                  inputMode="decimal"
+                  defaultValue={formatDecimalForAdminInput(
+                    storeSettings.delivery_base_radius_km,
+                  )}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="deliveryBasePrice">Tarifa base en pesos</label>
+                <input
+                  className="input"
+                  id="deliveryBasePrice"
+                  name="deliveryBasePrice"
+                  inputMode="numeric"
+                  defaultValue={formatCentsForAdminInput(
+                    storeSettings.delivery_base_price_cents,
+                  )}
+                />
+              </div>
+            </div>
+            <div className="field-grid">
+              <div className="field">
+                <label htmlFor="deliveryExtraStepKm">
+                  Tramo adicional en km
+                </label>
+                <input
+                  className="input"
+                  id="deliveryExtraStepKm"
+                  name="deliveryExtraStepKm"
+                  inputMode="decimal"
+                  defaultValue={formatDecimalForAdminInput(
+                    storeSettings.delivery_extra_step_km,
+                  )}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="deliveryExtraStepPrice">
+                  Adicional por tramo en pesos
+                </label>
+                <input
+                  className="input"
+                  id="deliveryExtraStepPrice"
+                  name="deliveryExtraStepPrice"
+                  inputMode="numeric"
+                  defaultValue={formatCentsForAdminInput(
+                    storeSettings.delivery_extra_step_price_cents,
+                  )}
+                />
+              </div>
+            </div>
+
+            <h3>Producción y personalización</h3>
+            <div className="field-grid">
+              <div className="field">
+                <label htmlFor="defaultPersonalizationExtraPrice">
+                  Costo default de personalización en pesos
+                </label>
+                <input
+                  className="input"
+                  id="defaultPersonalizationExtraPrice"
+                  name="defaultPersonalizationExtraPrice"
+                  inputMode="numeric"
+                  defaultValue={formatCentsForAdminInput(
+                    storeSettings.default_personalization_extra_price_cents,
+                  )}
+                />
+              </div>
+              <label className="radio-card" htmlFor="checkoutEnabled">
+                <input
+                  id="checkoutEnabled"
+                  name="checkoutEnabled"
+                  type="checkbox"
+                  defaultChecked={storeSettings.checkout_enabled}
+                />
+                <div>
+                  <h4 className="radio-card__title">Checkout habilitado</h4>
+                  <p className="radio-card__sub">
+                    Usalo cuando ya estén listos envío, pagos y operación.
+                  </p>
+                </div>
+              </label>
+            </div>
+
+            <div className="field">
+              <label htmlFor="productionTimeText">Tiempos de producción</label>
+              <textarea
+                className="textarea"
+                id="productionTimeText"
+                name="productionTimeText"
+                rows={3}
+                defaultValue={storeSettings.production_time_text}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="changesReturnsPolicy">
+                Cambios y devoluciones
+              </label>
+              <textarea
+                className="textarea"
+                id="changesReturnsPolicy"
+                name="changesReturnsPolicy"
+                rows={5}
+                defaultValue={storeSettings.changes_returns_policy}
+              />
+            </div>
+            <Button type="submit" variant="primary">
+              <Check size={20} /> Guardar cambios
+            </Button>
+          </form>
         </section>
       </main>
     </div>

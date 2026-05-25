@@ -26,6 +26,12 @@ El formato sigue Keep a Changelog y el versionado sera SemVer durante el MVP.
 - Helper compartido para generar links de WhatsApp con telefono sanitizado.
 - SPEC-002 de fidelidad visual al UI Kit y referencia obligatoria a `docs/design` para futuros cambios visuales.
 - Alineacion visual de Home, Catalogo, Producto, Carrito, Checkout, Header, Footer, WhatsApp float y Admin con el UI Kit exportado.
+- SPEC-003 de remediacion visual para corregir desviaciones contra `docs/design` antes de avanzar con nuevas funcionalidades.
+- Separacion del shell publico en `src/app/(store)/layout.tsx`, dejando `/admin` y `/admin/login` sin header/footer/WhatsApp publicos.
+- Ajustes de fidelidad visual en tokens, botones, chips, placeholders textiles, navegacion publica, WhatsApp float y marca visual de pago.
+- SPEC-004 de onboarding admin y configuracion comercial con lectura/guardado server-side de `store_settings`.
+- Formulario real en `/admin` para datos de tienda, WhatsApp, direccion del taller, parametros de envio, produccion, personalizacion, politicas y habilitacion de checkout.
+- Tests unitarios para normalizacion de settings, precios en centavos, WhatsApp y estado de onboarding.
 
 ### Decisions
 

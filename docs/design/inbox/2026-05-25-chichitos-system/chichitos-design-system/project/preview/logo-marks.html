@@ -1,0 +1,15 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>body{margin:0;padding:20px;background:var(--cream-50);}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px;display:flex;align-items:center;justify-content:center;height:100px;}
+.tile--dark{background:var(--ink-900);}
+.label{position:absolute;bottom:6px;left:8px;font-family:var(--font-sans);font-size:10px;color:var(--ink-500);}
+.wrap{position:relative;}
+img{max-height:70px;width:auto;}
+</style></head><body>
+<div class="grid">
+  <div class="wrap"><div class="tile"><img src="../assets/logo-chichitos-dark.png"></div><span class="label">dark on cream · default</span></div>
+  <div class="wrap"><div class="tile tile--dark"><img src="../assets/logo-chichitos-white.png"></div><span class="label" style="color:var(--cream-300)">white on ink</span></div>
+  <div class="wrap"><div class="tile"><img src="../assets/logo-chichitos-full.png"></div><span class="label">full · with tagline</span></div>
+</div>
+</body></html>

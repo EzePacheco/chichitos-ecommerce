@@ -1,8 +1,11 @@
-﻿import Link from "next/link";
+"use client";
+
+import Link from "next/link";
+import { useState, type MouseEvent } from "react";
+import { Heart } from "lucide-react";
 import {
   GarmentPlaceholder,
   GarmentTag,
-  Icon,
 } from "@/components/ui/design-system";
 import { formatMoney } from "@/lib/money";
 import {
@@ -22,6 +25,13 @@ type ProductCardProps = {
 
 export function ProductCard({ product }: ProductCardProps) {
   const design = getProductDesignVisual(product);
+  const [liked, setLiked] = useState(false);
+
+  function toggleLike(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    setLiked((current) => !current);
+  }
 
   return (
     <Link className="product-card" href={`/producto/${product.slug}`}>
@@ -33,9 +43,19 @@ export function ProductCard({ product }: ProductCardProps) {
             </GarmentTag>
           </span>
         ) : null}
-        <span className="product-card__fav" aria-hidden="true">
-          <Icon name="heart" size={16} />
-        </span>
+        <button
+          type="button"
+          className={`product-card__fav ${liked ? "is-liked" : ""}`}
+          onClick={toggleLike}
+          aria-label={liked ? "Quitar de favoritos" : "Marcar favorito"}
+          aria-pressed={liked}
+        >
+          <Heart
+            size={16}
+            strokeWidth={liked ? 0 : 1.75}
+            fill={liked ? "currentColor" : "none"}
+          />
+        </button>
         <GarmentPlaceholder
           type={getGarmentType(product)}
           color={getProductBaseColor(product)}

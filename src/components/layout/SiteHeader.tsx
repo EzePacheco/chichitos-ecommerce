@@ -1,7 +1,50 @@
-﻿import Link from "next/link";
-import { Icon, Logo } from "@/components/ui/design-system";
+"use client";
 
-export function SiteHeader() {
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { Menu, Search, ShoppingBag, Sparkles, X } from "lucide-react";
+import { Logo } from "@/components/ui/design-system";
+import { Button } from "@/components/ui/button";
+import { buildWhatsAppHref } from "@/lib/whatsapp";
+
+type NavLink = {
+  href: string;
+  label: string;
+  external?: boolean;
+  matchPrefix?: string;
+};
+
+type SiteHeaderProps = {
+  whatsappNumber?: string;
+  cartCount?: number;
+};
+
+export function SiteHeader({ whatsappNumber, cartCount = 0 }: SiteHeaderProps) {
+  const pathname = usePathname();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const whatsappHref = buildWhatsAppHref(
+    whatsappNumber,
+    "Hola Chichitos, quiero hacer una consulta sobre una prenda.",
+  );
+
+  const links: NavLink[] = [
+    { href: "/", label: "Inicio" },
+    { href: "/catalogo", label: "Catálogo", matchPrefix: "/catalogo" },
+    { href: "/#como-comprar", label: "Cómo comprar" },
+  ];
+
+  if (whatsappHref) {
+    links.push({ href: whatsappHref, label: "WhatsApp", external: true });
+  }
+
+  function isActive(link: NavLink) {
+    if (link.external) return false;
+    if (link.matchPrefix) return pathname.startsWith(link.matchPrefix);
+    return pathname === link.href;
+  }
+
   return (
     <header className="header">
       <a className="skip-link" href="#contenido">
@@ -17,10 +60,26 @@ export function SiteHeader() {
         </Link>
 
         <nav className="header__nav" aria-label="Navegación principal">
-          <Link href="/catalogo">Catálogo</Link>
-          <Link href="/#como-comprar">Cómo comprar</Link>
-          <Link href="/checkout">Checkout</Link>
-          <Link href="/admin">Admin</Link>
+          {links.map((link) =>
+            link.external ? (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={isActive(link) ? "active" : ""}
+              >
+                {link.label}
+              </Link>
+            ),
+          )}
         </nav>
 
         <div className="header__actions">
@@ -29,19 +88,77 @@ export function SiteHeader() {
             href="/catalogo"
             aria-label="Buscar en el catálogo"
           >
-            <Icon name="search" />
+            <Search size={20} />
           </Link>
           <Link className="icon-btn" href="/carrito" aria-label="Ver carrito">
-            <Icon name="bag" />
-            <span className="icon-btn__badge">2</span>
+            <ShoppingBag size={20} />
+            {cartCount > 0 ? (
+              <span className="icon-btn__badge">{cartCount}</span>
+            ) : null}
           </Link>
-          <Link
+          <button
+            type="button"
             className="icon-btn menu-btn"
-            href="/catalogo"
-            aria-label="Abrir catálogo"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Abrir menú"
           >
-            <Icon name="menu" />
-          </Link>
+            <Menu size={20} />
+          </button>
+        </div>
+      </div>
+
+      <div
+        className={`drawer ${drawerOpen ? "is-open" : ""}`}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) setDrawerOpen(false);
+        }}
+        aria-hidden={!drawerOpen}
+      >
+        <div className="drawer__panel">
+          <div
+            style={{
+              alignItems: "center",
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <Logo height={36} />
+            <button
+              type="button"
+              className="icon-btn"
+              onClick={() => setDrawerOpen(false)}
+              aria-label="Cerrar menú"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <ul className="drawer__list">
+            {links.map((link) => (
+              <li key={link.href}>
+                {link.external ? (
+                  <a
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => setDrawerOpen(false)}
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link href={link.href} onClick={() => setDrawerOpen(false)}>
+                    {link.label}
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+          {whatsappHref ? (
+            <Button asChild variant="whatsapp">
+              <a href={whatsappHref} target="_blank" rel="noreferrer">
+                <Sparkles size={18} /> Hablar por WhatsApp
+              </a>
+            </Button>
+          ) : null}
         </div>
       </div>
     </header>

@@ -1,6 +1,11 @@
 import { buildWhatsAppHref } from "../../../lib/whatsapp";
 
-export type ProductCategory = "remeras" | "bodies" | "abrigos" | "sets" | "accesorios";
+export type ProductCategory =
+  | "remeras"
+  | "bodies"
+  | "abrigos"
+  | "sets"
+  | "accesorios";
 
 export type ProductStatus = "active" | "draft";
 
@@ -80,19 +85,32 @@ export const catalogProducts: CatalogProduct[] = [
       { id: "10", label: "10" },
     ],
     colors: [
-      { id: "natural", name: "Natural", hex: "#fff7e7" },
+      { id: "natural", name: "Natural", hex: "#fcf7ec" },
       { id: "salvia", name: "Salvia", hex: "#b4c9a4" },
       { id: "celeste", name: "Celeste", hex: "#b7d2e6" },
     ],
     designs: [
-      { id: "bosque", name: "Bosque de amigos", summary: "Animalitos y hojas en paleta calida." },
-      { id: "dino", name: "Dino curioso", summary: "Dinosaurio ilustrado con tono jugueton." },
-      { id: "arco", name: "Arcoiris suave", summary: "Formas simples para prendas de todos los dias." },
+      {
+        id: "bosque",
+        name: "Bosque de amigos",
+        summary: "Animalitos y hojas en paleta calida.",
+      },
+      {
+        id: "dino",
+        name: "Dino curioso",
+        summary: "Dinosaurio ilustrado con tono jugueton.",
+      },
+      {
+        id: "arco",
+        name: "Arcoiris suave",
+        summary: "Formas simples para prendas de todos los dias.",
+      },
     ],
     personalization: {
       enabled: true,
       label: "Nombre o frase corta",
-      description: "Permite sumar nombre, fecha o frase breve al diseno elegido.",
+      description:
+        "Permite sumar nombre, fecha o frase breve al diseno elegido.",
       extraPriceCents: 250000,
     },
   },
@@ -118,14 +136,26 @@ export const catalogProducts: CatalogProduct[] = [
       { id: "18m", label: "18M" },
     ],
     colors: [
-      { id: "blanco", name: "Blanco", hex: "#ffffff" },
+      { id: "blanco", name: "Blanco", hex: "#fcf7ec" },
       { id: "crema", name: "Crema", hex: "#f7efe0" },
-      { id: "rosa", name: "Rosa suave", hex: "#f4c6bd" },
+      { id: "rosa", name: "Rosa suave", hex: "#f2b9b9" },
     ],
     designs: [
-      { id: "primer-cumple", name: "Primer cumple", summary: "Composicion para fecha especial." },
-      { id: "luna", name: "Luna dormilona", summary: "Ilustracion calma para primeros meses." },
-      { id: "patitos", name: "Patitos", summary: "Motivo tierno con trazo propio." },
+      {
+        id: "primer-cumple",
+        name: "Primer cumple",
+        summary: "Composicion para fecha especial.",
+      },
+      {
+        id: "luna",
+        name: "Luna dormilona",
+        summary: "Ilustracion calma para primeros meses.",
+      },
+      {
+        id: "patitos",
+        name: "Patitos",
+        summary: "Motivo tierno con trazo propio.",
+      },
     ],
     personalization: {
       enabled: true,
@@ -160,14 +190,27 @@ export const catalogProducts: CatalogProduct[] = [
       { id: "grafito", name: "Grafito", hex: "#6b5e52" },
     ],
     designs: [
-      { id: "osito", name: "Osito aviador", summary: "Personaje propio con detalles grandes." },
-      { id: "cohete", name: "Cohete de juego", summary: "Diseno dinamico para frente de buzo." },
-      { id: "campamento", name: "Campamento", summary: "Motivo de bosque y aventura." },
+      {
+        id: "osito",
+        name: "Osito aviador",
+        summary: "Personaje propio con detalles grandes.",
+      },
+      {
+        id: "cohete",
+        name: "Cohete de juego",
+        summary: "Diseno dinamico para frente de buzo.",
+      },
+      {
+        id: "campamento",
+        name: "Campamento",
+        summary: "Motivo de bosque y aventura.",
+      },
     ],
     personalization: {
       enabled: true,
       label: "Inicial o nombre",
-      description: "Se puede sumar inicial, nombre o variante de color del diseno.",
+      description:
+        "Se puede sumar inicial, nombre o variante de color del diseno.",
       extraPriceCents: 300000,
     },
   },
@@ -197,9 +240,21 @@ export const catalogProducts: CatalogProduct[] = [
       { id: "neutral", name: "Neutral", hex: "#efe3ce" },
     ],
     designs: [
-      { id: "cumple", name: "Cumple feliz", summary: "Diseno festivo para cumpleanos." },
-      { id: "bienvenido", name: "Bienvenido bebe", summary: "Motivo para nacimiento o baby shower." },
-      { id: "familia", name: "Mini familia", summary: "Set con detalle coordinado." },
+      {
+        id: "cumple",
+        name: "Cumple feliz",
+        summary: "Diseno festivo para cumpleanos.",
+      },
+      {
+        id: "bienvenido",
+        name: "Bienvenido bebe",
+        summary: "Motivo para nacimiento o baby shower.",
+      },
+      {
+        id: "familia",
+        name: "Mini familia",
+        summary: "Set con detalle coordinado.",
+      },
     ],
     personalization: {
       enabled: true,
@@ -224,12 +279,20 @@ export const catalogProducts: CatalogProduct[] = [
     badges: ["Accesorio", "Personalizable"],
     sizes: [{ id: "unico", label: "Unico" }],
     colors: [
-      { id: "blanco", name: "Blanco", hex: "#ffffff" },
+      { id: "blanco", name: "Blanco", hex: "#fcf7ec" },
       { id: "crema", name: "Crema", hex: "#f7efe0" },
     ],
     designs: [
-      { id: "nombre", name: "Nombre protagonista", summary: "Nombre con detalle ilustrado." },
-      { id: "frutas", name: "Frutitas", summary: "Motivo colorido para uso diario." },
+      {
+        id: "nombre",
+        name: "Nombre protagonista",
+        summary: "Nombre con detalle ilustrado.",
+      },
+      {
+        id: "frutas",
+        name: "Frutitas",
+        summary: "Motivo colorido para uso diario.",
+      },
     ],
     personalization: {
       enabled: true,
@@ -242,23 +305,41 @@ export const catalogProducts: CatalogProduct[] = [
 
 export const featuredProducts = getFeaturedCatalogProducts();
 
-export function getActiveCatalogProducts(products: CatalogProduct[] = catalogProducts) {
+export function getActiveCatalogProducts(
+  products: CatalogProduct[] = catalogProducts,
+) {
   return products.filter((product) => product.status === "active");
 }
 
-export function getFeaturedCatalogProducts(products: CatalogProduct[] = catalogProducts) {
-  return getActiveCatalogProducts(products).filter((product) => product.featured);
+export function getFeaturedCatalogProducts(
+  products: CatalogProduct[] = catalogProducts,
+) {
+  return getActiveCatalogProducts(products).filter(
+    (product) => product.featured,
+  );
 }
 
-export function getCatalogProductBySlug(slug: string, products: CatalogProduct[] = catalogProducts) {
-  return getActiveCatalogProducts(products).find((product) => product.slug === slug);
+export function getCatalogProductBySlug(
+  slug: string,
+  products: CatalogProduct[] = catalogProducts,
+) {
+  return getActiveCatalogProducts(products).find(
+    (product) => product.slug === slug,
+  );
 }
 
-export function getProductsByCategory(category: ProductCategory, products: CatalogProduct[] = catalogProducts) {
-  return getActiveCatalogProducts(products).filter((product) => product.category === category);
+export function getProductsByCategory(
+  category: ProductCategory,
+  products: CatalogProduct[] = catalogProducts,
+) {
+  return getActiveCatalogProducts(products).filter(
+    (product) => product.category === category,
+  );
 }
 
-export function getCatalogCategories(products: CatalogProduct[] = catalogProducts) {
+export function getCatalogCategories(
+  products: CatalogProduct[] = catalogProducts,
+) {
   const counts = new Map<ProductCategory, number>();
 
   for (const product of getActiveCatalogProducts(products)) {
@@ -278,6 +359,9 @@ export function buildProductWhatsAppMessage(product: CatalogProduct) {
   return `Hola Chichitos, quiero consultar por ${product.name}. Me interesa elegir talle, color y diseno.`;
 }
 
-export function buildProductWhatsAppHref(product: CatalogProduct, phoneNumber?: string) {
+export function buildProductWhatsAppHref(
+  product: CatalogProduct,
+  phoneNumber?: string,
+) {
   return buildWhatsAppHref(phoneNumber, buildProductWhatsAppMessage(product));
 }

@@ -1,0 +1,35 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>body{margin:0;padding:20px;background:var(--cream-50);font-family:var(--font-sans);}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);overflow:hidden;max-width:240px;}
+.media{aspect-ratio:4/5;background:var(--cream-200);position:relative;display:flex;align-items:center;justify-content:center;}
+.body{padding:14px;}
+.title{font-weight:600;font-size:15px;margin:0;color:var(--ink-900);}
+.meta{font-size:12px;color:var(--ink-500);margin-top:2px;}
+.price{font-weight:600;margin-top:8px;font-size:16px;}
+.tag{position:absolute;top:10px;left:10px;font-size:11px;font-weight:500;padding:4px 10px;background:var(--cream-50);border:1px dashed var(--sand-400);border-radius:var(--r-pill);}
+.fav{position:absolute;top:10px;right:10px;width:28px;height:28px;background:var(--cream-50);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+</style></head><body>
+<div style="display:flex;gap:16px;align-items:flex-start;">
+  <div class="card">
+    <div class="media">
+      <span class="tag">Más vendida</span>
+      <span class="fav">♡</span>
+      <svg viewBox="0 0 100 100" width="120" height="120">
+        <path d="M40 35 L20 25 L10 45 L25 55 L25 95 L75 95 L75 55 L90 45 L80 25 L60 35 C58 42 52 46 50 46 C48 46 42 42 40 35 Z" fill="#F7EFE0" stroke="#1F1A14" stroke-width="1.2"/>
+        <g transform="translate(50 62)" fill="#B7D2E6"><path d="M -14 4 Q -18 -2 -12 -4 Q -14 -12 -4 -10 Q 0 -16 8 -12 Q 16 -12 14 -4 Q 20 -2 16 6 Z"/></g>
+      </svg>
+    </div>
+    <div class="body">
+      <h3 class="title">Remera de algodón clásica</h3>
+      <span class="meta">Remera · 5 colores · 4 diseños</span>
+      <div class="price">$14.900 <small style="font-weight:400;color:var(--ink-500);font-size:11px;">· personalizable</small></div>
+    </div>
+  </div>
+  <div style="font-size:11px;color:var(--ink-500);font-family:var(--font-sans);font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-top:8px;">
+    Product card<br>
+    <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:12px;color:var(--ink-700);line-height:1.5;">
+      Media 4:5 ratio<br>Tag dashed top-left<br>Fav circle top-right<br>Hover: ↑4px + shadow
+    </span>
+  </div>
+</div>
+</body></html>

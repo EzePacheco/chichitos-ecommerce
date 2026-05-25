@@ -1,0 +1,312 @@
+/* ============================================================
+   Chichitos — Colors & Type Tokens
+   Boutique infantil de ropa estampada con DTF.
+   Cálido, juguetón, artesanal. Evita SaaS y violetas genéricos.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700;800&family=Caveat:wght@400;500;600;700&display=swap');
+
+:root {
+  /* -------- COLOR · Base de marca (neutros cálidos) -------- */
+  --cream-50:  #FCF7EC;   /* fondo principal, "algodón crudo" */
+  --cream-100: #F7EFE0;   /* fondo del logo, página */
+  --cream-200: #EFE3CE;   /* superficies elevadas, hover suave */
+  --cream-300: #E4D2B5;   /* divisores cálidos, tarjetas etiqueta */
+  --sand-400:  #C9B193;   /* línea suave, borde garment-tag */
+  --ink-900:   #1F1A14;   /* tinta, texto principal, logo */
+  --ink-700:   #3A312A;   /* texto secundario fuerte */
+  --ink-500:   #6B5E52;   /* texto secundario */
+  --ink-300:   #9C8D7E;   /* texto terciario, placeholders */
+
+  /* -------- COLOR · Paleta acentos boutique -------- */
+  --durazno:    #F5C9A8;  /* durazno suave */
+  --durazno-d:  #E89F76;  /* durazno fuerte (CTAs cálidos) */
+  --salvia:     #B4C9A4;  /* verde salvia */
+  --salvia-d:   #7E9A6E;  /* salvia oscuro */
+  --celeste:    #B7D2E6;  /* celeste lavado (del logo) */
+  --celeste-d:  #7DA9C9;  /* celeste fuerte */
+  --coral:      #E08868;  /* coral acento */
+  --coral-d:    #C56A4E;  /* coral fuerte */
+  --mostaza:    #E4B254;  /* mostaza acento */
+  --mostaza-d:  #C28E2E;  /* mostaza fuerte */
+  --rosa:       #F2B9B9;  /* rosado bebé (uso muy puntual) */
+
+  /* -------- COLOR · Semántico -------- */
+  --bg:        var(--cream-100);
+  --bg-soft:   var(--cream-50);
+  --surface:   #FFFDF7;        /* tarjetas, sutil más claro que crema */
+  --surface-2: var(--cream-200);
+  --fg:        var(--ink-900);
+  --fg-muted:  var(--ink-500);
+  --fg-soft:   var(--ink-300);
+  --line:      #E6D9C2;        /* divisores en superficie crema */
+  --line-strong: var(--sand-400);
+
+  --brand:        var(--ink-900);    /* la marca usa tinta + acentos */
+  --accent:       var(--coral);      /* CTA principal */
+  --accent-hover: var(--coral-d);
+  --accent-soft:  var(--durazno);    /* fondo del CTA secundario */
+  --link:         var(--celeste-d);
+  --success:      var(--salvia-d);
+  --warning:      var(--mostaza-d);
+  --danger:       #B84A35;
+  --whatsapp:     #1FAD5B;           /* verde whatsapp suavizado */
+  --whatsapp-d:   #168A47;
+
+  /* -------- TIPOGRAFÍA · Familias -------- */
+  --font-display: "DM Serif Display", "Cormorant Garamond", Georgia, serif;
+  --font-sans:    "Outfit", "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-script:  "Caveat", "Bradley Hand", cursive;
+
+  /* -------- TIPOGRAFÍA · Escala -------- */
+  --fs-display-xl: clamp(2.75rem, 6vw, 4.5rem);   /* hero serif */
+  --fs-display-l:  clamp(2.25rem, 4.5vw, 3.25rem);
+  --fs-display-m:  clamp(1.75rem, 3vw, 2.25rem);
+  --fs-h1:         1.875rem;
+  --fs-h2:         1.5rem;
+  --fs-h3:         1.25rem;
+  --fs-h4:         1.0625rem;
+  --fs-body:       1rem;
+  --fs-body-sm:    0.9375rem;
+  --fs-caption:    0.8125rem;
+  --fs-eyebrow:    0.75rem;
+
+  --lh-tight:    1.05;
+  --lh-snug:     1.2;
+  --lh-normal:   1.45;
+  --lh-relaxed:  1.6;
+
+  --ls-tight:    -0.02em;
+  --ls-normal:   0;
+  --ls-eyebrow:  0.18em;       /* sub-eyebrow tipo "HECHA PARA JUGAR" */
+  --ls-caps:     0.12em;
+
+  /* -------- ESPACIADO · 4px base -------- */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --sp-20: 80px;
+  --sp-24: 96px;
+
+  /* -------- RADIOS · Suaves, orgánicos -------- */
+  --r-xs:    6px;
+  --r-sm:    10px;
+  --r-md:    14px;
+  --r-lg:    20px;
+  --r-xl:    28px;     /* tarjetas grandes */
+  --r-2xl:   40px;
+  --r-pill:  999px;
+  --r-blob:  62% 38% 55% 45% / 50% 60% 40% 50%; /* forma orgánica */
+
+  /* -------- SOMBRAS · Cálidas, suaves -------- */
+  --sh-xs:  0 1px 2px rgba(63, 47, 28, 0.06);
+  --sh-sm:  0 2px 6px rgba(63, 47, 28, 0.06), 0 1px 2px rgba(63, 47, 28, 0.04);
+  --sh-md:  0 8px 18px -8px rgba(63, 47, 28, 0.16), 0 2px 4px rgba(63, 47, 28, 0.06);
+  --sh-lg:  0 24px 40px -16px rgba(63, 47, 28, 0.18), 0 4px 10px rgba(63, 47, 28, 0.06);
+  --sh-inset: inset 0 0 0 1px var(--line);
+  --sh-focus: 0 0 0 3px rgba(224, 136, 104, 0.35); /* foco coral accesible */
+
+  /* -------- MOVIMIENTO -------- */
+  --ease-out:   cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft:  cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast:   140ms;
+  --dur-base:   220ms;
+  --dur-slow:   380ms;
+}
+
+/* ============================================================
+   ESTILOS SEMÁNTICOS LISTOS
+   Aplicar a la web o consumir como referencia.
+   ============================================================ */
+
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, .h1, .display-l {
+  font-family: var(--font-display);
+  font-weight: 400;       /* DM Serif Display ya es alto contraste */
+  font-size: var(--fs-display-l);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--fg);
+}
+
+.display-xl {
+  font-family: var(--font-display);
+  font-size: var(--fs-display-xl);
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+}
+
+h2, .h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-display-m);
+  line-height: var(--lh-snug);
+  letter-spacing: -0.01em;
+}
+
+h3, .h3 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--fs-h3);
+  line-height: var(--lh-snug);
+  letter-spacing: -0.005em;
+}
+
+h4, .h4 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--fs-h4);
+  line-height: var(--lh-snug);
+}
+
+p, .body {
+  font-size: var(--fs-body);
+  line-height: var(--lh-relaxed);
+  color: var(--ink-700);
+}
+
+small, .caption {
+  font-size: var(--fs-caption);
+  color: var(--fg-muted);
+  line-height: var(--lh-normal);
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--fs-eyebrow);
+  font-weight: 600;
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--ink-700);
+}
+
+/* Script accent — para guiños hand-lettered tipo "nuevo", "hola" */
+.script {
+  font-family: var(--font-script);
+  font-weight: 600;
+  font-size: 1.6em;
+  line-height: 1;
+  color: var(--coral-d);
+}
+
+/* Etiqueta tipo prenda — borde discontinuo, redondeada */
+.garment-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 6px 12px;
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  color: var(--ink-700);
+  background: var(--cream-50);
+  border: 1px dashed var(--sand-400);
+  border-radius: var(--r-pill);
+}
+
+a {
+  color: var(--link);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in oklab, var(--link) 40%, transparent);
+  transition: color var(--dur-fast) var(--ease-out),
+              text-decoration-color var(--dur-fast) var(--ease-out);
+}
+a:hover { color: var(--ink-900); text-decoration-color: var(--ink-900); }
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--sh-focus);
+  border-radius: var(--r-sm);
+}
+
+/* ===== Botones base ===== */
+.btn {
+  --bg: var(--ink-900);
+  --color: var(--cream-50);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: 14px 22px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--fs-body);
+  line-height: 1;
+  letter-spacing: 0.005em;
+  background: var(--bg);
+  color: var(--color);
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-soft),
+              background var(--dur-base) var(--ease-out),
+              box-shadow var(--dur-base) var(--ease-out);
+  box-shadow: var(--sh-sm);
+}
+.btn:hover     { background: color-mix(in oklab, var(--bg) 86%, white); }
+.btn:active    { transform: scale(0.97); }
+.btn--primary  { --bg: var(--coral); --color: white; }
+.btn--primary:hover { --bg: var(--coral-d); }
+.btn--ghost    { --bg: transparent; --color: var(--ink-900); border-color: var(--ink-900); box-shadow: none; }
+.btn--ghost:hover { --bg: var(--ink-900); --color: var(--cream-50); }
+.btn--soft     { --bg: var(--durazno); --color: var(--ink-900); }
+.btn--soft:hover { --bg: color-mix(in oklab, var(--durazno) 80%, var(--coral)); }
+.btn--whatsapp { --bg: var(--whatsapp); --color: white; }
+.btn--whatsapp:hover { --bg: var(--whatsapp-d); }
+.btn--sm       { padding: 9px 14px; font-size: var(--fs-body-sm); }
+.btn--lg       { padding: 16px 28px; font-size: 1.0625rem; }
+
+/* ===== Tarjetas ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-sm);
+  overflow: hidden;
+}
+.card--tag {                  /* tarjeta tipo etiqueta de prenda */
+  background: var(--cream-50);
+  border: 1px dashed var(--sand-400);
+  border-radius: var(--r-lg);
+}
+
+/* ===== Inputs ===== */
+.input, .select, .textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  transition: border-color var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-fast) var(--ease-out);
+}
+.input::placeholder { color: var(--fg-soft); }
+.input:focus, .select:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--ink-900);
+  box-shadow: var(--sh-focus);
+}
+
+/* ===== Container ===== */
+.container { max-width: 1200px; margin-inline: auto; padding-inline: var(--sp-6); }
+@media (min-width: 768px) { .container { padding-inline: var(--sp-8); } }

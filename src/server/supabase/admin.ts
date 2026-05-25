@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { getOptionalEnv, getRequiredEnv } from "@/server/config/env";
+import { getOptionalEnv, getRequiredEnv } from "../config/env";
 
 export function getSupabaseElevatedKey() {
   return (
