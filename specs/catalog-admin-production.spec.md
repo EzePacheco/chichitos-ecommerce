@@ -4,7 +4,7 @@
 
 Dejar Chichitos listo para vender con datos reales:
 
-- admin gestiona catalogo, imagenes y stock por variante;
+- admin gestiona catalogo, disenos, imagenes, stock por variante y datos operativos de pedidos;
 - tienda publica lee catalogo persistido en Supabase;
 - checkout crea orden local, preferencia de Mercado Pago y confirma pago solo por webhook validado.
 
@@ -12,6 +12,8 @@ Dejar Chichitos listo para vender con datos reales:
 
 - Supabase sigue siendo fuente de verdad para catalogo, stock, settings, ordenes, pagos y webhooks.
 - Imagenes de productos/disenos se suben a Supabase Storage desde servidor, con validacion admin.
+- El panel admin se organiza en paginas dedicadas para dashboard, pedidos, productos, disenos y configuracion.
+- Admin puede editar datos operativos de pedidos, cliente y entrega, pero los pagos siguen siendo de solo lectura.
 - Stock se controla con `product_variant_stock` y reservas temporales por producto/talle/color/diseno.
 - Checkout publico no confia en precios, stock ni distancia enviados por browser.
 - Mercado Pago Checkout Pro redirige al comprador; el pago confirmado llega por webhook.
@@ -19,7 +21,7 @@ Dejar Chichitos listo para vender con datos reales:
 ## No alcance
 
 - Galeria multiple por producto.
-- Editor avanzado de pedidos.
+- Edicion manual de estados de pago o conciliacion de pagos desde admin.
 - Devoluciones/reembolsos automaticos.
 - Google Maps autocomplete completo. Para este corte, envio usa direccion ingresada y distancia calculada server-side.
 - Cron dedicado para liberar reservas. La liberacion es oportunista al crear checkout y desde operaciones admin/reconciliacion.
@@ -39,6 +41,9 @@ No desplegable a produccion hasta cerrar estos blockers:
 ## Criterios de aceptacion
 
 - Admin autorizado puede crear producto activo/draft con talles, colores, disenos, imagen y stock.
+- Admin autorizado puede crear/editar disenos activos/draft/archivados con imagen.
+- Admin autorizado navega el panel por paginas reales: `/admin`, `/admin/pedidos`, `/admin/productos`, `/admin/disenos` y `/admin/configuracion`.
+- Admin autorizado puede actualizar estado operativo, datos de cliente y entrega de un pedido sin modificar estado de pago.
 - Usuario no autorizado no puede mutar catalogo ni subir imagenes.
 - Admin guarda producto, talles, colores, disenos, personalizacion y stock como operacion atomica.
 - Home, catalogo y detalle muestran productos reales cuando Supabase esta configurado.
@@ -58,7 +63,7 @@ No desplegable a produccion hasta cerrar estos blockers:
 
 ## Verificacion requerida
 
-- Unit tests para parsing de catalogo admin, mapeo de catalogo, firma MP, validacion checkout, idempotency requerida, shipping sin Maps, mismatch monto/moneda MP y guardado admin por RPC atomica.
+- Unit tests para parsing de catalogo admin, editor de producto, disenos admin, operacion de pedidos, mapeo de catalogo, firma MP, validacion checkout, idempotency requerida, shipping sin Maps, mismatch monto/moneda MP y guardado admin por RPC atomica.
 - `pnpm lint`
 - `pnpm typecheck`
 - `pnpm test`

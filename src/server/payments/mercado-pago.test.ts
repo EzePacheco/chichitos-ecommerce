@@ -1,6 +1,7 @@
 import { createHmac } from "crypto";
 import { describe, expect, it } from "vitest";
 import {
+  buildMercadoPagoPreferenceBody,
   mapMercadoPagoPaymentStatus,
   minimalMercadoPagoPaymentPayload,
   validateMercadoPagoPaymentForOrder,
@@ -38,6 +39,38 @@ describe("Mercado Pago helpers", () => {
     expect(mapMercadoPagoPaymentStatus("approved")).toBe("approved");
     expect(mapMercadoPagoPaymentStatus("in_process")).toBe("pending");
     expect(mapMercadoPagoPaymentStatus("something-new")).toBe("unknown");
+  });
+
+  it("omits callback URLs for local sandbox preferences", () => {
+    const body = buildMercadoPagoPreferenceBody(
+      {
+        orderId: "order-1",
+        publicCode: "CHI-1",
+        items: [{ title: "Remera", quantity: 1, unitPriceCents: 100000 }],
+      },
+      "http://localhost:3000",
+    );
+
+    expect(body).not.toHaveProperty("notification_url");
+    expect(body).not.toHaveProperty("back_urls");
+    expect(body).not.toHaveProperty("auto_return");
+  });
+
+  it("adds callback URLs for public HTTPS preferences", () => {
+    const body = buildMercadoPagoPreferenceBody(
+      {
+        orderId: "order-1",
+        publicCode: "CHI-1",
+        items: [{ title: "Remera", quantity: 1, unitPriceCents: 100000 }],
+      },
+      "https://tienda.example.com",
+    );
+
+    expect(body).toMatchObject({
+      notification_url:
+        "https://tienda.example.com/api/mercado-pago/webhook?source_news=webhooks",
+      auto_return: "approved",
+    });
   });
 
   it("requires external reference, amount and currency to match the local order", () => {

@@ -34,6 +34,7 @@ El formato sigue Keep a Changelog y el versionado sera SemVer durante el MVP.
 - Tests unitarios para normalizacion de settings, precios en centavos, WhatsApp y estado de onboarding.
 - SPEC-005 de catalogo admin productivo, uploads, stock por variante y checkout Mercado Pago.
 - Catalogo publico preparado para leer Supabase con fallback local, admin de producto con upload a Storage, stock por variante y checkout server-side con webhook firmado de Mercado Pago.
+- Panel admin separado en paginas de dashboard, pedidos, productos, disenos y configuracion, con edicion guiada de productos/disenos y actualizacion operativa de pedidos sin tocar pagos.
 
 ### Decisions
 

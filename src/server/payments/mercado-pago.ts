@@ -6,6 +6,12 @@ type PreferenceItem = {
   quantity: number;
   unitPriceCents: number;
 };
+type MercadoPagoPreferenceInput = {
+  orderId: string;
+  publicCode: string;
+  buyerEmail?: string | null;
+  items: PreferenceItem[];
+};
 
 export type MercadoPagoPayment = {
   id: number | string;
@@ -19,12 +25,36 @@ export function centsToPesos(cents: number) {
   return Math.round(cents) / 100;
 }
 
-export async function createMercadoPagoPreference(input: {
-  orderId: string;
-  publicCode: string;
-  buyerEmail?: string | null;
-  items: PreferenceItem[];
-}) {
+export function buildMercadoPagoPreferenceBody(
+  input: MercadoPagoPreferenceInput,
+  siteUrl: string,
+) {
+  const publicHttps = siteUrl.startsWith("https://");
+  const body: Record<string, unknown> = {
+    external_reference: input.orderId,
+    payer: input.buyerEmail ? { email: input.buyerEmail } : undefined,
+    items: input.items.map((item) => ({
+      title: item.title,
+      quantity: item.quantity,
+      currency_id: "ARS",
+      unit_price: centsToPesos(item.unitPriceCents),
+    })),
+  };
+
+  if (publicHttps) {
+    body.notification_url = `${siteUrl}/api/mercado-pago/webhook?source_news=webhooks`;
+    body.back_urls = {
+      success: `${siteUrl}/checkout?payment=success&order=${input.publicCode}`,
+      failure: `${siteUrl}/checkout?payment=failure&order=${input.publicCode}`,
+      pending: `${siteUrl}/checkout?payment=pending&order=${input.publicCode}`,
+    };
+    body.auto_return = "approved";
+  }
+
+  return body;
+}
+
+export async function createMercadoPagoPreference(input: MercadoPagoPreferenceInput) {
   const siteUrl = getRequiredEnv("NEXT_PUBLIC_SITE_URL").replace(/\/$/, "");
   const response = await fetch("https://api.mercadopago.com/checkout/preferences", {
     method: "POST",
@@ -32,33 +62,18 @@ export async function createMercadoPagoPreference(input: {
       authorization: `Bearer ${getRequiredEnv("MERCADO_PAGO_ACCESS_TOKEN")}`,
       "content-type": "application/json",
     },
-    body: JSON.stringify({
-      external_reference: input.orderId,
-      notification_url: `${siteUrl}/api/mercado-pago/webhook?source_news=webhooks`,
-      back_urls: {
-        success: `${siteUrl}/checkout?payment=success&order=${input.publicCode}`,
-        failure: `${siteUrl}/checkout?payment=failure&order=${input.publicCode}`,
-        pending: `${siteUrl}/checkout?payment=pending&order=${input.publicCode}`,
-      },
-      auto_return: "approved",
-      payer: input.buyerEmail ? { email: input.buyerEmail } : undefined,
-      items: input.items.map((item) => ({
-        title: item.title,
-        quantity: item.quantity,
-        currency_id: "ARS",
-        unit_price: centsToPesos(item.unitPriceCents),
-      })),
-    }),
+    body: JSON.stringify(buildMercadoPagoPreferenceBody(input, siteUrl)),
   });
   const data = await response.json().catch(() => null);
+  const initPoint = data?.sandbox_init_point ?? data?.init_point;
 
-  if (!response.ok || !data?.id || !data?.init_point) {
+  if (!response.ok || !data?.id || !initPoint) {
     throw new Error("Mercado Pago no pudo crear la preferencia.");
   }
 
   return {
     id: String(data.id),
-    initPoint: String(data.init_point),
+    initPoint: String(initPoint),
   };
 }
 

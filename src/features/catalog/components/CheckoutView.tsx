@@ -32,6 +32,18 @@ type CheckoutViewProps = {
 type DeliveryMethod = "envio" | "retiro";
 
 type CheckoutItem = ReturnType<typeof hydrateCartItems>[number];
+type BuyerForm = {
+  nombre: string;
+  apellido: string;
+  email: string;
+  tel: string;
+  dni: string;
+};
+type DeliveryForm = {
+  addr: string;
+  city: string;
+  cp: string;
+};
 
 function itemUnitPriceCents(item: CheckoutItem) {
   const design = item.product.designs.find((candidate) => candidate.id === item.designId);
@@ -52,6 +64,18 @@ export function CheckoutView({
   const [method, setMethod] = useState<DeliveryMethod>("envio");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [buyer, setBuyer] = useState<BuyerForm>({
+    nombre: "",
+    apellido: "",
+    email: "",
+    tel: "",
+    dni: "",
+  });
+  const [delivery, setDelivery] = useState<DeliveryForm>({
+    addr: "",
+    city: "",
+    cp: "",
+  });
   const idempotencyKey = useRef<string | null>(null);
 
   const shippingCents = method === "retiro" ? 0 : storeSettings.delivery_base_price_cents;
@@ -65,9 +89,6 @@ export function CheckoutView({
     setSubmitting(true);
     setError(null);
 
-    const value = (id: string) =>
-      (document.getElementById(id) as HTMLInputElement | null)?.value.trim() ??
-      "";
     idempotencyKey.current ??= crypto.randomUUID();
     const response = await fetch("/api/checkout", {
       method: "POST",
@@ -85,16 +106,16 @@ export function CheckoutView({
           personalName: item.personalName,
         })),
         buyer: {
-          name: `${value("nombre")} ${value("apellido")}`.trim(),
-          email: value("email"),
-          phone: value("tel"),
-          dni: value("dni"),
+          name: `${buyer.nombre} ${buyer.apellido}`.trim(),
+          email: buyer.email.trim(),
+          phone: buyer.tel.trim(),
+          dni: buyer.dni.trim(),
         },
         delivery: {
           method,
-          addressLine: value("addr"),
-          city: value("city"),
-          postalCode: value("cp"),
+          addressLine: delivery.addr.trim(),
+          city: delivery.city.trim(),
+          postalCode: delivery.cp.trim(),
         },
       }),
     });
@@ -161,25 +182,71 @@ export function CheckoutView({
                 <div className="field-grid">
                   <div className="field">
                     <Label htmlFor="nombre">Nombre</Label>
-                    <Input id="nombre" />
+                    <Input
+                      id="nombre"
+                      value={buyer.nombre}
+                      onChange={(event) =>
+                        setBuyer((current) => ({
+                          ...current,
+                          nombre: event.target.value,
+                        }))
+                      }
+                    />
                   </div>
                   <div className="field">
                     <Label htmlFor="apellido">Apellido</Label>
-                    <Input id="apellido" />
+                    <Input
+                      id="apellido"
+                      value={buyer.apellido}
+                      onChange={(event) =>
+                        setBuyer((current) => ({
+                          ...current,
+                          apellido: event.target.value,
+                        }))
+                      }
+                    />
                   </div>
                 </div>
                 <div className="field">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={buyer.email}
+                    onChange={(event) =>
+                      setBuyer((current) => ({
+                        ...current,
+                        email: event.target.value,
+                      }))
+                    }
+                  />
                 </div>
                 <div className="field-grid">
                   <div className="field">
                     <Label htmlFor="tel">Teléfono</Label>
-                    <Input id="tel" />
+                    <Input
+                      id="tel"
+                      value={buyer.tel}
+                      onChange={(event) =>
+                        setBuyer((current) => ({
+                          ...current,
+                          tel: event.target.value,
+                        }))
+                      }
+                    />
                   </div>
                   <div className="field">
                     <Label htmlFor="dni">DNI</Label>
-                    <Input id="dni" />
+                    <Input
+                      id="dni"
+                      value={buyer.dni}
+                      onChange={(event) =>
+                        setBuyer((current) => ({
+                          ...current,
+                          dni: event.target.value,
+                        }))
+                      }
+                    />
                   </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -221,16 +288,43 @@ export function CheckoutView({
                   >
                     <div className="field">
                       <Label htmlFor="addr">Dirección</Label>
-                      <Input id="addr" />
+                      <Input
+                        id="addr"
+                        value={delivery.addr}
+                        onChange={(event) =>
+                          setDelivery((current) => ({
+                            ...current,
+                            addr: event.target.value,
+                          }))
+                        }
+                      />
                     </div>
                     <div className="field-grid">
                       <div className="field">
                         <Label htmlFor="city">Ciudad</Label>
-                        <Input id="city" />
+                        <Input
+                          id="city"
+                          value={delivery.city}
+                          onChange={(event) =>
+                            setDelivery((current) => ({
+                              ...current,
+                              city: event.target.value,
+                            }))
+                          }
+                        />
                       </div>
                       <div className="field">
                         <Label htmlFor="cp">Código postal</Label>
-                        <Input id="cp" />
+                        <Input
+                          id="cp"
+                          value={delivery.cp}
+                          onChange={(event) =>
+                            setDelivery((current) => ({
+                              ...current,
+                              cp: event.target.value,
+                            }))
+                          }
+                        />
                       </div>
                     </div>
                     <small>
