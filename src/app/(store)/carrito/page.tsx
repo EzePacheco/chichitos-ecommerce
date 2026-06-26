@@ -1,6 +1,8 @@
 import { CartView } from "@/features/catalog/components/CartView";
-import { getActiveCatalogProducts } from "@/features/catalog/data/featured-products";
+import { getPublicCatalogProducts } from "@/server/catalog/public-catalog";
 
-export default function CarritoPage() {
-  return <CartView initialProducts={getActiveCatalogProducts()} />;
+export const dynamic = "force-dynamic";
+
+export default async function CarritoPage() {
+  return <CartView initialProducts={await getPublicCatalogProducts()} />;
 }

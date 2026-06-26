@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import Link from "next/link";
 import { useState, type MouseEvent } from "react";
 import { Heart } from "lucide-react";
@@ -56,12 +58,20 @@ export function ProductCard({ product }: ProductCardProps) {
             fill={liked ? "currentColor" : "none"}
           />
         </button>
-        <GarmentPlaceholder
-          type={getGarmentType(product)}
-          color={getProductBaseColor(product)}
-          designShape={design.shape}
-          designColor={design.color}
-        />
+        {product.imageUrl ? (
+          <img
+            src={product.imageUrl}
+            alt={product.imageAlt || product.name}
+            style={{ height: "100%", objectFit: "cover", width: "100%" }}
+          />
+        ) : (
+          <GarmentPlaceholder
+            type={getGarmentType(product)}
+            color={getProductBaseColor(product)}
+            designShape={design.shape}
+            designColor={design.color}
+          />
+        )}
       </div>
       <div className="product-card__body">
         <h3 className="product-card__title">{product.name}</h3>

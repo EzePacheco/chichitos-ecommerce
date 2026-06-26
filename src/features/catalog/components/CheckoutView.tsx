@@ -1,17 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { Check, ChevronLeft, ChevronRight, CreditCard } from "lucide-react";
+import { useRef, useState } from "react";
 import {
-  Eyebrow,
-  GarmentPlaceholder,
-} from "@/components/ui/design-system";
+  AlertCircle,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  CreditCard,
+  ShoppingBag,
+} from "lucide-react";
+import { Eyebrow, GarmentPlaceholder } from "@/components/ui/design-system";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatMoney } from "@/lib/money";
-import { calculateShippingCost } from "@/server/shipping/calculate-shipping-cost";
+import type { StoreSettingsRecord } from "@/server/settings/store-settings";
+import { hydrateCartItems, useHydratedCartItems } from "../cart-storage";
 import {
   getGarmentType,
   getProductBaseColor,
@@ -21,103 +26,104 @@ import type { CatalogProduct } from "../data/featured-products";
 
 type CheckoutViewProps = {
   initialProducts: CatalogProduct[];
+  storeSettings: StoreSettingsRecord;
 };
 
 type DeliveryMethod = "envio" | "retiro";
 
-const BASE_RADIUS_KM = 3;
-const BASE_PRICE_CENTS = 250000;
-const EXTRA_STEP_KM = 0.5;
-const EXTRA_STEP_PRICE_CENTS = 40000;
+type CheckoutItem = ReturnType<typeof hydrateCartItems>[number];
 
-export function CheckoutView({ initialProducts }: CheckoutViewProps) {
-  const items = useMemo(
-    () =>
-      initialProducts.slice(0, 2).map((product, index) => ({
-        id: `${product.id}-${index}`,
-        product,
-        qty: 1,
-        sizeLabel: product.sizes[0]?.label ?? "Único",
-        designName: product.designs[0]?.name ?? "Diseño propio",
-      })),
-    [initialProducts],
-  );
+function itemUnitPriceCents(item: CheckoutItem) {
+  const design = item.product.designs.find((candidate) => candidate.id === item.designId);
+  const personalization =
+    item.personalName && item.product.personalization.enabled
+      ? item.product.personalization.extraPriceCents
+      : 0;
 
+  return item.product.basePriceCents + (design?.extraPriceCents ?? 0) + personalization;
+}
+
+export function CheckoutView({
+  initialProducts,
+  storeSettings,
+}: CheckoutViewProps) {
+  const items = useHydratedCartItems(initialProducts);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [method, setMethod] = useState<DeliveryMethod>("envio");
-  const [distanceKm, setDistanceKm] = useState(2.5);
-  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const idempotencyKey = useRef<string | null>(null);
 
-  const shippingCents =
-    method === "retiro"
-      ? 0
-      : calculateShippingCost({
-          distanceKm,
-          baseRadiusKm: BASE_RADIUS_KM,
-          basePriceCents: BASE_PRICE_CENTS,
-          extraStepKm: EXTRA_STEP_KM,
-          extraStepPriceCents: EXTRA_STEP_PRICE_CENTS,
-        }).totalCents;
-
+  const shippingCents = method === "retiro" ? 0 : storeSettings.delivery_base_price_cents;
   const subtotal = items.reduce(
-    (acc, item) => acc + item.product.basePriceCents * item.qty,
+    (acc, item) => acc + itemUnitPriceCents(item) * item.qty,
     0,
   );
   const total = subtotal + shippingCents;
 
-  if (done) {
+  async function startCheckout() {
+    setSubmitting(true);
+    setError(null);
+
+    const value = (id: string) =>
+      (document.getElementById(id) as HTMLInputElement | null)?.value.trim() ??
+      "";
+    idempotencyKey.current ??= crypto.randomUUID();
+    const response = await fetch("/api/checkout", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "Idempotency-Key": idempotencyKey.current,
+      },
+      body: JSON.stringify({
+        items: items.map((item) => ({
+          productSlug: item.product.slug,
+          quantity: item.qty,
+          sizeId: item.sizeId,
+          colorId: item.colorId,
+          designId: item.designId,
+          personalName: item.personalName,
+        })),
+        buyer: {
+          name: `${value("nombre")} ${value("apellido")}`.trim(),
+          email: value("email"),
+          phone: value("tel"),
+          dni: value("dni"),
+        },
+        delivery: {
+          method,
+          addressLine: value("addr"),
+          city: value("city"),
+          postalCode: value("cp"),
+        },
+      }),
+    });
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok || !data?.redirectUrl) {
+      setSubmitting(false);
+      setError(data?.title ?? "No pudimos iniciar el pago.");
+      return;
+    }
+
+    window.location.href = data.redirectUrl;
+  }
+
+  if (!storeSettings.checkout_enabled) {
     return (
-      <section className="checkout">
-        <div className="container" style={{ maxWidth: 640 }}>
-          <div style={{ padding: "var(--sp-12) 0", textAlign: "center" }}>
-            <div
-              style={{
-                alignItems: "center",
-                background: "var(--salvia)",
-                borderRadius: "var(--r-blob)",
-                color: "white",
-                display: "flex",
-                height: 100,
-                justifyContent: "center",
-                margin: "0 auto var(--sp-6)",
-                width: 100,
-              }}
-            >
-              <Check size={48} strokeWidth={2.5} />
-            </div>
-            <Eyebrow>Compra confirmada</Eyebrow>
-            <h1 className="display-l" style={{ margin: "8px 0 12px" }}>
-              ¡Gracias!
-            </h1>
-            <p
-              style={{
-                color: "var(--ink-500)",
-                margin: "0 auto var(--sp-6)",
-                maxWidth: "44ch",
-              }}
-            >
-              Te mandamos un mail con los detalles. Empezamos a imprimir mañana
-              y en 5-7 días hábiles está listo. Te avisamos por WhatsApp cuando
-              salga el despacho.
-            </p>
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 12,
-                justifyContent: "center",
-              }}
-            >
-              <Button asChild variant="primary">
-                <Link href="/">Volver al inicio</Link>
-              </Button>
-              <Button asChild variant="ghost">
-                <Link href="/catalogo">Seguir mirando</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CheckoutEmpty
+        title="Checkout todavía no habilitado"
+        text="Podés armar tu carrito, pero la compra online se habilita cuando pagos y operación estén configurados."
+      />
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <CheckoutEmpty
+        title="Tu carrito está vacío"
+        text="Elegí una prenda del catálogo antes de finalizar la compra."
+      />
     );
   }
 
@@ -155,29 +161,25 @@ export function CheckoutView({ initialProducts }: CheckoutViewProps) {
                 <div className="field-grid">
                   <div className="field">
                     <Label htmlFor="nombre">Nombre</Label>
-                    <Input id="nombre" defaultValue="Camila" />
+                    <Input id="nombre" />
                   </div>
                   <div className="field">
                     <Label htmlFor="apellido">Apellido</Label>
-                    <Input id="apellido" defaultValue="Reyes" />
+                    <Input id="apellido" />
                   </div>
                 </div>
                 <div className="field">
                   <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    defaultValue="camila@correo.com"
-                  />
+                  <Input id="email" type="email" />
                 </div>
                 <div className="field-grid">
                   <div className="field">
                     <Label htmlFor="tel">Teléfono</Label>
-                    <Input id="tel" defaultValue="+54 11 4444 0000" />
+                    <Input id="tel" />
                   </div>
                   <div className="field">
                     <Label htmlFor="dni">DNI</Label>
-                    <Input id="dni" defaultValue="38.000.000" />
+                    <Input id="dni" />
                   </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -191,47 +193,21 @@ export function CheckoutView({ initialProducts }: CheckoutViewProps) {
             {step === 2 ? (
               <div className="card" style={{ padding: "var(--sp-6)" }}>
                 <h3 style={{ margin: "0 0 var(--sp-4)" }}>¿Cómo lo recibís?</h3>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "var(--sp-3)",
-                  }}
-                >
-                  <button
-                    type="button"
-                    className={`radio-card ${method === "envio" ? "is-active" : ""}`}
+                <div className="flex-col" style={{ gap: "var(--sp-3)" }}>
+                  <DeliveryButton
+                    active={method === "envio"}
+                    title="Envío a domicilio"
+                    text="Tarifa según distancia desde el taller."
+                    price={formatMoney(shippingCents)}
                     onClick={() => setMethod("envio")}
-                    style={{ textAlign: "left", font: "inherit" }}
-                  >
-                    <span className="radio-card__dot" />
-                    <div style={{ flex: 1 }}>
-                      <h4 className="radio-card__title">Envío a domicilio</h4>
-                      <p className="radio-card__sub">
-                        CABA y GBA. Tarifa según distancia desde el taller.
-                      </p>
-                    </div>
-                    <strong>
-                      {method === "envio" ? formatMoney(shippingCents) : "—"}
-                    </strong>
-                  </button>
-                  <button
-                    type="button"
-                    className={`radio-card ${method === "retiro" ? "is-active" : ""}`}
+                  />
+                  <DeliveryButton
+                    active={method === "retiro"}
+                    title="Retiro en el taller"
+                    text="Dirección configurable desde el admin."
+                    price="Sin cargo"
                     onClick={() => setMethod("retiro")}
-                    style={{ textAlign: "left", font: "inherit" }}
-                  >
-                    <span className="radio-card__dot" />
-                    <div style={{ flex: 1 }}>
-                      <h4 className="radio-card__title">Retiro en el taller</h4>
-                      <p className="radio-card__sub">
-                        Dirección configurable desde el admin.
-                      </p>
-                    </div>
-                    <strong style={{ color: "var(--salvia-d)" }}>
-                      Sin cargo
-                    </strong>
-                  </button>
+                  />
                 </div>
 
                 {method === "envio" ? (
@@ -245,52 +221,26 @@ export function CheckoutView({ initialProducts }: CheckoutViewProps) {
                   >
                     <div className="field">
                       <Label htmlFor="addr">Dirección</Label>
-                      <Input id="addr" defaultValue="Av. Corrientes 1234" />
+                      <Input id="addr" />
                     </div>
                     <div className="field-grid">
                       <div className="field">
                         <Label htmlFor="city">Ciudad</Label>
-                        <Input id="city" defaultValue="CABA" />
+                        <Input id="city" />
                       </div>
                       <div className="field">
                         <Label htmlFor="cp">Código postal</Label>
-                        <Input id="cp" defaultValue="1414" />
+                        <Input id="cp" />
                       </div>
                     </div>
-                    <div className="field">
-                      <Label htmlFor="dist">
-                        Distancia desde el taller:{" "}
-                        <strong>{distanceKm.toFixed(1)} km</strong>
-                      </Label>
-                      <input
-                        id="dist"
-                        type="range"
-                        min="0.5"
-                        max="15"
-                        step="0.5"
-                        value={distanceKm}
-                        onChange={(event) =>
-                          setDistanceKm(parseFloat(event.target.value))
-                        }
-                        style={{ width: "100%" }}
-                      />
-                      <small>
-                        Hasta {BASE_RADIUS_KM} km:{" "}
-                        {formatMoney(BASE_PRICE_CENTS)} fijo. Después,{" "}
-                        {formatMoney(EXTRA_STEP_PRICE_CENTS)} cada{" "}
-                        {EXTRA_STEP_KM} km adicional.
-                      </small>
-                    </div>
+                    <small>
+                      Calculamos la distancia final antes de abrir Mercado Pago.
+                      Tarifa base: {formatMoney(storeSettings.delivery_base_price_cents)}.
+                    </small>
                   </div>
                 ) : null}
 
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: "var(--sp-6)",
-                  }}
-                >
+                <div className="flex-row" style={{ justifyContent: "space-between", marginTop: "var(--sp-6)" }}>
                   <Button variant="ghost" onClick={() => setStep(1)}>
                     <ChevronLeft size={20} /> Volver
                   </Button>
@@ -304,62 +254,35 @@ export function CheckoutView({ initialProducts }: CheckoutViewProps) {
             {step === 3 ? (
               <div className="card" style={{ padding: "var(--sp-6)" }}>
                 <h3 style={{ margin: "0 0 var(--sp-4)" }}>Pago</h3>
-                <div
-                  className="radio-card is-active"
-                  style={{ cursor: "default" }}
-                >
+                <div className="radio-card is-active" style={{ cursor: "default" }}>
                   <span className="radio-card__dot" />
                   <div style={{ flex: 1 }}>
                     <h4 className="radio-card__title">Mercado Pago</h4>
                     <p className="radio-card__sub">
-                      Tarjeta, débito, efectivo o cuenta MP. La confirmación
-                      real llega por webhook validado.
+                      La confirmación real llega por webhook validado.
                     </p>
                   </div>
-                  <svg
-                    viewBox="0 0 36 24"
-                    width="48"
-                    height="32"
-                    aria-hidden="true"
-                  >
-                    <rect width="36" height="24" rx="4" fill="#00B1EA" />
-                    <text
-                      x="18"
-                      y="16"
-                      textAnchor="middle"
-                      fontSize="9"
-                      fill="white"
-                      fontFamily="sans-serif"
-                      fontWeight="700"
-                    >
-                      MP
-                    </text>
-                  </svg>
+                  <strong>MP</strong>
                 </div>
-                <p
-                  style={{
-                    color: "var(--ink-500)",
-                    fontSize: "var(--fs-body-sm)",
-                    marginTop: "var(--sp-6)",
-                  }}
-                >
-                  Al confirmar te redirigimos a Mercado Pago. Volvés a Chichitos
-                  al terminar.
-                </p>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: "var(--sp-6)",
-                  }}
-                >
+                <div className="flex-row" style={{ justifyContent: "space-between", marginTop: "var(--sp-6)" }}>
                   <Button variant="ghost" onClick={() => setStep(2)}>
                     <ChevronLeft size={20} /> Volver
                   </Button>
-                  <Button variant="primary" onClick={() => setDone(true)}>
-                    <CreditCard size={20} /> Pagar {formatMoney(total)}
+                  <Button
+                    variant="primary"
+                    onClick={startCheckout}
+                    disabled={submitting}
+                  >
+                    <CreditCard size={20} />{" "}
+                    {submitting ? "Creando pago..." : `Pagar ${formatMoney(total)}`}
                   </Button>
                 </div>
+                {error ? (
+                  <div className="disclaimer" role="alert">
+                    <AlertCircle size={20} />
+                    <div>{error}</div>
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -367,18 +290,11 @@ export function CheckoutView({ initialProducts }: CheckoutViewProps) {
           <aside>
             <div className="summary">
               <h3>Tu pedido</h3>
-              <div
-                className="flex-col"
-                style={{ gap: 12, marginBottom: 16 }}
-              >
+              <div className="flex-col" style={{ gap: 12, marginBottom: 16 }}>
                 {items.map((item) => {
                   const visual = getProductDesignVisual(item.product);
                   return (
-                    <div
-                      className="flex-row"
-                      style={{ gap: 12 }}
-                      key={item.id}
-                    >
+                    <div className="flex-row" style={{ gap: 12 }} key={item.id}>
                       <div
                         style={{
                           alignItems: "center",
@@ -399,20 +315,15 @@ export function CheckoutView({ initialProducts }: CheckoutViewProps) {
                         />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div
-                          style={{
-                            fontSize: "var(--fs-body-sm)",
-                            fontWeight: 600,
-                          }}
-                        >
+                        <div style={{ fontSize: "var(--fs-body-sm)", fontWeight: 600 }}>
                           {item.product.name}
                         </div>
                         <div className="caption">
-                          {item.sizeLabel} · {item.designName} · ×{item.qty}
+                          {item.sizeLabel} · {item.designName} · x{item.qty}
                         </div>
                       </div>
                       <strong style={{ fontSize: "var(--fs-body-sm)" }}>
-                        {formatMoney(item.product.basePriceCents * item.qty)}
+                        {formatMoney(itemUnitPriceCents(item) * item.qty)}
                       </strong>
                     </div>
                   );
@@ -424,11 +335,7 @@ export function CheckoutView({ initialProducts }: CheckoutViewProps) {
               </div>
               <div className="summary__row">
                 <span>{method === "retiro" ? "Retiro" : "Envío"}</span>
-                <span>
-                  {shippingCents === 0
-                    ? "Sin cargo"
-                    : formatMoney(shippingCents)}
-                </span>
+                <span>{shippingCents === 0 ? "Sin cargo" : formatMoney(shippingCents)}</span>
               </div>
               <div className="summary__row summary__row--total">
                 <span>Total</span>
@@ -436,6 +343,55 @@ export function CheckoutView({ initialProducts }: CheckoutViewProps) {
               </div>
             </div>
           </aside>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DeliveryButton({
+  active,
+  title,
+  text,
+  price,
+  onClick,
+}: {
+  active: boolean;
+  title: string;
+  text: string;
+  price: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`radio-card ${active ? "is-active" : ""}`}
+      onClick={onClick}
+      style={{ textAlign: "left", font: "inherit" }}
+    >
+      <span className="radio-card__dot" />
+      <div style={{ flex: 1 }}>
+        <h4 className="radio-card__title">{title}</h4>
+        <p className="radio-card__sub">{text}</p>
+      </div>
+      <strong>{price}</strong>
+    </button>
+  );
+}
+
+function CheckoutEmpty({ title, text }: { title: string; text: string }) {
+  return (
+    <section className="checkout">
+      <div className="container">
+        <div className="empty">
+          <div className="empty__art">
+            <ShoppingBag size={44} />
+          </div>
+          <h3>{title}</h3>
+          <p>{text}</p>
+          <Button asChild variant="primary">
+            <Link href="/catalogo">Ir al catálogo</Link>
+          </Button>
         </div>
       </div>
     </section>

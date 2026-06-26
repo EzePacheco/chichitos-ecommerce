@@ -33,7 +33,14 @@ export type AdminAuthorizationResult =
     };
 
 export async function getAdminAuthorization(): Promise<AdminAuthorizationResult> {
-  const supabase = await createServerSupabaseClient();
+  let supabase;
+
+  try {
+    supabase = await createServerSupabaseClient();
+  } catch {
+    return { status: "unauthenticated" };
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();

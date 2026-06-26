@@ -3,25 +3,22 @@ import { notFound } from "next/navigation";
 import { ProductView } from "@/features/catalog/components/ProductView";
 import {
   buildProductWhatsAppHref,
-  getActiveCatalogProducts,
-  getCatalogProductBySlug,
 } from "@/features/catalog/data/featured-products";
+import {
+  getPublicCatalogProductBySlug,
+} from "@/server/catalog/public-catalog";
 
 type ProductPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return getActiveCatalogProducts().map((product) => ({ slug: product.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getCatalogProductBySlug(slug);
+  const product = await getPublicCatalogProductBySlug(slug);
 
   if (!product) {
     return {
@@ -37,7 +34,7 @@ export async function generateMetadata({
 
 export default async function ProductoPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = getCatalogProductBySlug(slug);
+  const product = await getPublicCatalogProductBySlug(slug);
 
   if (!product) {
     notFound();

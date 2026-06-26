@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Info, Ruler, ShoppingBag, X } from "lucide-react";
@@ -12,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Stepper } from "@/components/ui/Stepper";
 import { formatMoney } from "@/lib/money";
+import { addStoredCartItem } from "../cart-storage";
 import {
   designVisuals,
   getGarmentType,
@@ -39,6 +42,7 @@ export function ProductView({ product, whatsappHref }: ProductViewProps) {
   const [qty, setQty] = useState(1);
   const [personalize, setPersonalize] = useState(false);
   const [personalName, setPersonalName] = useState("");
+  const [added, setAdded] = useState(false);
   const [thumbIdx, setThumbIdx] = useState(0);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
@@ -68,6 +72,20 @@ export function ProductView({ product, whatsappHref }: ProductViewProps) {
     },
   ];
 
+  function addToCart() {
+    if (!currentSize || !currentColor || !currentDesign) return;
+
+    addStoredCartItem({
+      productSlug: product.slug,
+      qty,
+      sizeId: currentSize.id,
+      colorId: currentColor.id,
+      designId: currentDesign.id,
+      personalName: personalize ? personalName.trim() || null : null,
+    });
+    setAdded(true);
+  }
+
   return (
     <div className="container">
       <nav className="breadcrumb" aria-label="Migas">
@@ -81,13 +99,26 @@ export function ProductView({ product, whatsappHref }: ProductViewProps) {
       <section className="product">
         <div className="gallery">
           <div className="gallery__main">
-            <GarmentPlaceholder
-              type={garmentType}
-              color={baseHex}
-              designShape={thumbs[thumbIdx].shape}
-              designColor={currentVisual?.color}
-              scale={thumbs[thumbIdx].scale}
-            />
+            {product.imageUrl && thumbIdx === 0 ? (
+              <img
+                src={product.imageUrl}
+                alt={product.imageAlt || product.name}
+                style={{
+                  borderRadius: "var(--r-xl)",
+                  height: "100%",
+                  objectFit: "cover",
+                  width: "100%",
+                }}
+              />
+            ) : (
+              <GarmentPlaceholder
+                type={garmentType}
+                color={baseHex}
+                designShape={thumbs[thumbIdx].shape}
+                designColor={currentVisual?.color}
+                scale={thumbs[thumbIdx].scale}
+              />
+            )}
           </div>
           <div className="gallery__thumbs" aria-label="Galería del producto">
             {thumbs.map((thumb, index) => (
@@ -266,10 +297,15 @@ export function ProductView({ product, whatsappHref }: ProductViewProps) {
           </div>
 
           <div className="product__cta-row">
-            <Button variant="primary" size="lg">
+            <Button variant="primary" size="lg" onClick={addToCart}>
               <ShoppingBag size={20} /> Sumar al carrito ·{" "}
               {formatMoney(total * qty)}
             </Button>
+            {added ? (
+              <Button asChild variant="soft" size="lg">
+                <Link href="/carrito">Ver carrito</Link>
+              </Button>
+            ) : null}
             {whatsappHref ? (
               <Button asChild variant="ghost" size="lg">
                 <a href={whatsappHref} target="_blank" rel="noreferrer">

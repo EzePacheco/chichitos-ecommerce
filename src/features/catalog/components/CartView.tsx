@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { ChevronLeft, ChevronRight, ShoppingBag, Trash2 } from "lucide-react";
 import {
   Eyebrow,
@@ -16,6 +15,11 @@ import {
   getProductDesignVisual,
 } from "../design";
 import { formatMoney } from "@/lib/money";
+import {
+  removeStoredCartItem,
+  updateStoredCartItemQuantity,
+  useHydratedCartItems,
+} from "../cart-storage";
 import type { CatalogProduct } from "../data/featured-products";
 
 type CartItem = {
@@ -24,7 +28,10 @@ type CartItem = {
   qty: number;
   sizeLabel: string;
   colorName: string;
+  colorId: string;
   designName: string;
+  designId: string;
+  sizeId: string;
   personalName?: string | null;
 };
 
@@ -34,38 +41,32 @@ type CartViewProps = {
 
 const SHIPPING_CENTS = 250000;
 
+function itemUnitPriceCents(item: CartItem) {
+  const design = item.product.designs.find((candidate) => candidate.id === item.designId);
+  const personalization =
+    item.personalName && item.product.personalization.enabled
+      ? item.product.personalization.extraPriceCents
+      : 0;
+
+  return item.product.basePriceCents + (design?.extraPriceCents ?? 0) + personalization;
+}
+
 export function CartView({ initialProducts }: CartViewProps) {
-  const [items, setItems] = useState<CartItem[]>(() =>
-    initialProducts.slice(0, 2).map((product, index) => ({
-      id: `${product.id}-${index}`,
-      product,
-      qty: index + 1,
-      sizeLabel: product.sizes[index]?.label ?? product.sizes[0]?.label ?? "Único",
-      colorName:
-        product.colors[index]?.name ?? product.colors[0]?.name ?? "Crema",
-      designName:
-        product.designs[index]?.name ??
-        product.designs[0]?.name ??
-        "Diseño propio",
-      personalName: null,
-    })),
-  );
+  const items = useHydratedCartItems(initialProducts);
 
   const subtotal = items.reduce(
-    (acc, item) => acc + item.product.basePriceCents * item.qty,
+    (acc, item) => acc + itemUnitPriceCents(item) * item.qty,
     0,
   );
   const shipping = items.length > 0 ? SHIPPING_CENTS : 0;
   const total = subtotal + shipping;
 
   function updateQty(id: string, qty: number) {
-    setItems((current) =>
-      current.map((item) => (item.id === id ? { ...item, qty } : item)),
-    );
+    updateStoredCartItemQuantity(id, qty);
   }
 
   function removeItem(id: string) {
-    setItems((current) => current.filter((item) => item.id !== id));
+    removeStoredCartItem(id);
   }
 
   if (items.length === 0) {
@@ -136,7 +137,7 @@ export function CartView({ initialProducts }: CartViewProps) {
                   </div>
                   <div className="cart-line__col-right">
                     <span className="cart-line__price">
-                      {formatMoney(item.product.basePriceCents * item.qty)}
+                      {formatMoney(itemUnitPriceCents(item) * item.qty)}
                     </span>
                     <button
                       type="button"

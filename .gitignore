@@ -25,6 +25,7 @@ pnpm-debug.log*
 # Hosting/tooling
 .vercel/
 .tmp-next-scaffold/
+.playwright-mcp/
 
 # OS/editor
 .DS_Store

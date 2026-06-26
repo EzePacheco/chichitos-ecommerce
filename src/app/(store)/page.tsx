@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/design-system";
 import { ProductCard } from "@/features/catalog/components/ProductCard";
 import { designVisuals } from "@/features/catalog/design";
-import { featuredProducts } from "@/features/catalog/data/featured-products";
+import { getFeaturedPublicCatalogProducts } from "@/server/catalog/public-catalog";
 
 const steps = [
   {
@@ -34,7 +34,11 @@ const steps = [
   },
 ];
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const featuredProducts = await getFeaturedPublicCatalogProducts();
+
   return (
     <>
       <section className="hero">

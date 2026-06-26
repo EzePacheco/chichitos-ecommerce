@@ -56,6 +56,10 @@ const DEFAULT_STORE_SETTINGS: StoreSettingsRecord = {
   checkout_enabled: false,
 };
 
+export function getDefaultStoreSettings() {
+  return { ...DEFAULT_STORE_SETTINGS };
+}
+
 function textValue(value: FormDataEntryValue | null) {
   return typeof value === "string" ? value.trim() : "";
 }

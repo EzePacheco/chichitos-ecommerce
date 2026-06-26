@@ -32,6 +32,8 @@ El formato sigue Keep a Changelog y el versionado sera SemVer durante el MVP.
 - SPEC-004 de onboarding admin y configuracion comercial con lectura/guardado server-side de `store_settings`.
 - Formulario real en `/admin` para datos de tienda, WhatsApp, direccion del taller, parametros de envio, produccion, personalizacion, politicas y habilitacion de checkout.
 - Tests unitarios para normalizacion de settings, precios en centavos, WhatsApp y estado de onboarding.
+- SPEC-005 de catalogo admin productivo, uploads, stock por variante y checkout Mercado Pago.
+- Catalogo publico preparado para leer Supabase con fallback local, admin de producto con upload a Storage, stock por variante y checkout server-side con webhook firmado de Mercado Pago.
 
 ### Decisions
 

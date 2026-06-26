@@ -18,8 +18,7 @@ export function Logo({
       : variant === "full"
         ? "/brand/logo-chichitos-full.png"
         : "/brand/logo-chichitos-dark.png";
-  const width =
-    variant === "full" ? Math.round(height * 1.9) : Math.round(height * 2.7);
+  const width = Math.round(height * 1.5);
 
   return (
     <Image

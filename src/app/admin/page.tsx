@@ -11,7 +11,7 @@ import {
   Settings,
   Store,
 } from "lucide-react";
-import { saveStoreSettingsAction } from "./actions";
+import { saveCatalogProductAction, saveStoreSettingsAction } from "./actions";
 import { Button } from "@/components/ui/button";
 import {
   DesignSvg,
@@ -30,6 +30,12 @@ import { getActiveCatalogProducts } from "@/features/catalog/data/featured-produ
 import { formatMoney } from "@/lib/money";
 import { getAdminAuthorization } from "@/server/auth/admin-authorization";
 import { buildAdminLoginPath } from "@/server/auth/redirects";
+import {
+  getAdminCatalogProducts,
+  slugifyCatalogValue,
+} from "@/server/catalog/admin-catalog";
+import { isSupabaseCatalogConfigured } from "@/server/catalog/public-catalog";
+import { getAdminOrderSummaries } from "@/server/orders/admin-orders";
 import {
   formatCentsForAdminInput,
   formatDecimalForAdminInput,
@@ -54,6 +60,7 @@ export const dynamic = "force-dynamic";
 type AdminPageProps = {
   searchParams?: Promise<{
     settings?: string | string[];
+    catalog?: string | string[];
   }>;
 };
 
@@ -64,57 +71,6 @@ function getAdminDisplayName(email: string) {
   return `${firstToken.charAt(0).toUpperCase()}${firstToken.slice(1)}`;
 }
 
-const orders = [
-  {
-    id: "#1042",
-    customer: "Camila R.",
-    items: 2,
-    total: 3980000,
-    date: "17 may",
-    status: "new" as const,
-  },
-  {
-    id: "#1041",
-    customer: "Pedro M.",
-    items: 1,
-    total: 1490000,
-    date: "17 may",
-    status: "prod" as const,
-  },
-  {
-    id: "#1040",
-    customer: "Luciana B.",
-    items: 3,
-    total: 6230000,
-    date: "16 may",
-    status: "prod" as const,
-  },
-  {
-    id: "#1039",
-    customer: "Federico V.",
-    items: 1,
-    total: 2850000,
-    date: "16 may",
-    status: "ready" as const,
-  },
-  {
-    id: "#1038",
-    customer: "Soledad G.",
-    items: 2,
-    total: 2430000,
-    date: "15 may",
-    status: "shipped" as const,
-  },
-  {
-    id: "#1037",
-    customer: "Andrea S.",
-    items: 4,
-    total: 7890000,
-    date: "14 may",
-    status: "done" as const,
-  },
-];
-
 function getFirstSearchParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
@@ -122,6 +78,7 @@ function getFirstSearchParam(value: string | string[] | undefined) {
 export default async function AdminPage({ searchParams }: AdminPageProps) {
   const params = searchParams ? await searchParams : undefined;
   const settingsStatus = getFirstSearchParam(params?.settings);
+  const catalogStatus = getFirstSearchParam(params?.catalog);
   const authorization = await getAdminAuthorization();
 
   if (authorization.status === "unauthenticated") {
@@ -155,10 +112,14 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     );
   }
 
-  const products = getActiveCatalogProducts();
+  const products = isSupabaseCatalogConfigured()
+    ? await getAdminCatalogProducts()
+    : getActiveCatalogProducts();
+  const firstProduct = products[0];
   const storeSettings = await getStoreSettings();
   const missingSettingsFields = getMissingStoreSettingsFields(storeSettings);
   const settingsComplete = isStoreSettingsOnboardingComplete(storeSettings);
+  const orders = await getAdminOrderSummaries();
   const adminDisplayName = getAdminDisplayName(authorization.email);
   const adminInitial = adminDisplayName.charAt(0).toUpperCase();
 
@@ -228,31 +189,37 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <Eyebrow>Hola {adminDisplayName}</Eyebrow>
             <h1>Panel de Chichitos ✨</h1>
           </div>
-          <span className="btn btn--primary">
+          <a className="btn btn--primary" href="#producto-form">
             <Plus size={20} /> Nuevo producto
-          </span>
+          </a>
         </div>
 
         <section className="stats" aria-label="Métricas de admin">
           <div className="stat">
             <div className="stat__label">Pedidos esta semana</div>
-            <div className="stat__value">23</div>
-            <div className="stat__delta">+18% vs anterior</div>
+            <div className="stat__value">{orders.length}</div>
+            <div className="stat__delta">Pedidos registrados</div>
           </div>
           <div className="stat">
             <div className="stat__label">Ingresos</div>
-            <div className="stat__value">$486k</div>
-            <div className="stat__delta">+22%</div>
+            <div className="stat__value">
+              {formatMoney(orders.reduce((acc, order) => acc + order.totalCents, 0))}
+            </div>
+            <div className="stat__delta">Total listado</div>
           </div>
           <div className="stat">
             <div className="stat__label">En producción</div>
-            <div className="stat__value">7</div>
-            <div className="stat__delta">2 listos hoy</div>
+            <div className="stat__value">
+              {orders.filter((order) => order.status === "prod").length}
+            </div>
+            <div className="stat__delta">Pedidos activos</div>
           </div>
           <div className="stat">
             <div className="stat__label">A despachar</div>
-            <div className="stat__value">4</div>
-            <div className="stat__delta stat__delta--down">1 atrasado</div>
+            <div className="stat__value">
+              {orders.filter((order) => order.status === "ready").length}
+            </div>
+            <div className="stat__delta">Listos</div>
           </div>
         </section>
 
@@ -279,11 +246,11 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 {orders.map((order) => (
                   <tr key={order.id}>
                     <td>
-                      <strong>{order.id}</strong>
+                      <strong>{order.publicCode}</strong>
                     </td>
                     <td>{order.customer}</td>
                     <td>{order.date}</td>
-                    <td>{formatMoney(order.total)}</td>
+                    <td>{formatMoney(order.totalCents)}</td>
                     <td>
                       <OrderStatusBadge status={order.status} />
                     </td>
@@ -308,7 +275,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     style={{ justifyContent: "space-between", padding: 14 }}
                   >
                     <div>
-                      <strong>{order.id}</strong>
+                      <strong>{order.publicCode}</strong>
                       <div className="caption">
                         {order.customer} · {order.items} prendas
                       </div>
@@ -330,10 +297,306 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               <Eyebrow>Catálogo</Eyebrow>
               <h1>Productos</h1>
             </div>
-            <span className="btn btn--primary">
+            <a className="btn btn--primary" href="#producto-form">
               <Plus size={20} /> Nuevo producto
-            </span>
+            </a>
           </div>
+
+          {catalogStatus === "saved" ? (
+            <div className="disclaimer" style={{ maxWidth: 760 }}>
+              <Check size={20} />
+              <div>El producto se guardó y el catálogo público fue refrescado.</div>
+            </div>
+          ) : null}
+
+          {catalogStatus === "invalid" ? (
+            <div className="disclaimer" style={{ maxWidth: 760 }}>
+              <Info size={20} />
+              <div>
+                No pudimos guardar el producto. Revisá nombre, precio, color,
+                talles, diseños, stock e imagen.
+              </div>
+            </div>
+          ) : null}
+
+          {!isSupabaseCatalogConfigured() ? (
+            <div className="disclaimer" style={{ maxWidth: 760 }}>
+              <Info size={20} />
+              <div>
+                El admin de catálogo real requiere variables Supabase reales.
+                Mientras tanto se muestra el catálogo mock.
+              </div>
+            </div>
+          ) : null}
+
+          <form
+            action={saveCatalogProductAction}
+            className="card"
+            id="producto-form"
+            style={{
+              marginBottom: "var(--sp-6)",
+              padding: "var(--sp-6)",
+            }}
+          >
+            <h3 style={{ marginTop: 0 }}>Producto</h3>
+            <div className="field-grid">
+              <div className="field">
+                <label htmlFor="productName">Nombre</label>
+                <input
+                  className="input"
+                  id="productName"
+                  name="name"
+                  defaultValue={firstProduct?.name ?? ""}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="productSlug">Slug</label>
+                <input
+                  className="input"
+                  id="productSlug"
+                  name="slug"
+                  defaultValue={
+                    firstProduct ? slugifyCatalogValue(firstProduct.slug) : ""
+                  }
+                />
+              </div>
+            </div>
+            <div className="field-grid">
+              <div className="field">
+                <label htmlFor="productCategory">Categoría</label>
+                <select
+                  className="select"
+                  id="productCategory"
+                  name="category"
+                  defaultValue={firstProduct?.category ?? "remeras"}
+                >
+                  <option value="remeras">Remeras</option>
+                  <option value="bodies">Bodies</option>
+                  <option value="abrigos">Abrigos</option>
+                  <option value="sets">Sets</option>
+                  <option value="accesorios">Accesorios</option>
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="productStatus">Estado</label>
+                <select
+                  className="select"
+                  id="productStatus"
+                  name="status"
+                  defaultValue={firstProduct?.status ?? "draft"}
+                >
+                  <option value="draft">Borrador</option>
+                  <option value="active">Activo</option>
+                </select>
+              </div>
+            </div>
+            <div className="field-grid">
+              <div className="field">
+                <label htmlFor="productPrice">Precio base en pesos</label>
+                <input
+                  className="input"
+                  id="productPrice"
+                  name="basePrice"
+                  inputMode="numeric"
+                  defaultValue={
+                    firstProduct
+                      ? String(Math.round(firstProduct.basePriceCents / 100))
+                      : ""
+                  }
+                />
+              </div>
+              <label className="radio-card" htmlFor="productFeatured">
+                <input
+                  id="productFeatured"
+                  name="featured"
+                  type="checkbox"
+                  defaultChecked={firstProduct?.featured ?? false}
+                />
+                <div>
+                  <h4 className="radio-card__title">Destacado</h4>
+                  <p className="radio-card__sub">Aparece en la home.</p>
+                </div>
+              </label>
+            </div>
+            <div className="field">
+              <label htmlFor="productSummary">Resumen</label>
+              <input
+                className="input"
+                id="productSummary"
+                name="summary"
+                defaultValue={firstProduct?.summary ?? ""}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="productDescription">Descripción</label>
+              <textarea
+                className="textarea"
+                id="productDescription"
+                name="description"
+                rows={3}
+                defaultValue={firstProduct?.description ?? ""}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="productImage">Imagen principal</label>
+              <input
+                className="input"
+                id="productImage"
+                name="image"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/avif"
+              />
+            </div>
+            <div className="field-grid">
+              <div className="field">
+                <label htmlFor="productSizes">Talles: código|label|nota</label>
+                <textarea
+                  className="textarea"
+                  id="productSizes"
+                  name="sizes"
+                  rows={5}
+                  defaultValue={
+                    firstProduct?.sizes
+                      .map((size) =>
+                        [size.id, size.label, size.note ?? ""].join("|"),
+                      )
+                      .join("\n") ?? "2|2|\n4|4|\n6|6|"
+                  }
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="productColors">Colores: código|nombre|hex</label>
+                <textarea
+                  className="textarea"
+                  id="productColors"
+                  name="colors"
+                  rows={5}
+                  defaultValue={
+                    firstProduct?.colors
+                      .map((color) => [color.id, color.name, color.hex].join("|"))
+                      .join("\n") ?? "natural|Natural|#fcf7ec"
+                  }
+                />
+              </div>
+            </div>
+            <div className="field-grid">
+              <div className="field">
+                <label htmlFor="productDesigns">
+                  Diseños: slug|nombre|resumen|extra pesos
+                </label>
+                <textarea
+                  className="textarea"
+                  id="productDesigns"
+                  name="designs"
+                  rows={5}
+                  defaultValue={
+                    firstProduct?.designs
+                      .map((design) =>
+                        [
+                          design.id,
+                          design.name,
+                          design.summary,
+                          Math.round((design.extraPriceCents ?? 0) / 100),
+                        ].join("|"),
+                      )
+                      .join("\n") ?? "bosque|Bosque de amigos|Animalitos y hojas|0"
+                  }
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="productStock">
+                  Stock: talle|color|diseño|cantidad|si/no
+                </label>
+                <textarea
+                  className="textarea"
+                  id="productStock"
+                  name="stock"
+                  rows={5}
+                  defaultValue={
+                    firstProduct?.stock
+                      ?.map((stock) =>
+                        [
+                          stock.sizeCode,
+                          stock.colorCode,
+                          stock.designId ?? "",
+                          stock.quantityAvailable,
+                          stock.trackStock ? "si" : "no",
+                        ].join("|"),
+                      )
+                      .join("\n") ?? "2|natural|bosque|10|si"
+                  }
+                />
+              </div>
+            </div>
+            <h3>Personalización</h3>
+            <div className="field-grid">
+              <label className="radio-card" htmlFor="personalizationEnabled">
+                <input
+                  id="personalizationEnabled"
+                  name="personalizationEnabled"
+                  type="checkbox"
+                  defaultChecked={firstProduct?.personalization.enabled ?? true}
+                />
+                <div>
+                  <h4 className="radio-card__title">Permite personalizar</h4>
+                  <p className="radio-card__sub">Nombre, inicial o frase corta.</p>
+                </div>
+              </label>
+              <div className="field">
+                <label htmlFor="personalizationPrice">Extra en pesos</label>
+                <input
+                  className="input"
+                  id="personalizationPrice"
+                  name="personalizationPrice"
+                  inputMode="numeric"
+                  defaultValue={
+                    firstProduct
+                      ? String(
+                          Math.round(
+                            firstProduct.personalization.extraPriceCents / 100,
+                          ),
+                        )
+                      : "0"
+                  }
+                />
+              </div>
+            </div>
+            <div className="field-grid">
+              <div className="field">
+                <label htmlFor="personalizationLabel">Label</label>
+                <input
+                  className="input"
+                  id="personalizationLabel"
+                  name="personalizationLabel"
+                  defaultValue={
+                    firstProduct?.personalization.label ?? "Nombre o frase corta"
+                  }
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="productionTime">Tiempo de producción</label>
+                <input
+                  className="input"
+                  id="productionTime"
+                  name="productionTime"
+                  defaultValue={firstProduct?.productionTime ?? ""}
+                />
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="personalizationDescription">Descripción</label>
+              <textarea
+                className="textarea"
+                id="personalizationDescription"
+                name="personalizationDescription"
+                rows={2}
+                defaultValue={firstProduct?.personalization.description ?? ""}
+              />
+            </div>
+            <Button type="submit" variant="primary">
+              <Check size={20} /> Guardar producto
+            </Button>
+          </form>
           <table className="table">
             <thead>
               <tr>

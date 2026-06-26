@@ -26,6 +26,8 @@ export type ProductDesign = {
   name: string;
   summary: string;
   extraPriceCents?: number;
+  imageUrl?: string | null;
+  imageAlt?: string;
 };
 
 export type ProductPersonalization = {
@@ -47,11 +49,22 @@ export type CatalogProduct = {
   basePriceCents: number;
   productionTime: string;
   accentColor: string;
+  imageUrl?: string | null;
+  imageAlt?: string;
   badges: string[];
   sizes: ProductSize[];
   colors: ProductColor[];
   designs: ProductDesign[];
   personalization: ProductPersonalization;
+  stock?: ProductVariantStock[];
+};
+
+export type ProductVariantStock = {
+  sizeCode: string;
+  colorCode: string;
+  designId?: string | null;
+  quantityAvailable: number;
+  trackStock: boolean;
 };
 
 export const catalogCategoryLabels: Record<ProductCategory, string> = {
