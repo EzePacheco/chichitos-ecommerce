@@ -1,6 +1,6 @@
-import { SiteFooter } from "@/components/layout/SiteFooter";
-import { SiteHeader } from "@/components/layout/SiteHeader";
-import { WhatsAppFloat } from "@/components/layout/WhatsAppFloat";
+import { SiteFooter } from "@/features/store-shell/ui/SiteFooter";
+import { SiteHeader } from "@/features/store-shell/ui/SiteHeader";
+import { WhatsAppFloat } from "@/features/store-shell/ui/WhatsAppFloat";
 
 export default function StoreLayout({
   children,

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createServerSupabaseClient } from "@/platform/supabase/server";
 import { buildAdminLoginPath, sanitizeInternalRedirectPath } from "@/server/auth/redirects";
 
 export const dynamic = "force-dynamic";

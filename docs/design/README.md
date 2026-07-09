@@ -1,20 +1,27 @@
-# Diseno - Chichitos Web
+# Diseño - Chichitos Web
 
-Usar esta carpeta para guardar insumos visuales, prompts, exports y referencias de marca.
+Esta carpeta guarda la fuente visual vigente y el historial de handoffs de
+diseño. Antes de cambiar dirección visual, revisar este archivo y
+`docs/design/chichitos-visual-brief.md`.
 
-## Dónde dejar archivos
+## Fuentes vigentes
 
-- `docs/design/inbox/` - archivos nuevos sin clasificar: capturas, exports rapidos, links guardados en `.md`.
-- `docs/design/references/` - referencias aprobadas o utiles: moodboards, screenshots, notas de marca.
-- `docs/design/exports/` - exports desde v0, Claude Design u otra herramienta: HTML, capturas, componentes de referencia.
-- `docs/design/chichitos-visual-brief.md` - prompt base actual para generar propuestas.
+- `docs/design/chichitos-visual-brief.md` - brief visual base.
+- `public/brand/` - logos usados por la app real.
+- `src/app/globals.css` y `src/shared/ui/design-system.tsx` - tokens y
+  componentes visuales implementados.
 
-## Convenciones
+## Histórico
 
-- Crear subcarpetas por fecha y herramienta, por ejemplo `docs/design/exports/2026-05-17-v0/`.
-- Si el archivo es muy grande, dejar un `.md` con link y contexto en vez de guardar binarios pesados.
-- Si un asset pasa a ser parte real de la app, moverlo luego a la carpeta publica o de assets del proyecto cuando exista el scaffold.
+- `docs/design/archive/2026-05-25-chichitos-system/` - bundle exportado de
+  Claude Design con chats, UI kit, previews, assets y prototipos. Es referencia
+  histórica, no autoridad de producción por sí sola.
 
-## Exports actuales
+## Reglas
 
-- `docs/design/exports/2026-05-17-claude-design-chichitos-design-system/` - bundle autocontenido exportado desde Claude Design. Incluye logos, tokens CSS, previews HTML y UI kit de referencia para Home, Catalogo, Producto, Carrito, Checkout y Admin.
+- No guardar secretos, PII ni datos de clientes.
+- Si un asset pasa a producción, moverlo a `public/brand/` u otra ruta pública
+  explícita y actualizar el código.
+- Archivos nuevos sin clasificar pueden entrar en `docs/design/inbox/`, pero
+  deben moverse a `references/`, `archive/` o producción cuando se confirme su
+  rol.

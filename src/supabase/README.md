@@ -4,11 +4,12 @@ Contrato operativo inicial para la base de datos de Chichitos Web.
 
 ## Fuente de verdad
 
-Las migraciones versionadas bajo `supabase/migrations/` son la fuente de verdad del schema. Evitar cambios manuales en el dashboard que no queden reflejados en una migracion.
+Las migraciones versionadas bajo `src/supabase/migrations/` son la fuente de verdad del schema. Evitar cambios manuales en el dashboard que no queden reflejados en una migracion.
 
-Migracion inicial:
+Migraciones actuales:
 
-- `supabase/migrations/20260517143000_initial_schema.sql`
+- Aplicar todos los archivos de `src/supabase/migrations/` en orden lexicografico.
+- No editar migraciones ya aplicadas; crear una migracion forward.
 
 ## Setup del proyecto remoto
 
@@ -39,22 +40,26 @@ Opcion temporal sin CLI:
 
 1. Abrir Supabase Dashboard.
 2. Ir a SQL Editor.
-3. Ejecutar el contenido de `supabase/migrations/20260517143000_initial_schema.sql`.
+3. Ejecutar los archivos de `src/supabase/migrations/` en orden.
 4. No editar el schema luego desde el dashboard sin crear una migracion equivalente en el repo.
 
 ## Modelo de seguridad
 
 - RLS esta habilitado en todas las tablas publicas del dominio.
 - Catalogo activo es publico de solo lectura.
-- Pedidos, pagos, direcciones y webhook events no tienen acceso publico.
+- Pedidos, pagos, direcciones, reservas y webhook events no tienen acceso publico.
+- Admin autenticado no tiene escritura directa por Data API sobre catalogo,
+  settings, pedidos, pagos, webhooks, stock ni reservas; esas mutaciones pasan
+  por backend server-side con autorizacion previa.
 - Admin se define por `public.admin_users` y la funcion privada `private.is_admin()`.
 - El bootstrap inicial debe hacerse desde backend con `ADMIN_BOOTSTRAP_EMAILS` y clave elevada server-side.
 
-## Proximo corte tecnico
+## Estado tecnico
 
-1. Crear los clientes de Supabase usando `@supabase/supabase-js` y `@supabase/ssr`, ya instalados en el proyecto.
-2. Crear clientes separados:
-   - browser/client con publishable key para lectura publica y auth.
-   - server/admin con secret key o service role solo en server runtime.
-3. Implementar callback de auth y bootstrap admin.
-4. Reemplazar mock de catalogo por repositorio Supabase con fallback controlado durante desarrollo.
+- Los clientes Supabase viven bajo `src/platform/supabase/`.
+- El cliente elevado server-side esta en `src/platform/supabase/admin.ts`.
+- El catalogo publico lee Supabase cuando hay configuracion real y usa fallback
+  local solo fuera de produccion.
+- Auth callback, bootstrap admin y autorizacion admin estan implementados.
+- Checkout productivo usa RPCs server-side para idempotencia, reserva/captura de
+  stock y procesamiento transaccional de webhooks Mercado Pago.

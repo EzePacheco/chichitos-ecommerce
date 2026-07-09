@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { CatalogView } from "@/features/catalog/components/CatalogView";
-import { getPublicCatalogProducts } from "@/server/catalog/public-catalog";
+import CatalogScreen from "@/screens/store/CatalogScreen";
 
 export const metadata: Metadata = {
   title: "Catálogo | Chichitos",
@@ -10,7 +9,4 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function CatalogoPage() {
-  const products = await getPublicCatalogProducts();
-  return <CatalogView products={products} />;
-}
+export default CatalogScreen;

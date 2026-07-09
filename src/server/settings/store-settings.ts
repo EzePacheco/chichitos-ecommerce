@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { sanitizeWhatsAppPhoneNumber } from "../../lib/whatsapp";
-import { createAdminSupabaseClient } from "../supabase/admin";
+import { sanitizeWhatsAppPhoneNumber } from "@/shared/contact/whatsapp";
+import { createAdminSupabaseClient } from "@/platform/supabase/admin";
 
 export type StoreSettingsRecord = {
   id: boolean;

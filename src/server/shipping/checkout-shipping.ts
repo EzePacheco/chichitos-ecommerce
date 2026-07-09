@@ -1,4 +1,4 @@
-import { getOptionalEnv } from "@/server/config/env";
+import { getOptionalEnv } from "@/platform/config/env";
 import { calculateShippingCost } from "./calculate-shipping-cost";
 import type { StoreSettingsRecord } from "@/server/settings/store-settings";
 

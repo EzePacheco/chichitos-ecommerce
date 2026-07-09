@@ -1,4 +1,4 @@
-import { getReadiness } from "@/server/config/readiness";
+import { getReadiness } from "@/server/readiness/readiness";
 
 export const dynamic = "force-dynamic";
 

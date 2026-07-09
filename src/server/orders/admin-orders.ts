@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { sanitizeWhatsAppPhoneNumber } from "@/lib/whatsapp";
+import { sanitizeWhatsAppPhoneNumber } from "@/shared/contact/whatsapp";
 import { isSupabaseCatalogConfigured } from "@/server/catalog/public-catalog";
-import { createAdminSupabaseClient } from "@/server/supabase/admin";
+import { createAdminSupabaseClient } from "@/platform/supabase/admin";
 
 export type AdminOrderSummary = {
   id: string;

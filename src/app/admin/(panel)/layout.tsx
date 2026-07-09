@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { AdminShell } from "@/features/admin/components/AdminShell";
+import { AdminShell } from "@/screens/admin/AdminShell";
 
 export const dynamic = "force-dynamic";
 

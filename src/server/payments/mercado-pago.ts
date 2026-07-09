@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "crypto";
-import { getOptionalEnv, getRequiredEnv } from "@/server/config/env";
+import { getOptionalEnv, getRequiredEnv } from "@/platform/config/env";
 
 type PreferenceItem = {
   title: string;
@@ -56,11 +56,13 @@ export function buildMercadoPagoPreferenceBody(
 
 export async function createMercadoPagoPreference(input: MercadoPagoPreferenceInput) {
   const siteUrl = getRequiredEnv("NEXT_PUBLIC_SITE_URL").replace(/\/$/, "");
+  const idempotencyKey = `pref-${input.orderId}`;
   const response = await fetch("https://api.mercadopago.com/checkout/preferences", {
     method: "POST",
     headers: {
       authorization: `Bearer ${getRequiredEnv("MERCADO_PAGO_ACCESS_TOKEN")}`,
       "content-type": "application/json",
+      "X-Idempotency-Key": idempotencyKey,
     },
     body: JSON.stringify(buildMercadoPagoPreferenceBody(input, siteUrl)),
   });
@@ -113,11 +115,22 @@ export function verifyMercadoPagoWebhookSignature(input: {
   requestId: string | null;
   dataId: string | null;
   secret?: string;
+  nowMs?: number;
+  maxAgeMs?: number;
 }) {
   const secret = input.secret ?? getOptionalEnv("MERCADO_PAGO_WEBHOOK_SECRET");
   const parsed = parseSignature(input.signature);
 
   if (!secret || !parsed.timestamp || !parsed.hash || !input.requestId || !input.dataId) {
+    return false;
+  }
+
+  const timestamp = Number(parsed.timestamp);
+  const timestampMs = timestamp > 1_000_000_000_000 ? timestamp : timestamp * 1000;
+  const nowMs = input.nowMs ?? Date.now();
+  const maxAgeMs = input.maxAgeMs ?? 10 * 60 * 1000;
+
+  if (!Number.isFinite(timestampMs) || Math.abs(nowMs - timestampMs) > maxAgeMs) {
     return false;
   }
 

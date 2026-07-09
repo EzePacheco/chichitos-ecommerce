@@ -12,7 +12,7 @@ El formato sigue Keep a Changelog y el versionado sera SemVer durante el MVP.
 - Base de decisiones arquitectonicas en `docs/adr/`.
 - Brief visual inicial para generar propuestas de UI.
 - Estructura para guardar referencias y exports de diseno.
-- Bundle de design system de Claude Design organizado bajo `docs/design/exports/2026-05-17-claude-design-chichitos-design-system/`.
+- Bundle de design system de Claude Design organizado como referencia historica bajo `docs/design/archive/2026-05-25-chichitos-system/`.
 - SPEC-001 actualizada con pnpm, Vercel, Google Maps aceptado, bootstrap admin por allowlist y criterios de scaffold.
 - Scaffold tecnico Next.js con App Router, TypeScript, pnpm, ESLint, Vitest, rutas iniciales y health check.
 - Tokens visuales iniciales de Chichitos y logos de marca bajo `public/brand/`.
@@ -35,6 +35,15 @@ El formato sigue Keep a Changelog y el versionado sera SemVer durante el MVP.
 - SPEC-005 de catalogo admin productivo, uploads, stock por variante y checkout Mercado Pago.
 - Catalogo publico preparado para leer Supabase con fallback local, admin de producto con upload a Storage, stock por variante y checkout server-side con webhook firmado de Mercado Pago.
 - Panel admin separado en paginas de dashboard, pedidos, productos, disenos y configuracion, con edicion guiada de productos/disenos y actualizacion operativa de pedidos sin tocar pagos.
+- `LLM_CONTEXT.md`, `docs/product.md`, `docs/architecture.md` y `docs/generated/README.md` como topologia documental compacta para humanos y agentes.
+- ADR-0005 para la estructura modular `app -> screens -> features -> shared/platform/server`.
+- Hardening de SPEC-005 para checkout productivo: grants Data API de menor privilegio, fingerprint de idempotencia de checkout, inbox reintentable de webhooks Mercado Pago, ventana anti-replay de firma, aplicacion transaccional de pago/orden/captura/liberacion de stock, y claim idempotente de preferencia MP.
+
+### Changed
+
+- Reorganizacion interna de carpetas hacia `src/screens`, `src/shared`, `src/platform`, features con `ui/model/server`, y server use cases por capacidad.
+- SPEC-005 movida a `specs/active/` y bundle historico de diseño movido a `docs/design/archive/`.
+- Documentacion de arquitectura, database y Supabase alineada con stock/reservas productivas y flujo de pagos server-side.
 
 ### Decisions
 
@@ -42,3 +51,4 @@ El formato sigue Keep a Changelog y el versionado sera SemVer durante el MVP.
 - ADR-0002 - Supabase Postgres y Auth admin con Google ([0002-supabase-postgres-auth-admin-google.md](docs/adr/0002-supabase-postgres-auth-admin-google.md)).
 - ADR-0003 - Google Maps Platform para direccion y distancia de envio ([0003-google-maps-envio-distancia.md](docs/adr/0003-google-maps-envio-distancia.md)).
 - ADR-0004 - pnpm y Vercel para build y despliegue ([0004-pnpm-vercel-nextjs-deploy.md](docs/adr/0004-pnpm-vercel-nextjs-deploy.md)).
+- ADR-0005 - Modular repo structure for Chichitos Web ([0005-modular-repo-structure.md](docs/adr/0005-modular-repo-structure.md)).

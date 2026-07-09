@@ -1,6 +1,6 @@
 import type { User } from "@supabase/supabase-js";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { createAdminSupabaseClient } from "@/server/supabase/admin";
+import { createServerSupabaseClient } from "@/platform/supabase/server";
+import { createAdminSupabaseClient } from "@/platform/supabase/admin";
 import { isBootstrapAdminEmail, normalizeAdminEmail } from "./admin-bootstrap";
 import {
   decideAdminAuthorization,

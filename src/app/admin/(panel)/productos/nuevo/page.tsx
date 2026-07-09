@@ -1,12 +1,3 @@
-import { saveCatalogProductAction } from "@/app/admin/actions";
-import { AdminPageHeader } from "@/features/admin/components/AdminShell";
-import { ProductEditor } from "@/features/admin/components/ProductEditor";
+import NewAdminProductScreen from "@/screens/admin/NewAdminProductScreen";
 
-export default function NewAdminProductPage() {
-  return (
-    <>
-      <AdminPageHeader eyebrow="Catálogo" title="Nuevo producto" />
-      <ProductEditor action={saveCatalogProductAction} />
-    </>
-  );
-}
+export default NewAdminProductScreen;

@@ -1,4 +1,4 @@
-﻿import { ok } from "@/server/http/responses";
+﻿import { ok } from "@/platform/http/responses";
 
 export const dynamic = "force-dynamic";
 
