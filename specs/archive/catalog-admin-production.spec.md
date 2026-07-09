@@ -1,5 +1,12 @@
 # SPEC-005 - Catalogo admin, stock y checkout productivo
 
+## Estado de ciclo de vida
+
+- **Estado:** ARCHIVADA (implementación consolidada en código).
+- **Fecha de archivo:** 2026-07-09.
+- **Motivo:** objetivo funcional cumplido y reflejado en código, migraciones y hardening de pagos/stock.
+- **Pendiente para producción:** evidencia de staging/sandbox/browser y validación de operaciones concurrentes pendiente de cierre en runbook.
+
 ## Objetivo
 
 Dejar Chichitos listo para vender con datos reales:
@@ -26,10 +33,7 @@ Dejar Chichitos listo para vender con datos reales:
 - Google Maps autocomplete completo. Para este corte, envio usa direccion ingresada y distancia calculada server-side.
 - Cron dedicado para liberar reservas. La liberacion es oportunista al crear checkout y desde operaciones admin/reconciliacion.
 
-## Estado de despliegue
-
-No desplegable a produccion hasta completar evidencia staging/sandbox/browser.
-Hardening local agregado en la migracion
+## Hardening implementado en la migracion
 `20260708190000_spec005_payment_stock_hardening.sql`:
 
 - Data API sin escritura directa de usuarios autenticados sobre pedidos, pagos,
@@ -40,10 +44,12 @@ Hardening local agregado en la migracion
   y construida desde items persistidos.
 - Webhook Mercado Pago con inbox reintentable y aplicacion transaccional de
   pago/orden/captura/liberacion.
+Hardening implementado:
+
 - Guardado atomico de producto bloquea cambios si existen reservas activas.
 - Firma Mercado Pago rechaza timestamps fuera de ventana anti-replay.
 
-Blockers funcionales que deben seguir verificados antes de produccion:
+Criterios de producción que quedaron como evidencia pendiente:
 
 - Reserva y captura/liberacion de stock deben ser transaccionales.
 - Checkout debe ser idempotente por `Idempotency-Key`.

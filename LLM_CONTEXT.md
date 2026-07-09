@@ -11,6 +11,7 @@ for agents, then follow the linked source documents.
 4. `docs/architecture.md` - current code organization, integrations, data,
    security, and operation notes.
 5. `docs/adr/README.md` - accepted architecture decisions.
+6. `specs/active/` y `specs/archive/` para estado de trabajo de cambios.
 
 ## Task Routing
 
@@ -34,7 +35,8 @@ for agents, then follow the linked source documents.
 - Public catalog may use mock fallback only outside production.
 - Payment status is confirmed by validated webhook, not browser return.
 - Money is integer cents in backend/DB.
-- Specs for risky active work live in `specs/active/`.
+- Specs for risky active work live in `specs/active/`; completed specs are moved
+  to `specs/archive/`.
 
 ## Generated / Historical Context
 
@@ -43,6 +45,11 @@ for agents, then follow the linked source documents.
 - `docs/design/archive/**` contains historical design handoff bundles and should
   not be treated as production source without checking current code and
   `docs/design/README.md`.
+
+## Change History
+
+- SPEC-005 quedó archivada en `specs/archive/catalog-admin-production.spec.md`
+  luego de completar implementación de checkout/productivo, stock y pagos.
 
 ## Do Not Read By Default
 

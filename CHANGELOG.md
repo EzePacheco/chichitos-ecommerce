@@ -38,11 +38,13 @@ El formato sigue Keep a Changelog y el versionado sera SemVer durante el MVP.
 - `LLM_CONTEXT.md`, `docs/product.md`, `docs/architecture.md` y `docs/generated/README.md` como topologia documental compacta para humanos y agentes.
 - ADR-0005 para la estructura modular `app -> screens -> features -> shared/platform/server`.
 - Hardening de SPEC-005 para checkout productivo: grants Data API de menor privilegio, fingerprint de idempotencia de checkout, inbox reintentable de webhooks Mercado Pago, ventana anti-replay de firma, aplicacion transaccional de pago/orden/captura/liberacion de stock, y claim idempotente de preferencia MP.
+- Sincronización documental de specs y rutas de autoridad: archivo de `specs/archive/` como historial técnico y ajuste de `README`, `LLM_CONTEXT.md` y `CHANGELOG` para reflejar estado activo/completado.
 
 ### Changed
 
 - Reorganizacion interna de carpetas hacia `src/screens`, `src/shared`, `src/platform`, features con `ui/model/server`, y server use cases por capacidad.
-- SPEC-005 movida a `specs/active/` y bundle historico de diseño movido a `docs/design/archive/`.
+- SPEC-005 archivada en `specs/archive/` y bundle histórico de diseño
+  movido a `docs/design/archive/`.
 - Documentacion de arquitectura, database y Supabase alineada con stock/reservas productivas y flujo de pagos server-side.
 
 ### Decisions

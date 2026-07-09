@@ -32,7 +32,8 @@ pnpm build
 - `docs/adr/` - decisiones arquitectónicas aceptadas.
 - `docs/database.md` - resumen de schema y accesos esperados.
 - `docs/design/` - guía visual vigente y archivo histórico de bundles de diseño.
-- `specs/active/` - specs activas para cambios materiales.
+- `specs/active/` - specs activas para cambios materiales en curso.
+- `specs/archive/` - specs completadas o cerradas para historial técnico.
 
 ## Seguridad
 
