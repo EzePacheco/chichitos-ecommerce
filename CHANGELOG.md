@@ -35,7 +35,7 @@ El formato sigue Keep a Changelog y el versionado sera SemVer durante el MVP.
 - SPEC-005 de catalogo admin productivo, uploads, stock por variante y checkout Mercado Pago.
 - Catalogo publico preparado para leer Supabase con fallback local, admin de producto con upload a Storage, stock por variante y checkout server-side con webhook firmado de Mercado Pago.
 - Panel admin separado en paginas de dashboard, pedidos, productos, disenos y configuracion, con edicion guiada de productos/disenos y actualizacion operativa de pedidos sin tocar pagos.
-- `LLM_CONTEXT.md`, `docs/product.md`, `docs/architecture.md` y `docs/generated/README.md` como topologia documental compacta para humanos y agentes.
+- `LLM_CONTEXT.md`, `docs/product.md` y `docs/architecture.md` como topologia documental compacta para humanos y agentes.
 - ADR-0005 para la estructura modular `app -> screens -> features -> shared/platform/server`.
 - Hardening de SPEC-005 para checkout productivo: grants Data API de menor privilegio, fingerprint de idempotencia de checkout, inbox reintentable de webhooks Mercado Pago, ventana anti-replay de firma, aplicacion transaccional de pago/orden/captura/liberacion de stock, y claim idempotente de preferencia MP.
 - Sincronización documental de specs y rutas de autoridad: archivo de `specs/archive/` como historial técnico y ajuste de `README`, `LLM_CONTEXT.md` y `CHANGELOG` para reflejar estado activo/completado.
@@ -46,6 +46,7 @@ El formato sigue Keep a Changelog y el versionado sera SemVer durante el MVP.
 - SPEC-005 archivada en `specs/archive/` y bundle histórico de diseño
   movido a `docs/design/archive/`.
 - Documentacion de arquitectura, database y Supabase alineada con stock/reservas productivas y flujo de pagos server-side.
+- Context packs generados retirados del repositorio compartido; se conservan fuera de Git como evidencia local cuando hacen falta.
 
 ### Decisions
 

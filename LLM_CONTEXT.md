@@ -38,10 +38,8 @@ for agents, then follow the linked source documents.
 - Specs for risky active work live in `specs/active/`; completed specs are moved
   to `specs/archive/`.
 
-## Generated / Historical Context
+## Historical Context
 
-- `docs/generated/repo-context-pack.md` is generated evidence for browser
-  handoff, not current architecture authority.
 - `docs/design/archive/**` contains historical design handoff bundles and should
   not be treated as production source without checking current code and
   `docs/design/README.md`.
@@ -56,4 +54,4 @@ for agents, then follow the linked source documents.
 - `.next/`, `node_modules/`, `.playwright-mcp/`, generated build output, and
   archived design bundles unless specifically needed.
 
-Last updated when the repo was reorganized around the EOS architecture topology.
+Last updated when the repository documentation and module topology were reconciled.

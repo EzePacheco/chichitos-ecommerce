@@ -33,7 +33,6 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Local AI operating context
+# Local tool state
 .claude/
-AGENTS.md
 docs/design/exports/2026*
