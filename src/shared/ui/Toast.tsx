@@ -1,7 +1,38 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+const TOAST_EVENT = "chichitos-toast";
+
+export function showToast(message: string) {
+  if (typeof window === "undefined") return;
+
+  window.dispatchEvent(new CustomEvent(TOAST_EVENT, { detail: { message } }));
+}
+
+export function Toaster() {
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    function handleToast(event: Event) {
+      const detail = (event as CustomEvent<{ message?: string }>).detail;
+
+      if (detail?.message) {
+        setMessage(detail.message);
+      }
+    }
+
+    window.addEventListener(TOAST_EVENT, handleToast);
+    return () => window.removeEventListener(TOAST_EVENT, handleToast);
+  }, []);
+
+  const handleDone = useCallback(() => setMessage(null), []);
+
+  if (!message) return null;
+
+  return <Toast key={message} message={message} onDone={handleDone} />;
+}
 
 type ToastProps = {
   message: string;

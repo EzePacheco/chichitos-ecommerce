@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { Caveat, DM_Serif_Display, Outfit } from "next/font/google";
+import { Toaster } from "@/shared/ui/Toast";
 import "./globals.css";
 
 const display = DM_Serif_Display({
@@ -36,7 +37,10 @@ export default function RootLayout({
       lang="es-AR"
       className={`${display.variable} ${sans.variable} ${script.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }

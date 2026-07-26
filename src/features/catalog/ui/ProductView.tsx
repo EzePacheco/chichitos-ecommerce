@@ -6,6 +6,7 @@ import { GarmentTag } from "@/features/catalog/ui/GarmentVisuals";
 import { Eyebrow } from "@/shared/ui/design-system";
 import { formatMoney } from "@/shared/formatting/money";
 import { useProductOptions } from "../hooks/use-product-options";
+import { showToast } from "@/shared/ui/Toast";
 import { addStoredCartItem } from "../model/cart-storage";
 import { getGarmentType, getProductTagVariant } from "../model/design";
 import { getProductDetailTotalCents } from "../model/product-options";
@@ -54,6 +55,7 @@ export function ProductView({ product, whatsappHref }: ProductViewProps) {
       personalName: personalize ? personalName.trim() || null : null,
     });
     setAdded(true);
+    showToast("Sumado al carrito 🛒");
   }
 
   return (

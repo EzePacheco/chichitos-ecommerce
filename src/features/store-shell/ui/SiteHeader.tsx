@@ -8,6 +8,7 @@ import { Menu, Search, ShoppingBag, Sparkles, X } from "lucide-react";
 import { Logo } from "@/shared/ui/design-system";
 import { Button } from "@/shared/ui/button";
 import { buildWhatsAppHref } from "@/shared/contact/whatsapp";
+import { useCartItemCount } from "@/features/catalog/model/cart-storage";
 
 type NavLink = {
   href: string;
@@ -18,14 +19,14 @@ type NavLink = {
 
 type SiteHeaderProps = {
   whatsappNumber?: string;
-  cartCount?: number;
 };
 
 function subscribeNoop() {
   return () => {};
 }
 
-export function SiteHeader({ whatsappNumber, cartCount = 0 }: SiteHeaderProps) {
+export function SiteHeader({ whatsappNumber }: SiteHeaderProps) {
+  const cartCount = useCartItemCount();
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const mounted = useSyncExternalStore(
@@ -100,10 +101,20 @@ export function SiteHeader({ whatsappNumber, cartCount = 0 }: SiteHeaderProps) {
           >
             <Search size={20} />
           </Link>
-          <Link className="icon-btn" href="/carrito" aria-label="Ver carrito">
+          <Link
+            className="icon-btn"
+            href="/carrito"
+            aria-label={
+              cartCount > 0
+                ? `Ver carrito, ${cartCount} ${cartCount === 1 ? "producto" : "productos"}`
+                : "Ver carrito"
+            }
+          >
             <ShoppingBag size={20} />
             {cartCount > 0 ? (
-              <span className="icon-btn__badge">{cartCount}</span>
+              <span aria-hidden="true" className="icon-btn__badge">
+                {cartCount > 9 ? "9+" : cartCount}
+              </span>
             ) : null}
           </Link>
           <button

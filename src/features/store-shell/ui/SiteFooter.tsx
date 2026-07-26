@@ -1,7 +1,13 @@
-﻿import Link from "next/link";
+import Link from "next/link";
+import { buildWhatsAppHref } from "@/shared/contact/whatsapp";
 import { Logo } from "@/shared/ui/design-system";
 
 export function SiteFooter() {
+  const whatsappHref = buildWhatsAppHref(
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER,
+    "Hola Chichitos, quiero hacer una consulta sobre una prenda.",
+  );
+
   return (
     <footer className="footer">
       <div className="container">
@@ -24,10 +30,7 @@ export function SiteFooter() {
                 <Link href="/#como-comprar">Diseños propios</Link>
               </li>
               <li>
-                <Link href="/producto/remera-algodon">Personalización</Link>
-              </li>
-              <li>
-                <Link href="/catalogo">Tarjetas regalo</Link>
+                <Link href="/catalogo">Personalización</Link>
               </li>
             </ul>
           </div>
@@ -39,9 +42,6 @@ export function SiteFooter() {
                 <Link href="/#como-comprar">Cómo comprar</Link>
               </li>
               <li>
-                <Link href="/producto/remera-algodon">Talles</Link>
-              </li>
-              <li>
                 <Link href="/checkout">Envíos y retiro</Link>
               </li>
               <li>
@@ -50,26 +50,18 @@ export function SiteFooter() {
             </ul>
           </div>
 
-          <div>
-            <h4>Contacto</h4>
-            <ul>
-              <li>
-                <a href="mailto:hola@chichitos.local">hola@chichitos.local</a>
-              </li>
-              <li>
-                <Link href="/catalogo">WhatsApp</Link>
-              </li>
-              <li>
-                <a
-                  href="https://www.instagram.com/"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Instagram
-                </a>
-              </li>
-            </ul>
-          </div>
+          {whatsappHref ? (
+            <div>
+              <h4>Contacto</h4>
+              <ul>
+                <li>
+                  <a href={whatsappHref} target="_blank" rel="noreferrer">
+                    WhatsApp
+                  </a>
+                </li>
+              </ul>
+            </div>
+          ) : null}
         </div>
 
         <div className="footer__legal">

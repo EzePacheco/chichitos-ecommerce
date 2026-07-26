@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import type { CatalogProduct } from "./catalog-products";
 
 export type StoredCartItem = {
@@ -138,10 +138,28 @@ export function hydrateCartItems(products: CatalogProduct[]) {
   return hydrateCartItemsFromRaw(readRawCart(), products);
 }
 
-export function useHydratedCartItems(products: CatalogProduct[]) {
+export function useCartItemCount() {
   const snapshot = useSyncExternalStore(subscribeToCart, getCartSnapshot, () => "[]");
 
   return useMemo(() => {
+    try {
+      const parsed = JSON.parse(snapshot);
+      return Array.isArray(parsed)
+        ? parsed.reduce(
+            (total: number, item: StoredCartItem) => total + (Number(item?.qty) || 0),
+            0,
+          )
+        : 0;
+    } catch {
+      return 0;
+    }
+  }, [snapshot]);
+}
+
+export function useHydratedCartItems(products: CatalogProduct[]) {
+  const snapshot = useSyncExternalStore(subscribeToCart, getCartSnapshot, () => "[]");
+
+  const items = useMemo(() => {
     try {
       const parsed = JSON.parse(snapshot);
       return hydrateCartItemsFromRaw(Array.isArray(parsed) ? parsed : [], products);
@@ -149,4 +167,16 @@ export function useHydratedCartItems(products: CatalogProduct[]) {
       return [];
     }
   }, [products, snapshot]);
+
+  useEffect(() => {
+    if (products.length === 0) return;
+
+    const raw = readRawCart();
+    const keep = new Set(items.map((item) => item.id));
+    const pruned = raw.filter((item) => keep.has(item.id));
+
+    if (pruned.length !== raw.length) writeRawCart(pruned);
+  }, [items, products]);
+
+  return items;
 }

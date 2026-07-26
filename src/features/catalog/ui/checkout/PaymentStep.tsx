@@ -25,7 +25,7 @@ export function PaymentStep({
         <div style={{ flex: 1 }}>
           <h4 className="radio-card__title">Mercado Pago</h4>
           <p className="radio-card__sub">
-            La confirmación real llega por webhook validado.
+            Pagás en el sitio seguro de Mercado Pago y volvés a la tienda.
           </p>
         </div>
         <strong>MP</strong>
