@@ -36,3 +36,6 @@ Thumbs.db
 # Local tool state
 .claude/
 docs/design/exports/2026*
+.vercel
+.env*
+supabase/.temp/
