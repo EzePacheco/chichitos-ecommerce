@@ -29,7 +29,10 @@ export function ProductPersonalizationSection({
             className="input"
             id="personalizationPrice"
             inputMode="numeric"
+            min={0}
             name="personalizationPrice"
+            step={1}
+            type="number"
             defaultValue={
               product
                 ? String(Math.round(product.personalization.extraPriceCents / 100))

@@ -34,6 +34,65 @@ export type ProductEditorState = {
   stock: ProductEditorStock[];
 };
 
+export type ProductEditorDesignOption = {
+  slug: string;
+  name: string;
+  summary: string;
+  baseExtraPriceCents: number;
+};
+
+export function slugifyEditorValue(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export function generateStockCombinations(
+  state: ProductEditorState,
+): ProductEditorStock[] {
+  const additions: ProductEditorStock[] = [];
+
+  for (const size of state.sizes) {
+    for (const color of state.colors) {
+      for (const design of state.designs) {
+        if (!size.code.trim() || !color.code.trim() || !design.slug.trim()) {
+          continue;
+        }
+
+        const exists =
+          state.stock.some(
+            (row) =>
+              row.sizeCode === size.code &&
+              row.colorCode === color.code &&
+              row.designSlug === design.slug,
+          ) ||
+          additions.some(
+            (row) =>
+              row.sizeCode === size.code &&
+              row.colorCode === color.code &&
+              row.designSlug === design.slug,
+          );
+
+        if (!exists) {
+          additions.push({
+            sizeCode: size.code,
+            colorCode: color.code,
+            designSlug: design.slug,
+            quantity: "0",
+            trackStock: true,
+          });
+        }
+      }
+    }
+  }
+
+  return additions;
+}
+
 export function createProductEditorState(product?: CatalogProduct | null): ProductEditorState {
   if (!product) {
     return {

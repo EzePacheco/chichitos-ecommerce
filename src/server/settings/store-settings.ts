@@ -241,9 +241,7 @@ export function formatCentsForAdminInput(cents: number) {
 }
 
 export function formatDecimalForAdminInput(value: number) {
-  return Number.isInteger(value)
-    ? String(value)
-    : String(value).replace(".", ",");
+  return String(value);
 }
 
 export async function getStoreSettings(

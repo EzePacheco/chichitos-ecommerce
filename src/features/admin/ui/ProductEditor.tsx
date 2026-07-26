@@ -6,6 +6,7 @@ import type { AdminActionState } from "../model/admin-action-state";
 import {
   createProductEditorState,
   serializeProductEditorState,
+  type ProductEditorDesignOption,
   type ProductEditorState,
 } from "../model/product-editor-state";
 import { AdminActionForm } from "./AdminActionForm";
@@ -20,9 +21,15 @@ type ProductEditorProps = {
   ) => Promise<AdminActionState>;
   product?: CatalogProduct | null;
   lockSlug?: boolean;
+  availableDesigns?: ProductEditorDesignOption[];
 };
 
-export function ProductEditor({ action, product, lockSlug = false }: ProductEditorProps) {
+export function ProductEditor({
+  action,
+  product,
+  lockSlug = false,
+  availableDesigns = [],
+}: ProductEditorProps) {
   const [state, setState] = useState<ProductEditorState>(() =>
     createProductEditorState(product),
   );
@@ -40,7 +47,11 @@ export function ProductEditor({ action, product, lockSlug = false }: ProductEdit
       <input name="stock" type="hidden" value={serialized.stock} />
 
       <ProductBasicsSection product={product} lockSlug={lockSlug} />
-      <ProductVariantSections state={state} setState={setState} />
+      <ProductVariantSections
+        availableDesigns={availableDesigns}
+        setState={setState}
+        state={state}
+      />
       <ProductPersonalizationSection product={product} />
     </AdminActionForm>
   );

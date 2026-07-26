@@ -221,6 +221,42 @@ export async function getAdminCatalogProducts(
   return (data as unknown as CatalogProductRow[]).map(mapCatalogProductRow);
 }
 
+export type CatalogProductStatusInput = {
+  productId: string;
+  slug: string;
+  status: ProductStatus;
+};
+
+export function parseCatalogProductStatusInput(formData: FormData) {
+  const productId = text(formData.get("productId"));
+  const slug = slugifyCatalogValue(text(formData.get("slug")));
+  const status = text(formData.get("status")) as ProductStatus;
+
+  if (!productId || !slug || !statuses.includes(status)) {
+    return { ok: false as const };
+  }
+
+  return { ok: true as const, input: { productId, slug, status } };
+}
+
+export async function setCatalogProductStatus(
+  input: CatalogProductStatusInput,
+  supabase: SupabaseClient = createAdminSupabaseClient(),
+) {
+  const { error } = await supabase
+    .from("products")
+    .update({ status: input.status })
+    .eq("id", input.productId);
+
+  if (error) {
+    throw new Error(`No pudimos actualizar el estado: ${error.message}`);
+  }
+
+  revalidatePath("/");
+  revalidatePath("/catalogo");
+  revalidatePath(`/producto/${input.slug}`);
+}
+
 export async function upsertCatalogProduct(
   parsed: Extract<ReturnType<typeof parseCatalogProductInput>, { ok: true }>,
   supabase: SupabaseClient = createAdminSupabaseClient(),

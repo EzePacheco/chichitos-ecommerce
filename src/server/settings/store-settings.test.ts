@@ -91,7 +91,7 @@ describe("store settings rules", () => {
 
   it("formats values for admin inputs", () => {
     expect(formatCentsForAdminInput(250000)).toBe("2500");
-    expect(formatDecimalForAdminInput(0.5)).toBe("0,5");
+    expect(formatDecimalForAdminInput(0.5)).toBe("0.5");
     expect(formatDecimalForAdminInput(3)).toBe("3");
   });
 });

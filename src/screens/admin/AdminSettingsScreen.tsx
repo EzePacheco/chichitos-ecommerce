@@ -70,6 +70,7 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
                 defaultValue={storeSettings.store_name}
                 id="storeName"
                 name="storeName"
+                required
               />
             </div>
             <div className="field">
@@ -80,6 +81,7 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
                 id="whatsappNumber"
                 inputMode="tel"
                 name="whatsappNumber"
+                type="tel"
                 placeholder="Ej: +54 9 11 1234 5678"
               />
             </div>
@@ -108,7 +110,10 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
                 )}
                 id="deliveryBaseRadiusKm"
                 inputMode="decimal"
+                min={0.1}
                 name="deliveryBaseRadiusKm"
+                step={0.1}
+                type="number"
               />
             </div>
             <div className="field">
@@ -120,7 +125,10 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
                 )}
                 id="deliveryBasePrice"
                 inputMode="numeric"
+                min={0}
                 name="deliveryBasePrice"
+                step={1}
+                type="number"
               />
             </div>
           </div>
@@ -134,7 +142,10 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
                 )}
                 id="deliveryExtraStepKm"
                 inputMode="decimal"
+                min={0.1}
                 name="deliveryExtraStepKm"
+                step={0.1}
+                type="number"
               />
             </div>
             <div className="field">
@@ -148,7 +159,10 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
                 )}
                 id="deliveryExtraStepPrice"
                 inputMode="numeric"
+                min={0}
                 name="deliveryExtraStepPrice"
+                step={1}
+                type="number"
               />
             </div>
           </div>
@@ -168,7 +182,10 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
                 )}
                 id="defaultPersonalizationExtraPrice"
                 inputMode="numeric"
+                min={0}
                 name="defaultPersonalizationExtraPrice"
+                step={1}
+                type="number"
               />
             </div>
             <label className="radio-card" htmlFor="checkoutEnabled">

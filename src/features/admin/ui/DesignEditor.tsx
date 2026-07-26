@@ -34,26 +34,31 @@ export function DesignEditor({
     >
       <section className="admin-form__section">
         <h3>Diseño</h3>
+        <p className="admin-form__hint">Los campos con * son obligatorios.</p>
         <div className="field-grid">
           <div className="field">
-            <label htmlFor="designName">Nombre</label>
+            <label htmlFor="designName">Nombre *</label>
             <input
               className="input"
               defaultValue={design?.name ?? ""}
               id="designName"
               name="name"
+              placeholder="Ej: Bosque de amigos"
+              required
             />
           </div>
-          <div className="field">
-            <label htmlFor="designSlug">Slug</label>
-            <input
-              className="input"
-              defaultValue={design?.slug ?? ""}
-              id="designSlug"
-              name="slug"
-              readOnly={lockSlug}
-            />
-          </div>
+          {lockSlug ? (
+            <div className="field">
+              <label htmlFor="designSlug">Identificador</label>
+              <input
+                className="input"
+                defaultValue={design?.slug ?? ""}
+                id="designSlug"
+                name="slug"
+                readOnly
+              />
+            </div>
+          ) : null}
         </div>
         <div className="field-grid">
           <div className="field">
@@ -78,7 +83,10 @@ export function DesignEditor({
               }
               id="baseExtraPrice"
               inputMode="numeric"
+              min={0}
               name="baseExtraPrice"
+              step={1}
+              type="number"
             />
           </div>
         </div>

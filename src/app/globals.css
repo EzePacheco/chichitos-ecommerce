@@ -1819,6 +1819,17 @@ small,
     gap: var(--sp-3);
     justify-content: space-between;
 }
+.admin-form__section-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.admin-form__hint {
+    color: rgb(107 94 82);
+    font-size: 0.9375rem;
+    margin: 0;
+}
 .admin-form__row {
     align-items: center;
     display: grid;

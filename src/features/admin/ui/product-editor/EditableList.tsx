@@ -7,6 +7,7 @@ type EditableListProps = {
   addLabel: string;
   children: ReactNode;
   onAdd: () => void;
+  extraAction?: ReactNode;
 };
 
 export function EditableList({
@@ -14,14 +15,18 @@ export function EditableList({
   addLabel,
   children,
   onAdd,
+  extraAction,
 }: EditableListProps) {
   return (
     <section className="admin-form__section">
       <div className="admin-form__section-head">
         <h3>{title}</h3>
-        <Button type="button" variant="outline" size="sm" onClick={onAdd}>
-          <Plus size={16} /> {addLabel}
-        </Button>
+        <div className="admin-form__section-actions">
+          {extraAction}
+          <Button type="button" variant="outline" size="sm" onClick={onAdd}>
+            <Plus size={16} /> {addLabel}
+          </Button>
+        </div>
       </div>
       <div className="admin-form__list">{children}</div>
     </section>

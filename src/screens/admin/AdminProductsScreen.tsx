@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { Check, Info, Plus } from "lucide-react";
+import { AlertCircle, Info, Plus } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { AdminPageHeader } from "@/screens/admin/AdminShell";
 import { formatMoney } from "@/shared/formatting/money";
+import { SearchParamToast } from "@/shared/ui/SearchParamToast";
+import { ProductStatusToggle } from "@/features/admin/ui/ProductStatusToggle";
 import { getAdminCatalogProducts } from "@/server/catalog/admin-catalog";
 import { isSupabaseCatalogConfigured } from "@/server/catalog/public-catalog";
 
@@ -33,10 +35,18 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
         }
       />
 
-      {status === "saved" ? (
+      <SearchParamToast
+        param="catalog"
+        messages={{
+          saved: "Producto guardado. Ya se ve en la tienda.",
+          "status-saved": "Estado actualizado.",
+        }}
+      />
+
+      {status === "status-error" ? (
         <div className="disclaimer admin__notice">
-          <Check size={20} />
-          <div>El producto se guardó y el catálogo público fue refrescado.</div>
+          <AlertCircle size={20} />
+          <div>No pudimos actualizar el estado del producto. Probá nuevamente.</div>
         </div>
       ) : null}
 
@@ -57,12 +67,13 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
             <th>Talles</th>
             <th>Colores</th>
             <th>Diseños</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {products.length === 0 ? (
             <tr>
-              <td className="table__empty" colSpan={7}>
+              <td className="table__empty" colSpan={8}>
                 Todavía no hay productos cargados. Creá el primero desde
                 «Nuevo producto».
               </td>
@@ -75,12 +86,28 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
                   <strong>{product.name}</strong>
                 </Link>
               </td>
-              <td>{product.status}</td>
+              <td>
+                <span
+                  className={`status ${
+                    product.status === "active" ? "status--done" : "status--new"
+                  }`}
+                >
+                  {product.status === "active" ? "Publicado" : "Borrador"}
+                </span>
+              </td>
               <td>{product.category}</td>
               <td>{formatMoney(product.basePriceCents)}</td>
               <td>{product.sizes.length}</td>
               <td>{product.colors.length}</td>
               <td>{product.designs.length}</td>
+              <td>
+                <ProductStatusToggle
+                  productId={product.id}
+                  productName={product.name}
+                  slug={product.slug}
+                  status={product.status}
+                />
+              </td>
             </tr>
           ))}
         </tbody>

@@ -3,6 +3,7 @@ import { saveCatalogProductAction } from "@/features/admin/server/actions";
 import { AdminPageHeader } from "@/screens/admin/AdminShell";
 import { ProductEditor } from "@/features/admin/ui/ProductEditor";
 import { getAdminCatalogProducts } from "@/server/catalog/admin-catalog";
+import { getProductEditorDesignOptions } from "@/server/catalog/queries/product-editor-design-options";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -10,7 +11,10 @@ type PageProps = {
 
 export default async function EditAdminProductPage({ params }: PageProps) {
   const { slug } = await params;
-  const products = await getAdminCatalogProducts();
+  const [products, availableDesigns] = await Promise.all([
+    getAdminCatalogProducts(),
+    getProductEditorDesignOptions(),
+  ]);
   const product = products.find((item) => item.slug === slug);
 
   if (!product) notFound();
@@ -18,7 +22,12 @@ export default async function EditAdminProductPage({ params }: PageProps) {
   return (
     <>
       <AdminPageHeader eyebrow="Catálogo" title={product.name} />
-      <ProductEditor action={saveCatalogProductAction} lockSlug product={product} />
+      <ProductEditor
+        action={saveCatalogProductAction}
+        availableDesigns={availableDesigns}
+        lockSlug
+        product={product}
+      />
     </>
   );
 }

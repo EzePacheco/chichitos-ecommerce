@@ -6,6 +6,8 @@ import { getAdminAuthorization } from "@/server/auth/admin-authorization";
 import {
   getCatalogProductFormInput,
   parseCatalogProductInput,
+  parseCatalogProductStatusInput,
+  setCatalogProductStatus,
   upsertCatalogProduct,
 } from "@/server/catalog/admin-catalog";
 import {
@@ -93,6 +95,36 @@ export async function saveCatalogProductAction(
   revalidatePath("/admin");
   revalidatePath("/admin/productos");
   redirect("/admin/productos?catalog=saved");
+}
+
+export async function setCatalogProductStatusAction(formData: FormData) {
+  const authorization = await getAdminAuthorization();
+
+  if (authorization.status !== "authorized") {
+    redirect("/admin/productos?catalog=status-error");
+  }
+
+  const parsed = parseCatalogProductStatusInput(formData);
+
+  if (!parsed.ok) {
+    redirect("/admin/productos?catalog=status-error");
+  }
+
+  let failed = false;
+
+  try {
+    await setCatalogProductStatus(parsed.input);
+  } catch {
+    failed = true;
+  }
+
+  if (failed) {
+    redirect("/admin/productos?catalog=status-error");
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/productos");
+  redirect("/admin/productos?catalog=status-saved");
 }
 
 export async function saveDesignAction(

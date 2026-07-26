@@ -12,26 +12,31 @@ export function ProductBasicsSection({
   return (
     <section className="admin-form__section">
       <h3>Datos principales</h3>
+      <p className="admin-form__hint">Los campos con * son obligatorios.</p>
       <div className="field-grid">
         <div className="field">
-          <label htmlFor="productName">Nombre</label>
+          <label htmlFor="productName">Nombre *</label>
           <input
             className="input"
             id="productName"
             name="name"
+            placeholder="Ej: Remera bosque de amigos"
+            required
             defaultValue={product?.name ?? ""}
           />
         </div>
-        <div className="field">
-          <label htmlFor="productSlug">Slug</label>
-          <input
-            className="input"
-            id="productSlug"
-            name="slug"
-            readOnly={lockSlug}
-            defaultValue={product?.slug ?? ""}
-          />
-        </div>
+        {lockSlug ? (
+          <div className="field">
+            <label htmlFor="productSlug">Dirección en la tienda</label>
+            <input
+              className="input"
+              id="productSlug"
+              name="slug"
+              readOnly
+              defaultValue={product?.slug ?? ""}
+            />
+          </div>
+        ) : null}
       </div>
       <div className="field-grid">
         <div className="field">
@@ -64,12 +69,16 @@ export function ProductBasicsSection({
       </div>
       <div className="field-grid">
         <div className="field">
-          <label htmlFor="productPrice">Precio base en pesos</label>
+          <label htmlFor="productPrice">Precio base en pesos *</label>
           <input
             className="input"
             id="productPrice"
             inputMode="numeric"
+            min={1}
             name="basePrice"
+            required
+            step={1}
+            type="number"
             defaultValue={
               product ? String(Math.round(product.basePriceCents / 100)) : ""
             }
@@ -89,20 +98,23 @@ export function ProductBasicsSection({
         </label>
       </div>
       <div className="field">
-        <label htmlFor="productSummary">Resumen</label>
+        <label htmlFor="productSummary">Resumen *</label>
         <input
           className="input"
           id="productSummary"
           name="summary"
+          placeholder="Una línea corta que se ve en el catálogo"
+          required
           defaultValue={product?.summary ?? ""}
         />
       </div>
       <div className="field">
-        <label htmlFor="productDescription">Descripción</label>
+        <label htmlFor="productDescription">Descripción *</label>
         <textarea
           className="textarea"
           id="productDescription"
           name="description"
+          required
           rows={3}
           defaultValue={product?.description ?? ""}
         />
@@ -124,6 +136,7 @@ export function ProductBasicsSection({
             className="input"
             id="productionTime"
             name="productionTime"
+            placeholder="Ej: 5 a 7 días hábiles"
             defaultValue={product?.productionTime ?? ""}
           />
         </div>
