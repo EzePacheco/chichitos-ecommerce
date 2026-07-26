@@ -1112,11 +1112,19 @@ small,
     background: var(--cream-200);
     border: 2px solid transparent;
     border-radius: var(--r-md);
+    cursor: pointer;
     display: flex;
     flex: 1;
     justify-content: center;
     overflow: hidden;
     padding: 0;
+    transition:
+        border-color var(--dur-fast) var(--ease-out),
+        background var(--dur-fast) var(--ease-out);
+}
+.gallery__thumb:hover {
+    background: var(--cream-300);
+    border-color: var(--line-strong);
 }
 .gallery__thumb.is-active {
     border-color: var(--ink-900);
@@ -1158,13 +1166,21 @@ small,
     font-weight: 700;
 }
 .option-group__link {
+    align-items: center;
     background: none;
     border: none;
     color: var(--celeste-d);
     cursor: pointer;
+    display: inline-flex;
     font-size: var(--fs-caption);
+    gap: 6px;
     padding: 0;
     text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color var(--dur-fast) var(--ease-out);
+}
+.option-group__link:hover {
+    color: var(--ink-900);
 }
 .option-row {
     display: flex;
@@ -1175,9 +1191,16 @@ small,
     border: 2px solid transparent;
     border-radius: var(--r-pill);
     box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
     display: inline-flex;
     height: 36px;
+    transition:
+        border-color var(--dur-fast) var(--ease-out),
+        transform var(--dur-fast) var(--ease-out);
     width: 36px;
+}
+.swatch:hover {
+    transform: scale(1.08);
 }
 .swatch.is-active {
     border-color: var(--ink-900);
@@ -1187,11 +1210,20 @@ small,
     background: var(--cream-50);
     border: 2px solid var(--line);
     border-radius: var(--r-md);
+    cursor: pointer;
     display: flex;
     height: 84px;
     justify-content: center;
     padding: 6px;
+    transition:
+        border-color var(--dur-fast) var(--ease-out),
+        box-shadow var(--dur-fast) var(--ease-out),
+        transform var(--dur-fast) var(--ease-out);
     width: 84px;
+}
+.design-card:hover {
+    border-color: var(--line-strong);
+    transform: translateY(-2px);
 }
 .design-card.is-active {
     border-color: var(--ink-900);
@@ -1221,6 +1253,13 @@ small,
     height: 38px;
     justify-content: center;
     min-width: 38px;
+}
+.qty button {
+    cursor: pointer;
+    transition: background var(--dur-fast) var(--ease-out);
+}
+.qty button:hover {
+    background: var(--cream-200);
 }
 .qty span {
     font-weight: 700;
@@ -1327,13 +1366,17 @@ small,
     font-weight: 700;
 }
 .cart-line__remove {
+    align-items: center;
     align-self: flex-start;
     background: none;
     border: none;
     color: var(--ink-500);
     cursor: pointer;
+    display: inline-flex;
     font-size: var(--fs-caption);
+    gap: 4px;
     padding: 0;
+    transition: color var(--dur-fast) var(--ease-out);
 }
 .cart-line__remove:hover {
     color: var(--danger);
@@ -1741,6 +1784,13 @@ small,
     justify-content: space-between;
     padding: 14px;
     text-decoration: none;
+    transition:
+        box-shadow var(--dur-base) var(--ease-out),
+        transform var(--dur-base) var(--ease-out);
+}
+.admin__queue-card:hover {
+    box-shadow: var(--sh-md);
+    transform: translateY(-2px);
 }
 .admin__line-item {
     background: var(--cream-100);
@@ -1782,6 +1832,18 @@ small,
     gap: 8px;
     white-space: nowrap;
 }
+.admin-form__errors {
+    margin: var(--sp-2) 0 0;
+    padding-left: 18px;
+}
+.admin-form__errors li + li {
+    margin-top: 4px;
+}
+.table__empty {
+    color: var(--ink-500);
+    padding: var(--sp-6);
+    text-align: center;
+}
 .admin-card-grid {
     display: grid;
     gap: var(--sp-4);
@@ -1794,6 +1856,13 @@ small,
     gap: 6px;
     padding: var(--sp-4);
     text-decoration: none;
+    transition:
+        box-shadow var(--dur-base) var(--ease-out),
+        transform var(--dur-base) var(--ease-out);
+}
+.admin-design-card:hover {
+    box-shadow: var(--sh-md);
+    transform: translateY(-2px);
 }
 .admin-design-card__media {
     align-items: center;
@@ -2006,4 +2075,15 @@ small,
 }
 .mt-6 {
     margin-top: var(--sp-6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
 }

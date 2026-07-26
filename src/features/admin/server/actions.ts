@@ -23,69 +23,113 @@ import {
   parseStoreSettingsInput,
   upsertStoreSettings,
 } from "@/server/settings/store-settings";
+import type { AdminActionState } from "@/features/admin/model/admin-action-state";
 
-export async function saveStoreSettingsAction(formData: FormData) {
+const unauthorizedState: AdminActionState = {
+  status: "error",
+  message:
+    "Tu sesión no está autorizada para esta operación. Volvé a ingresar al admin.",
+};
+
+function mutationErrorState(error: unknown): AdminActionState {
+  return {
+    status: "error",
+    message:
+      error instanceof Error
+        ? error.message
+        : "No pudimos completar la operación. Probá nuevamente.",
+  };
+}
+
+export async function saveStoreSettingsAction(
+  _prevState: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
   const authorization = await getAdminAuthorization();
 
   if (authorization.status !== "authorized") {
-    redirect("/admin/configuracion?settings=unauthorized");
+    return unauthorizedState;
   }
 
   const parsed = parseStoreSettingsInput(getStoreSettingsFormInput(formData));
 
   if (!parsed.ok) {
-    redirect("/admin/configuracion?settings=invalid");
+    return { status: "invalid", errors: parsed.errors };
   }
 
-  await upsertStoreSettings(parsed.settings);
+  try {
+    await upsertStoreSettings(parsed.settings);
+  } catch (error) {
+    return mutationErrorState(error);
+  }
+
   revalidatePath("/admin/configuracion");
   revalidatePath("/admin");
   redirect("/admin/configuracion?settings=saved");
 }
 
-export async function saveCatalogProductAction(formData: FormData) {
+export async function saveCatalogProductAction(
+  _prevState: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
   const authorization = await getAdminAuthorization();
 
   if (authorization.status !== "authorized") {
-    redirect("/admin/productos?catalog=unauthorized");
+    return unauthorizedState;
   }
 
   const parsed = parseCatalogProductInput(getCatalogProductFormInput(formData));
 
   if (!parsed.ok) {
-    redirect("/admin/productos?catalog=invalid");
+    return { status: "invalid", errors: parsed.errors };
   }
 
-  await upsertCatalogProduct(parsed);
+  try {
+    await upsertCatalogProduct(parsed);
+  } catch (error) {
+    return mutationErrorState(error);
+  }
+
   revalidatePath("/admin");
   revalidatePath("/admin/productos");
   redirect("/admin/productos?catalog=saved");
 }
 
-export async function saveDesignAction(formData: FormData) {
+export async function saveDesignAction(
+  _prevState: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
   const authorization = await getAdminAuthorization();
 
   if (authorization.status !== "authorized") {
-    redirect("/admin/disenos?design=unauthorized");
+    return unauthorizedState;
   }
 
   const parsed = parseAdminDesignInput(getAdminDesignFormInput(formData));
 
   if (!parsed.ok) {
-    redirect("/admin/disenos?design=invalid");
+    return { status: "invalid", errors: parsed.errors };
   }
 
-  await upsertAdminDesign(parsed);
+  try {
+    await upsertAdminDesign(parsed);
+  } catch (error) {
+    return mutationErrorState(error);
+  }
+
   revalidatePath("/admin/disenos");
   revalidatePath("/admin/productos");
   redirect("/admin/disenos?design=saved");
 }
 
-export async function saveOrderOperationAction(formData: FormData) {
+export async function saveOrderOperationAction(
+  _prevState: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
   const authorization = await getAdminAuthorization();
 
   if (authorization.status !== "authorized") {
-    redirect("/admin/pedidos?order=unauthorized");
+    return unauthorizedState;
   }
 
   const parsed = parseAdminOrderOperationInput(
@@ -93,10 +137,15 @@ export async function saveOrderOperationAction(formData: FormData) {
   );
 
   if (!parsed.ok) {
-    redirect(`/admin/pedidos/${formData.get("orderId") ?? ""}?order=invalid`);
+    return { status: "invalid", errors: parsed.errors };
   }
 
-  await updateAdminOrderOperation(parsed);
+  try {
+    await updateAdminOrderOperation(parsed);
+  } catch (error) {
+    return mutationErrorState(error);
+  }
+
   revalidatePath("/admin");
   revalidatePath("/admin/pedidos");
   revalidatePath(`/admin/pedidos/${parsed.orderId}`);

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { Menu, Search, ShoppingBag, Sparkles, X } from "lucide-react";
 import { Logo } from "@/shared/ui/design-system";
 import { Button } from "@/shared/ui/button";
@@ -20,9 +21,18 @@ type SiteHeaderProps = {
   cartCount?: number;
 };
 
+function subscribeNoop() {
+  return () => {};
+}
+
 export function SiteHeader({ whatsappNumber, cartCount = 0 }: SiteHeaderProps) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const mounted = useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false,
+  );
 
   const whatsappHref = buildWhatsAppHref(
     whatsappNumber,
@@ -107,60 +117,65 @@ export function SiteHeader({ whatsappNumber, cartCount = 0 }: SiteHeaderProps) {
         </div>
       </div>
 
-      <div
-        className={`drawer ${drawerOpen ? "is-open" : ""}`}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) setDrawerOpen(false);
-        }}
-        aria-hidden={!drawerOpen}
-      >
-        <div className="drawer__panel">
-          <div
-            style={{
-              alignItems: "center",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <Logo height={36} />
-            <button
-              type="button"
-              className="icon-btn"
-              onClick={() => setDrawerOpen(false)}
-              aria-label="Cerrar menú"
+      {mounted
+        ? createPortal(
+            <div
+              className={`drawer ${drawerOpen ? "is-open" : ""}`}
+              onClick={(event) => {
+                if (event.target === event.currentTarget) setDrawerOpen(false);
+              }}
+              aria-hidden={!drawerOpen}
             >
-              <X size={20} />
-            </button>
-          </div>
-          <ul className="drawer__list">
-            {links.map((link) => (
-              <li key={link.href}>
-                {link.external ? (
-                  <a
-                    href={link.href}
-                    target="_blank"
-                    rel="noreferrer"
+              <div className="drawer__panel">
+                <div
+                  style={{
+                    alignItems: "center",
+                    display: "flex",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Logo height={36} />
+                  <button
+                    type="button"
+                    className="icon-btn"
                     onClick={() => setDrawerOpen(false)}
+                    aria-label="Cerrar menú"
                   >
-                    {link.label}
-                  </a>
-                ) : (
-                  <Link href={link.href} onClick={() => setDrawerOpen(false)}>
-                    {link.label}
-                  </Link>
-                )}
-              </li>
-            ))}
-          </ul>
-          {whatsappHref ? (
-            <Button asChild variant="whatsapp">
-              <a href={whatsappHref} target="_blank" rel="noreferrer">
-                <Sparkles size={18} /> Hablar por WhatsApp
-              </a>
-            </Button>
-          ) : null}
-        </div>
-      </div>
+                    <X size={20} />
+                  </button>
+                </div>
+                <ul className="drawer__list">
+                  {links.map((link) => (
+                    <li key={link.href}>
+                      {link.external ? (
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={() => setDrawerOpen(false)}
+                        >
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link href={link.href} onClick={() => setDrawerOpen(false)}>
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                {whatsappHref ? (
+                  <Button asChild variant="whatsapp">
+                    <a href={whatsappHref} target="_blank" rel="noreferrer">
+                      <Sparkles size={18} /> Hablar por WhatsApp
+                    </a>
+                  </Button>
+                ) : null}
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </header>
   );
 }

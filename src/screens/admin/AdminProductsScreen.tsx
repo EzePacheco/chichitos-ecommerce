@@ -40,16 +40,6 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
         </div>
       ) : null}
 
-      {status === "invalid" ? (
-        <div className="disclaimer admin__notice">
-          <Info size={20} />
-          <div>
-            No pudimos guardar el producto. Revisá nombre, precio, color, talles,
-            diseños, stock e imagen.
-          </div>
-        </div>
-      ) : null}
-
       {!configured ? (
         <div className="disclaimer admin__notice">
           <Info size={20} />
@@ -70,6 +60,14 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
           </tr>
         </thead>
         <tbody>
+          {products.length === 0 ? (
+            <tr>
+              <td className="table__empty" colSpan={7}>
+                Todavía no hay productos cargados. Creá el primero desde
+                «Nuevo producto».
+              </td>
+            </tr>
+          ) : null}
           {products.map((product) => (
             <tr key={product.id}>
               <td>

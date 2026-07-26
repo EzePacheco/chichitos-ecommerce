@@ -56,6 +56,7 @@ export function CartView({ initialProducts }: CartViewProps) {
     (acc, item) => acc + itemUnitPriceCents(item) * item.qty,
     0,
   );
+  const unitCount = items.reduce((acc, item) => acc + item.qty, 0);
   const shipping = items.length > 0 ? SHIPPING_CENTS : 0;
   const total = subtotal + shipping;
 
@@ -142,7 +143,7 @@ export function CartView({ initialProducts }: CartViewProps) {
                       className="cart-line__remove"
                       onClick={() => removeItem(item.id)}
                     >
-                      <Trash2 size={14} style={{ verticalAlign: -2 }} /> Quitar
+                      <Trash2 size={14} /> Quitar
                     </button>
                   </div>
                 </article>
@@ -163,8 +164,7 @@ export function CartView({ initialProducts }: CartViewProps) {
               <h3>Resumen</h3>
               <div className="summary__row">
                 <span>
-                  Subtotal ({items.length} prenda{items.length === 1 ? "" : "s"}
-                  )
+                  Subtotal ({unitCount} prenda{unitCount === 1 ? "" : "s"})
                 </span>
                 <span>{formatMoney(subtotal)}</span>
               </div>

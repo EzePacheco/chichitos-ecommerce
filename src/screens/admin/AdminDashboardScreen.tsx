@@ -93,6 +93,13 @@ export default async function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody>
+              {orders.length === 0 ? (
+                <tr>
+                  <td className="table__empty" colSpan={5}>
+                    Todavía no hay pedidos para mostrar.
+                  </td>
+                </tr>
+              ) : null}
               {orders.slice(0, 8).map((order) => (
                 <tr key={order.id}>
                   <td>

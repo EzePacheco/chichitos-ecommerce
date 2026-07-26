@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Check } from "lucide-react";
-import { Button } from "@/shared/ui/button";
 import { OrderStatusBadge } from "@/features/admin/ui/OrderStatusBadge";
+import { AdminActionForm } from "@/features/admin/ui/AdminActionForm";
 import { saveOrderOperationAction } from "@/features/admin/server/actions";
 import { AdminPageHeader } from "@/screens/admin/AdminShell";
 import { formatMoney } from "@/shared/formatting/money";
@@ -41,14 +41,12 @@ export default async function AdminOrderDetailPage({
         </div>
       ) : null}
 
-      {status === "invalid" ? (
-        <div className="disclaimer admin__notice">
-          <div>Revisá estado, nombre y teléfono antes de guardar.</div>
-        </div>
-      ) : null}
-
       <div className="admin__row">
-        <form action={saveOrderOperationAction} className="card admin-form">
+        <AdminActionForm
+          action={saveOrderOperationAction}
+          submitLabel="Guardar operación"
+          pendingLabel="Guardando operación..."
+        >
           <input name="orderId" type="hidden" value={order.id} />
           <section className="admin-form__section">
             <h3>Operación</h3>
@@ -174,11 +172,7 @@ export default async function AdminOrderDetailPage({
               />
             </div>
           </section>
-
-          <Button type="submit" variant="primary">
-            <Check size={20} /> Guardar operación
-          </Button>
-        </form>
+        </AdminActionForm>
 
         <aside className="card admin-form">
           <section className="admin-form__section">

@@ -1,6 +1,6 @@
 import { Check, Info } from "lucide-react";
 import { saveStoreSettingsAction } from "@/features/admin/server/actions";
-import { Button } from "@/shared/ui/button";
+import { AdminActionForm } from "@/features/admin/ui/AdminActionForm";
 import { AdminPageHeader } from "@/screens/admin/AdminShell";
 import {
   formatCentsForAdminInput,
@@ -55,14 +55,11 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
         </div>
       ) : null}
 
-      {status === "invalid" ? (
-        <div className="disclaimer admin__notice">
-          <Info size={20} />
-          <div>Revisá WhatsApp, distancias y precios antes de volver a intentar.</div>
-        </div>
-      ) : null}
-
-      <form action={saveStoreSettingsAction} className="card admin-form">
+      <AdminActionForm
+        action={saveStoreSettingsAction}
+        submitLabel="Guardar cambios"
+        pendingLabel="Guardando cambios..."
+      >
         <section className="admin-form__section">
           <h3>Datos de tienda</h3>
           <div className="field-grid">
@@ -210,11 +207,7 @@ export default async function AdminSettingsPage({ searchParams }: PageProps) {
             />
           </div>
         </section>
-
-        <Button type="submit" variant="primary">
-          <Check size={20} /> Guardar cambios
-        </Button>
-      </form>
+      </AdminActionForm>
     </>
   );
 }

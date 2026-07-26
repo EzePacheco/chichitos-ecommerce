@@ -38,10 +38,12 @@ export default async function AdminDesignsPage({ searchParams }: PageProps) {
         </div>
       ) : null}
 
-      {status === "invalid" ? (
+      {designs.length === 0 ? (
         <div className="disclaimer admin__notice">
           <Info size={20} />
-          <div>No pudimos guardar el diseño. Revisá nombre, resumen e imagen.</div>
+          <div>
+            Todavía no hay diseños cargados. Creá el primero desde «Nuevo diseño».
+          </div>
         </div>
       ) : null}
 

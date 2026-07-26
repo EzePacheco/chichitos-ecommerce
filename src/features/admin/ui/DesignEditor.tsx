@@ -1,5 +1,5 @@
-import { Check } from "lucide-react";
-import { Button } from "@/shared/ui/button";
+import type { AdminActionState } from "../model/admin-action-state";
+import { AdminActionForm } from "./AdminActionForm";
 
 type EditableAdminDesign = {
   slug: string;
@@ -13,7 +13,10 @@ type EditableAdminDesign = {
 };
 
 type DesignEditorProps = {
-  action: (formData: FormData) => void | Promise<void>;
+  action: (
+    prevState: AdminActionState,
+    formData: FormData,
+  ) => Promise<AdminActionState>;
   design?: EditableAdminDesign | null;
   lockSlug?: boolean;
 };
@@ -24,7 +27,11 @@ export function DesignEditor({
   lockSlug = false,
 }: DesignEditorProps) {
   return (
-    <form action={action} className="card admin-form" encType="multipart/form-data">
+    <AdminActionForm
+      action={action}
+      submitLabel="Guardar diseño"
+      pendingLabel="Guardando diseño..."
+    >
       <section className="admin-form__section">
         <h3>Diseño</h3>
         <div className="field-grid">
@@ -105,9 +112,6 @@ export function DesignEditor({
           />
         </div>
       </section>
-      <Button type="submit" variant="primary">
-        <Check size={20} /> Guardar diseño
-      </Button>
-    </form>
+    </AdminActionForm>
   );
 }

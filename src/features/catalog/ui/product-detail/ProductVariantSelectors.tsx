@@ -49,7 +49,7 @@ export function ProductVariantSelectors({
             className="option-group__link"
             onClick={() => setSizeGuideOpen((open) => !open)}
           >
-            <Ruler size={14} style={{ verticalAlign: -2 }} /> Guía de talles
+            <Ruler size={14} /> Guía de talles
           </button>
         </div>
         <div className="option-row size-row">
