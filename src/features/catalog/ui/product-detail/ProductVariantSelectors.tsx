@@ -1,8 +1,8 @@
 "use client";
 
 import { Ruler } from "lucide-react";
-import { DesignSvg } from "@/features/catalog/ui/GarmentVisuals";
 import type { DesignShape } from "@/features/catalog/ui/GarmentVisuals";
+import { CatalogDesignArtwork } from "@/features/catalog/ui/CatalogDesignArtwork";
 import type { CatalogProduct } from "../../model/catalog-products";
 import { SizeGuide } from "./SizeGuide";
 
@@ -103,13 +103,14 @@ export function ProductVariantSelectors({
                 className={`design-card ${designId === design.id ? "is-active" : ""}`}
                 onClick={() => setDesignId(design.id)}
                 aria-label={design.name}
+                aria-pressed={designId === design.id}
                 title={design.summary}
               >
-                {visual ? (
-                  <svg viewBox="-20 -20 40 40">
-                    <DesignSvg shape={visual.shape} color={visual.color} />
-                  </svg>
-                ) : null}
+                <CatalogDesignArtwork
+                  className="design-card__artwork"
+                  design={design}
+                  fallbackVisual={visual}
+                />
               </button>
             );
           })}

@@ -1,9 +1,10 @@
-import type { DesignEditorDraft } from "../DesignEditor";
+import type { DesignEditorDraft } from "../../model/design-editor-model";
 
 type DesignEditorPreviewProps = {
   draft: DesignEditorDraft;
   imageUrl?: string | null;
   imageAlt?: string;
+  titleId: string;
 };
 
 function formatExtra(value: string) {
@@ -22,6 +23,7 @@ export function DesignEditorPreview({
   draft,
   imageUrl,
   imageAlt,
+  titleId,
 }: DesignEditorPreviewProps) {
   const statusLabel = {
     draft: "Borrador",
@@ -30,10 +32,10 @@ export function DesignEditorPreview({
   }[draft.status];
 
   return (
-    <aside className="admin-editor-preview" aria-labelledby="design-preview-title">
+    <aside className="admin-editor-preview" aria-labelledby={titleId}>
       <div className="admin-editor-preview__head">
         <span className="eyebrow">Vista previa</span>
-        <h2 id="design-preview-title">Así se reconoce el diseño</h2>
+        <h2 id={titleId}>Así se reconoce el diseño</h2>
         <p>Una referencia del contenido, no una copia exacta de la tienda.</p>
       </div>
       <div className="admin-editor-preview__card">

@@ -2,14 +2,16 @@
 import { ChevronRight, CreditCard, ShoppingBag, Sparkles, Truck } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import {
-  DesignSvg,
   GarmentPlaceholder,
   GarmentTag,
 } from "@/features/catalog/ui/GarmentVisuals";
 import { Eyebrow } from "@/shared/ui/design-system";
 import { ProductCard } from "@/features/catalog/ui/ProductCard";
-import { designVisuals } from "@/features/catalog/model/design";
-import { getFeaturedPublicCatalogProducts } from "@/server/catalog/public-catalog";
+import { CatalogDesignArtwork } from "@/features/catalog/ui/CatalogDesignArtwork";
+import {
+  getFeaturedPublicCatalogProducts,
+  getPublicCatalogDesigns,
+} from "@/server/catalog/public-catalog";
 
 const steps = [
   {
@@ -34,8 +36,22 @@ const steps = [
   },
 ];
 
+async function getHomeDesigns() {
+  try {
+    return await getPublicCatalogDesigns();
+  } catch (error) {
+    console.error("catalog.public_designs.read_failed", {
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+    return [];
+  }
+}
+
 export default async function Home() {
-  const featuredProducts = await getFeaturedPublicCatalogProducts();
+  const [featuredProducts, designs] = await Promise.all([
+    getFeaturedPublicCatalogProducts(),
+    getHomeDesigns(),
+  ]);
 
   return (
     <>
@@ -136,15 +152,27 @@ export default async function Home() {
                 <GarmentTag variant="celeste">Sin franquicias</GarmentTag>
               </div>
             </div>
-            <div className="design-tile-grid" aria-hidden="true">
-              {designVisuals.map((design) => (
-                <div className="card design-tile" key={design.id}>
-                  <svg viewBox="-20 -20 40 40">
-                    <DesignSvg shape={design.shape} color={design.color} />
-                  </svg>
-                </div>
-              ))}
-            </div>
+            {designs.length > 0 ? (
+              <div className="design-tile-grid" aria-label="Diseños disponibles">
+                {designs.map((design) => (
+                  <article
+                    className="card design-tile"
+                    aria-label={design.name}
+                    key={design.id}
+                    title={design.name}
+                  >
+                    <CatalogDesignArtwork
+                      className="design-tile__image"
+                      design={design}
+                    />
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="designs-empty">
+                Muy pronto vas a encontrar acá nuestros próximos diseños.
+              </p>
+            )}
           </div>
         </div>
       </section>

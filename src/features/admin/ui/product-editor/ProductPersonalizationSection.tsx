@@ -1,5 +1,6 @@
 import { AdminField } from "../AdminField";
-import type { ProductEditorDraft } from "../ProductEditor";
+import { AdminCurrencyInput } from "../AdminCurrencyInput";
+import type { ProductEditorDraft } from "../../model/product-editor-model";
 
 type ProductPersonalizationSectionProps = {
   draft: ProductEditorDraft;
@@ -42,8 +43,7 @@ export function ProductPersonalizationSection({
           requirement="optional"
           hint="Usá 0 si no tiene costo adicional."
         >
-          <input
-            className="input"
+          <AdminCurrencyInput
             inputMode="numeric"
             min={0}
             step={1}

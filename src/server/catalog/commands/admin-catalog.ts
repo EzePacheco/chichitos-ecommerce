@@ -1,7 +1,11 @@
 import { revalidatePath } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ValidationIssue } from "@/shared/validation/validation-issue";
-import type { ProductCategory, ProductStatus } from "@/features/catalog/model/catalog-products";
+import {
+  validateCatalogImage,
+  type ProductCategory,
+  type ProductStatus,
+} from "@/features/catalog/public";
 import { parseMoneyToCents } from "@/server/settings/store-settings";
 import { createAdminSupabaseClient } from "@/platform/supabase/admin";
 import {
@@ -9,6 +13,7 @@ import {
   mapCatalogProductRow,
   type CatalogProductRow,
 } from "../queries/public-catalog";
+import { uploadCatalogImage } from "../upload-catalog-image";
 
 export type CatalogProductFormInput = {
   slug: FormDataEntryValue | null;
@@ -39,13 +44,6 @@ const categories: ProductCategory[] = [
   "accesorios",
 ];
 const statuses: ProductStatus[] = ["active", "draft"];
-const allowedImageTypes = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/avif",
-]);
-
 function text(value: FormDataEntryValue | null) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -177,15 +175,8 @@ export function parseCatalogProductInput(input: CatalogProductFormInput) {
   if (designs.length === 0) {
     errors.push({ field: "designs", message: "Agregá al menos un diseño." });
   }
-  if (image && !allowedImageTypes.has(image.type)) {
-    errors.push({
-      field: "image",
-      message: "Elegí una imagen PNG, JPG, WebP o AVIF.",
-    });
-  }
-  if (image && image.size > 5 * 1024 * 1024) {
-    errors.push({ field: "image", message: "Elegí una imagen de hasta 5 MB." });
-  }
+  const imageError = validateCatalogImage(image);
+  if (imageError) errors.push({ field: "image", message: imageError });
   for (const color of colors) {
     const validColor = new RegExp("^#[0-9A-Fa-f]{6}$").test(color.hex);
     if (!validColor) {
@@ -224,22 +215,6 @@ export function parseCatalogProductInput(input: CatalogProductFormInput) {
       stock,
     },
   };
-}
-
-async function uploadProductImage(file: File | null, slug: string, supabase: SupabaseClient) {
-  if (!file) return null;
-
-  const extension = file.type.split("/")[1]?.replace("jpeg", "jpg") ?? "bin";
-  const path = `products/${slug}-${Date.now()}.${extension}`;
-  const { error } = await supabase.storage.from("catalog-assets").upload(path, file, {
-    cacheControl: "31536000",
-    contentType: file.type,
-    upsert: false,
-  });
-
-  if (error) throw new Error(`No pudimos subir la imagen: ${error.message}`);
-
-  return supabase.storage.from("catalog-assets").getPublicUrl(path).data.publicUrl;
 }
 
 export async function getAdminCatalogProducts(
@@ -308,7 +283,12 @@ export async function upsertCatalogProduct(
   parsed: Extract<ReturnType<typeof parseCatalogProductInput>, { ok: true }>,
   supabase: SupabaseClient = createAdminSupabaseClient(),
 ) {
-  const imageUrl = await uploadProductImage(parsed.image, parsed.product.slug, supabase);
+  const imageUrl = await uploadCatalogImage({
+    file: parsed.image,
+    folder: "products",
+    slug: parsed.product.slug,
+    supabase,
+  });
   const { data: productId, error } = await supabase.rpc("save_catalog_product_atomic", {
     product_data: {
         slug: parsed.product.slug,

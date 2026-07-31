@@ -1,5 +1,29 @@
 import { describe, expect, it } from "vitest";
-import { mapCatalogProductRow, type CatalogProductRow } from "./public-catalog";
+import {
+  mapCatalogDesignRow,
+  mapCatalogProductRow,
+  type CatalogProductRow,
+} from "./public-catalog";
+
+describe("public design mapper", () => {
+  it("maps only the public design contract", () => {
+    expect(
+      mapCatalogDesignRow({
+        slug: "bosque",
+        name: "Bosque",
+        summary: "Hojas",
+        image_url: "https://assets.example/bosque.webp",
+        image_alt: "Bosque ilustrado",
+      }),
+    ).toEqual({
+      id: "bosque",
+      name: "Bosque",
+      summary: "Hojas",
+      imageUrl: "https://assets.example/bosque.webp",
+      imageAlt: "Bosque ilustrado",
+    });
+  });
+});
 
 describe("public catalog mapper", () => {
   it("maps Supabase rows to the existing UI product contract", () => {

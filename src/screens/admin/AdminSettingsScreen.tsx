@@ -27,14 +27,15 @@ export default async function AdminSettingsPage() {
       />
 
       {!settingsComplete ? (
-        <AdminFeedback tone="warning" title="Completá la configuración inicial">
-          <div>
-            <ul className="admin-form__errors admin-settings__checklist">
-              {missingFields.map((field) => (
-                <li key={field}>{field}</li>
-              ))}
-            </ul>
-          </div>
+        <AdminFeedback
+          tone="warning"
+          title={`Faltan ${missingFields.length} datos para completar la tienda`}
+        >
+          <ul className="admin-settings__missing-fields">
+            {missingFields.map((field) => (
+              <li key={field}>{field}</li>
+            ))}
+          </ul>
         </AdminFeedback>
       ) : null}
 

@@ -13,13 +13,12 @@ import {
   type ReactNode,
 } from "react";
 import { AlertCircle, Check, Info } from "lucide-react";
+import { validateCatalogImage } from "@/features/catalog/public";
 import { Button } from "@/shared/ui/button";
 import {
   idleAdminActionState,
   type AdminActionState,
 } from "../model/admin-action-state";
-
-const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
 type AdminFormFeedback = {
   fieldErrors: Record<string, string[]>;
@@ -93,11 +92,10 @@ export function AdminActionForm({
     const fileErrors: Record<string, string[]> = {};
 
     for (const [name, value] of formData.entries()) {
-      if (value instanceof File && value.size > MAX_UPLOAD_BYTES) {
-        fileErrors[name] = [
-          "La imagen supera los 5 MB. Elegí una foto más liviana.",
-        ];
-      }
+      if (!(value instanceof File) || value.size === 0) continue;
+
+      const imageError = validateCatalogImage(value);
+      if (imageError) fileErrors[name] = [imageError];
     }
 
     setClientFieldErrors(fileErrors);

@@ -1,9 +1,9 @@
-import type { ProductEditorDesignOption } from "@/features/admin/model/product-editor-state";
+import type { CatalogDesignOption } from "@/features/catalog/public";
 import { getAdminDesigns } from "../commands/admin-designs";
 import { isSupabaseCatalogConfigured } from "./public-catalog";
 
 export async function getProductEditorDesignOptions(): Promise<
-  ProductEditorDesignOption[]
+  CatalogDesignOption[]
 > {
   if (!isSupabaseCatalogConfigured()) return [];
 

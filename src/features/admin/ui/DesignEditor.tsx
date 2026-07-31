@@ -2,20 +2,17 @@
 
 import { useState } from "react";
 import type { AdminActionState } from "../model/admin-action-state";
+import {
+  createDesignEditorDraft,
+  type DesignEditorDraft,
+  type EditableAdminDesign,
+} from "../model/design-editor-model";
 import { AdminActionForm } from "./AdminActionForm";
+import { AdminCurrencyInput } from "./AdminCurrencyInput";
 import { AdminField } from "./AdminField";
+import { CatalogImageUploadField } from "./CatalogImageUploadField";
+import { EditorPreviewLayout } from "./EditorPreviewLayout";
 import { DesignEditorPreview } from "./design-editor/DesignEditorPreview";
-
-type EditableAdminDesign = {
-  slug: string;
-  name: string;
-  summary: string;
-  description: string;
-  status: "draft" | "active" | "archived";
-  baseExtraPriceCents: number;
-  imageUrl: string | null;
-  imageAlt: string;
-};
 
 type DesignEditorProps = {
   action: (
@@ -26,47 +23,51 @@ type DesignEditorProps = {
   lockSlug?: boolean;
 };
 
-export type DesignEditorDraft = {
-  name: string;
-  summary: string;
-  description: string;
-  status: EditableAdminDesign["status"];
-  baseExtraPrice: string;
-};
-
 export function DesignEditor({
   action,
   design,
   lockSlug = false,
 }: DesignEditorProps) {
-  const [draft, setDraft] = useState<DesignEditorDraft>(() => ({
-    name: design?.name ?? "",
-    summary: design?.summary ?? "",
-    description: design?.description ?? "",
-    status: design?.status ?? "draft",
-    baseExtraPrice: design
-      ? String(Math.round(design.baseExtraPriceCents / 100))
-      : "0",
-  }));
+  const [draft, setDraft] = useState<DesignEditorDraft>(() =>
+    createDesignEditorDraft(design),
+  );
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(
+    design?.imageUrl ?? null,
+  );
 
   return (
     <AdminActionForm
       action={action}
-      className="card admin-form admin-editor"
+      className="card admin-form admin-editor admin-design-editor"
       submitLabel="Guardar diseño"
       pendingLabel="Guardando diseño..."
     >
-      <div className="admin-editor__layout">
-        <section
-          className="admin-form__section admin-editor__group"
-          id="design-data"
-        >
+      <EditorPreviewLayout
+        renderPreview={(titleId) => (
+          <DesignEditorPreview
+            draft={draft}
+            imageAlt={design?.imageAlt}
+            imageUrl={previewImageUrl}
+            titleId={titleId}
+          />
+        )}
+      >
+          <section
+            className="admin-form__section admin-editor__group"
+            id="design-data"
+          >
           <div className="admin-editor__group-head">
             <span className="eyebrow">Contenido</span>
             <h2>Datos del diseño</h2>
             <p>Completá lo esencial para identificarlo y mostrarlo en la tienda.</p>
           </div>
-          <div className="field-grid">
+          <div
+            className={
+              lockSlug
+                ? "field-grid"
+                : "field-grid admin-design-editor__single-field"
+            }
+          >
             <AdminField label="Nombre" name="name" requirement="required">
               <input
                 className="input"
@@ -124,8 +125,7 @@ export function DesignEditor({
               requirement="required"
               hint="Usá 0 cuando el diseño no suma costo."
             >
-              <input
-                className="input"
+              <AdminCurrencyInput
                 inputMode="numeric"
                 min={0}
                 step={1}
@@ -158,42 +158,31 @@ export function DesignEditor({
               }
             />
           </AdminField>
-          <AdminField
-            label="Descripción"
-            name="description"
-            requirement="optional"
-          >
-            <textarea
-              className="textarea"
-              rows={4}
-              value={draft.description}
-              onChange={(event) =>
-                setDraft((current) => ({
-                  ...current,
-                  description: event.target.value,
-                }))
-              }
+          <div className="admin-design-editor__media-fields">
+            <AdminField
+              label="Descripción"
+              name="description"
+              requirement="optional"
+            >
+              <textarea
+                className="textarea"
+                rows={4}
+                value={draft.description}
+                onChange={(event) =>
+                  setDraft((current) => ({
+                    ...current,
+                    description: event.target.value,
+                  }))
+                }
+              />
+            </AdminField>
+            <CatalogImageUploadField
+              existingImageUrl={design?.imageUrl}
+              onPreviewChange={setPreviewImageUrl}
             />
-          </AdminField>
-          <AdminField
-            label="Imagen"
-            name="image"
-            requirement="optional"
-            hint="PNG, JPG, WebP o AVIF de hasta 5 MB."
-          >
-            <input
-              accept="image/png,image/jpeg,image/webp,image/avif"
-              className="input"
-              type="file"
-            />
-          </AdminField>
-        </section>
-        <DesignEditorPreview
-          draft={draft}
-          imageAlt={design?.imageAlt}
-          imageUrl={design?.imageUrl}
-        />
-      </div>
+          </div>
+          </section>
+      </EditorPreviewLayout>
     </AdminActionForm>
   );
 }

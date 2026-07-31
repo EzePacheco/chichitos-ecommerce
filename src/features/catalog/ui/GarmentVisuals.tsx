@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 
 export type GarmentType =
   | "Remera"
@@ -23,6 +23,9 @@ type GarmentPlaceholderProps = {
   color?: string;
   designShape?: DesignShape | null;
   designColor?: string;
+  designImageAlt?: string;
+  designImageUrl?: string | null;
+  onDesignImageError?: () => void;
   scale?: number;
   className?: string;
 };
@@ -39,26 +42,51 @@ const garmentPaths: Record<GarmentType, string> = {
     "M20 60 Q20 30 50 30 Q80 30 80 60 L80 70 L20 70 Z M15 70 L85 70 L82 80 L18 80 Z",
 };
 
+const garmentPrintAreas: Record<
+  GarmentType,
+  { x: number; y: number; width: number; height: number }
+> = {
+  Remera: { x: 35, y: 49, width: 30, height: 30 },
+  Buzo: { x: 35, y: 50, width: 30, height: 30 },
+  Body: { x: 38, y: 45, width: 24, height: 25 },
+  Pantalón: { x: 39, y: 31, width: 22, height: 24 },
+  Campera: { x: 39, y: 51, width: 22, height: 28 },
+  Accesorio: { x: 35, y: 42, width: 30, height: 24 },
+};
+
 export function GarmentPlaceholder({
   type = "Remera",
   color = "var(--cream-50)",
   designShape = "cloud",
   designColor = "var(--celeste)",
+  designImageAlt,
+  designImageUrl,
+  onDesignImageError,
   scale = 1,
   className,
 }: GarmentPlaceholderProps) {
+  const grainId = `paper-grain-${useId().replaceAll(":", "")}`;
   const path = garmentPaths[type] || garmentPaths.Remera;
+  const printArea = garmentPrintAreas[type] || garmentPrintAreas.Remera;
+  const scaledWidth = printArea.width * scale;
+  const scaledHeight = printArea.height * scale;
+  const imageX = printArea.x + (printArea.width - scaledWidth) / 2;
+  const imageY = printArea.y + (printArea.height - scaledHeight) / 2;
 
   return (
     <svg
       className={className}
       viewBox="0 0 100 100"
       role="img"
-      aria-label={`Placeholder de ${type}`}
+      aria-label={
+        designImageUrl
+          ? `Vista previa ilustrativa de ${type} con ${designImageAlt || "el diseño seleccionado"}`
+          : `Vista previa ilustrativa de ${type}`
+      }
       style={{ overflow: "visible" }}
     >
       <defs>
-        <filter id="paperGrain" x="0" y="0" width="100%" height="100%">
+        <filter id={grainId} x="0" y="0" width="100%" height="100%">
           <feTurbulence baseFrequency="0.9" numOctaves="2" seed="3" />
           <feColorMatrix values="0 0 0 0 0.95 0 0 0 0 0.93 0 0 0 0 0.88 0 0 0 0.08 0" />
           <feComposite in2="SourceGraphic" operator="in" />
@@ -71,8 +99,18 @@ export function GarmentPlaceholder({
         strokeLinejoin="round"
         strokeWidth="1.2"
       />
-      <path d={path} fill="url(#paperGrain)" opacity="0.5" />
-      {designShape ? (
+      <path d={path} fill={`url(#${grainId})`} opacity="0.5" />
+      {designImageUrl ? (
+        <image
+          href={designImageUrl}
+          height={scaledHeight}
+          onError={onDesignImageError}
+          preserveAspectRatio="xMidYMid meet"
+          width={scaledWidth}
+          x={imageX}
+          y={imageY}
+        />
+      ) : designShape ? (
         <g transform={`translate(50 62) scale(${scale * 1.1})`}>
           <DesignSvg shape={designShape} color={designColor} />
         </g>

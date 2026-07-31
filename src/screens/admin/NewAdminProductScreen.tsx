@@ -7,7 +7,7 @@ export default async function NewAdminProductPage() {
   const availableDesigns = await getProductEditorDesignOptions();
 
   return (
-    <>
+    <div className="admin-editor-page">
       <AdminPageHeader
         backHref="/admin/productos"
         backLabel="Productos"
@@ -19,6 +19,6 @@ export default async function NewAdminProductPage() {
         action={saveCatalogProductAction}
         availableDesigns={availableDesigns}
       />
-    </>
+    </div>
   );
 }

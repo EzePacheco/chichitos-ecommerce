@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { CatalogProduct } from "@/features/catalog/model/catalog-products";
+import type { CatalogProduct } from "@/features/catalog/public";
 import {
   createProductEditorState,
   removeProductEditorRow,

@@ -15,7 +15,7 @@ export default async function EditAdminDesignPage({ params }: PageProps) {
   if (!design) notFound();
 
   return (
-    <>
+    <div className="admin-editor-page">
       <AdminPageHeader
         backHref="/admin/disenos"
         backLabel="Diseños"
@@ -24,6 +24,6 @@ export default async function EditAdminDesignPage({ params }: PageProps) {
         subtitle="Actualizá la estampa y sus datos comerciales."
       />
       <DesignEditor action={saveDesignAction} design={design} lockSlug />
-    </>
+    </div>
   );
 }

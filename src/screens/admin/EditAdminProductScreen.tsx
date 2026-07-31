@@ -20,7 +20,7 @@ export default async function EditAdminProductPage({ params }: PageProps) {
   if (!product) notFound();
 
   return (
-    <>
+    <div className="admin-editor-page">
       <AdminPageHeader
         backHref="/admin/productos"
         backLabel="Productos"
@@ -34,6 +34,6 @@ export default async function EditAdminProductPage({ params }: PageProps) {
         lockSlug
         product={product}
       />
-    </>
+    </div>
   );
 }

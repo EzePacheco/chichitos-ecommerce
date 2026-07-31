@@ -1,6 +1,8 @@
-import type { CatalogProduct } from "@/features/catalog/model/catalog-products";
+import type { CatalogProduct } from "@/features/catalog/public";
+import type { ProductEditorDraft } from "../../model/product-editor-model";
+import { AdminCurrencyInput } from "../AdminCurrencyInput";
 import { AdminField } from "../AdminField";
-import type { ProductEditorDraft } from "../ProductEditor";
+import { CatalogImageUploadField } from "../CatalogImageUploadField";
 
 type ProductBasicsSectionProps = {
   draft: ProductEditorDraft;
@@ -9,7 +11,7 @@ type ProductBasicsSectionProps = {
   onChange: (patch: Partial<ProductEditorDraft>) => void;
 };
 
-export function ProductBasicsSection({
+export function ProductIdentitySection({
   draft,
   product,
   lockSlug,
@@ -94,8 +96,7 @@ export function ProductBasicsSection({
           requirement="required"
           hint="Ingresá pesos enteros, sin puntos ni centavos."
         >
-          <input
-            className="input"
+          <AdminCurrencyInput
             inputMode="numeric"
             min={1}
             step={1}
@@ -117,6 +118,29 @@ export function ProductBasicsSection({
             <p className="radio-card__sub">Aparece en la home.</p>
           </div>
         </label>
+      </div>
+    </section>
+  );
+}
+
+export function ProductContentSection({
+  draft,
+  existingImageUrl,
+  onChange,
+  onImagePreviewChange,
+}: Pick<ProductBasicsSectionProps, "draft" | "onChange"> & {
+  existingImageUrl?: string | null;
+  onImagePreviewChange: (url: string | null) => void;
+}) {
+  return (
+    <section
+      className="admin-form__section admin-editor__group"
+      id="product-content"
+    >
+      <div className="admin-editor__group-head">
+        <span className="eyebrow">Paso 2</span>
+        <h2>Contenido de la publicación</h2>
+        <p>Textos, imagen y tiempos que ve la clienta en la tienda.</p>
       </div>
       <AdminField
         label="Resumen"
@@ -144,18 +168,12 @@ export function ProductBasicsSection({
         />
       </AdminField>
       <div className="field-grid">
-        <AdminField
+        <CatalogImageUploadField
+          existingImageUrl={existingImageUrl}
           label="Imagen principal"
-          name="image"
-          requirement="optional"
           hint="PNG, JPG, WebP o AVIF de hasta 5 MB."
-        >
-          <input
-            accept="image/png,image/jpeg,image/webp,image/avif"
-            className="input"
-            type="file"
-          />
-        </AdminField>
+          onPreviewChange={onImagePreviewChange}
+        />
         <AdminField
           label="Tiempo de producción"
           name="productionTime"

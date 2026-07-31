@@ -1,9 +1,11 @@
 import { revalidatePath } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { validateCatalogImage } from "@/features/catalog/public";
 import type { ValidationIssue } from "@/shared/validation/validation-issue";
 import { parseMoneyToCents } from "@/server/settings/store-settings";
 import { createAdminSupabaseClient } from "@/platform/supabase/admin";
 import { isSupabaseCatalogConfigured } from "../queries/public-catalog";
+import { uploadCatalogImage } from "../upload-catalog-image";
 import { slugifyCatalogValue } from "./admin-catalog";
 
 export type AdminDesign = {
@@ -43,13 +45,6 @@ type DesignRow = {
 };
 
 const statuses = ["draft", "active", "archived"] as const;
-const allowedImageTypes = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/avif",
-]);
-
 function text(value: FormDataEntryValue | null) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -121,15 +116,8 @@ export function parseAdminDesignInput(input: AdminDesignFormInput) {
       message: "Ingresá un extra base válido.",
     });
   }
-  if (image && !allowedImageTypes.has(image.type)) {
-    errors.push({
-      field: "image",
-      message: "Elegí una imagen PNG, JPG, WebP o AVIF.",
-    });
-  }
-  if (image && image.size > 5 * 1024 * 1024) {
-    errors.push({ field: "image", message: "Elegí una imagen de hasta 5 MB." });
-  }
+  const imageError = validateCatalogImage(image);
+  if (imageError) errors.push({ field: "image", message: imageError });
 
   if (errors.length > 0) return { ok: false as const, errors };
 
@@ -145,22 +133,6 @@ export function parseAdminDesignInput(input: AdminDesignFormInput) {
       baseExtraPriceCents: baseExtraPrice.value ?? 0,
     },
   };
-}
-
-async function uploadDesignImage(file: File | null, slug: string, supabase: SupabaseClient) {
-  if (!file) return null;
-
-  const extension = file.type.split("/")[1]?.replace("jpeg", "jpg") ?? "bin";
-  const path = `designs/${slug}-${Date.now()}.${extension}`;
-  const { error } = await supabase.storage.from("catalog-assets").upload(path, file, {
-    cacheControl: "31536000",
-    contentType: file.type,
-    upsert: false,
-  });
-
-  if (error) throw new Error(`No pudimos subir la imagen: ${error.message}`);
-
-  return supabase.storage.from("catalog-assets").getPublicUrl(path).data.publicUrl;
 }
 
 export async function getAdminDesigns(
@@ -205,7 +177,12 @@ export async function upsertAdminDesign(
   parsed: Extract<ReturnType<typeof parseAdminDesignInput>, { ok: true }>,
   supabase: SupabaseClient = createAdminSupabaseClient(),
 ) {
-  const imageUrl = await uploadDesignImage(parsed.image, parsed.design.slug, supabase);
+  const imageUrl = await uploadCatalogImage({
+    file: parsed.image,
+    folder: "designs",
+    slug: parsed.design.slug,
+    supabase,
+  });
   const { data, error } = await supabase
     .from("designs")
     .upsert(
@@ -228,6 +205,9 @@ export async function upsertAdminDesign(
 
   revalidatePath("/admin/disenos");
   revalidatePath("/admin/productos");
+  revalidatePath("/");
+  revalidatePath("/catalogo");
+  revalidatePath("/producto/[slug]", "page");
 
   return data.id;
 }

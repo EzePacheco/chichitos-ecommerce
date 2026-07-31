@@ -25,3 +25,4 @@ No usar ADR para decisiones triviales, cambios cosmeticos o implementaciones rev
 | 0003 | Google Maps Platform para direccion y distancia de envio | accepted | 2026-05-17 |
 | 0004 | pnpm y Vercel para build y despliegue | accepted | 2026-05-17 |
 | 0005 | Modular repo structure for Chichitos Web | accepted | 2026-07-08 |
+| 0006 | Mockups 2D por categoría | accepted | 2026-07-30 |

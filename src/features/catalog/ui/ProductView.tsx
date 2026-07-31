@@ -65,8 +65,10 @@ export function ProductView({ product, whatsappHref }: ProductViewProps) {
       <section className="product">
         <ProductGallery
           baseColor={currentColor?.hex ?? "var(--cream-50)"}
+          currentDesign={currentDesign}
           currentVisual={currentVisual}
           garmentType={getGarmentType(product)}
+          key={`${colorId}:${designId}`}
           product={product}
         />
 

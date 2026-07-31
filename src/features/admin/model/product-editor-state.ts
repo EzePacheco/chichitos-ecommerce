@@ -1,4 +1,4 @@
-import type { CatalogProduct } from "@/features/catalog/model/catalog-products";
+import type { CatalogProduct } from "@/features/catalog/public";
 
 export type ProductEditorSize = {
   code: string;
@@ -32,13 +32,6 @@ export type ProductEditorState = {
   colors: ProductEditorColor[];
   designs: ProductEditorDesign[];
   stock: ProductEditorStock[];
-};
-
-export type ProductEditorDesignOption = {
-  slug: string;
-  name: string;
-  summary: string;
-  baseExtraPriceCents: number;
 };
 
 export function slugifyEditorValue(value: string) {

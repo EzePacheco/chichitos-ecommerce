@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { uploadCatalogImage } from "../upload-catalog-image";
 import {
   getCatalogProductFormInput,
   parseCatalogProductInput,
@@ -7,8 +8,15 @@ import {
 } from "./admin-catalog";
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("../upload-catalog-image", () => ({
+  uploadCatalogImage: vi.fn(async () => null),
+}));
 
 describe("admin catalog parsing", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("normalizes product, variants and stock from the compact admin form", () => {
     const formData = new FormData();
     formData.set("name", "Remera Ñandú");
@@ -76,6 +84,35 @@ describe("admin catalog parsing", () => {
     });
   });
 
+  it("preserves the catalog image validation error", () => {
+    const formData = new FormData();
+    formData.set("name", "Producto");
+    formData.set("summary", "Resumen");
+    formData.set("description", "Descripcion");
+    formData.set("category", "remeras");
+    formData.set("status", "active");
+    formData.set("basePrice", "100");
+    formData.set("sizes", "2|2|");
+    formData.set("colors", "natural|Natural|#fcf7ec");
+    formData.set("designs", "bosque|Bosque|Hojas|0");
+    formData.set(
+      "image",
+      new File(["<svg/>"], "imagen.svg", { type: "image/svg+xml" }),
+    );
+
+    expect(
+      parseCatalogProductInput(getCatalogProductFormInput(formData)),
+    ).toMatchObject({
+      ok: false,
+      errors: expect.arrayContaining([
+        {
+          field: "image",
+          message: "Elegí una imagen PNG, JPG, WebP o AVIF.",
+        },
+      ]),
+    });
+  });
+
   it("slugifies accented values", () => {
     expect(slugifyCatalogValue(" Body Bebé! ")).toBe("body-bebe");
   });
@@ -115,5 +152,11 @@ describe("admin catalog parsing", () => {
         }),
       }),
     );
+    expect(uploadCatalogImage).toHaveBeenCalledWith({
+      file: null,
+      folder: "products",
+      slug: "remera",
+      supabase: { rpc },
+    });
   });
 });

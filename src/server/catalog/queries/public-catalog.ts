@@ -4,9 +4,12 @@ import {
   getActiveCatalogProducts,
   getCatalogProductBySlug,
   getFeaturedCatalogProducts,
-  type CatalogProduct,
-  type ProductCategory,
 } from "@/features/catalog/model/catalog-products";
+import type {
+  CatalogDesign,
+  CatalogProduct,
+  ProductCategory,
+} from "@/features/catalog/public";
 import { getOptionalEnv } from "@/platform/config/env";
 import { hasRealSupabaseConfig } from "@/server/readiness/readiness";
 import { isProductionRuntime } from "@/platform/config/runtime";
@@ -87,8 +90,26 @@ export type CatalogProductRow = {
   }>;
 };
 
+export type CatalogDesignRow = {
+  slug: string;
+  name: string;
+  summary: string;
+  image_url: string | null;
+  image_alt: string;
+};
+
 function sortByOrder<T extends { sort_order: number }>(rows: T[]) {
   return [...rows].sort((a, b) => a.sort_order - b.sort_order);
+}
+
+export function mapCatalogDesignRow(row: CatalogDesignRow): CatalogDesign {
+  return {
+    id: row.slug,
+    name: row.name,
+    summary: row.summary,
+    imageUrl: row.image_url,
+    imageAlt: row.image_alt,
+  };
 }
 
 export function mapCatalogProductRow(row: CatalogProductRow): CatalogProduct {
@@ -200,6 +221,36 @@ export async function getFeaturedPublicCatalogProducts() {
   }
 
   return (await getPublicCatalogProducts()).filter((product) => product.featured);
+}
+
+export async function getPublicCatalogDesigns(limit = 8) {
+  if (!hasRealSupabaseConfig()) {
+    assertCatalogFallbackAllowed();
+
+    const designs = new Map<string, CatalogDesign>();
+    getActiveCatalogProducts(catalogProducts).forEach((product) => {
+      product.designs.forEach((design) => {
+        if (!designs.has(design.id)) designs.set(design.id, design);
+      });
+    });
+
+    return [...designs.values()].slice(0, limit);
+  }
+
+  const supabase = createPublicSupabaseClient();
+  const { data, error } = await supabase
+    .from("designs")
+    .select("slug,name,summary,image_url,image_alt")
+    .eq("status", "active")
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throw new Error(`No pudimos leer los diseños públicos: ${error.message}`);
+  }
+
+  return (data as unknown as CatalogDesignRow[]).map(mapCatalogDesignRow);
 }
 
 export async function getPublicCatalogProductBySlug(slug: string) {

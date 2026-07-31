@@ -1,71 +1,12 @@
 import { buildWhatsAppHref } from "@/shared/contact/whatsapp";
+import type {
+  CatalogProduct,
+  ProductCategory,
+  ProductStatus,
+} from "@/features/catalog/public";
 
-export type ProductCategory =
-  | "remeras"
-  | "bodies"
-  | "abrigos"
-  | "sets"
-  | "accesorios";
-
-export type ProductStatus = "active" | "draft";
-
-export type ProductSize = {
-  id: string;
-  label: string;
-  note?: string;
-};
-
-export type ProductColor = {
-  id: string;
-  name: string;
-  hex: string;
-};
-
-export type ProductDesign = {
-  id: string;
-  name: string;
-  summary: string;
-  extraPriceCents?: number;
-  imageUrl?: string | null;
-  imageAlt?: string;
-};
-
-export type ProductPersonalization = {
-  enabled: boolean;
-  label: string;
-  description: string;
-  extraPriceCents: number;
-};
-
-export type CatalogProduct = {
-  id: string;
-  name: string;
-  slug: string;
-  category: ProductCategory;
-  status: ProductStatus;
-  featured: boolean;
-  summary: string;
-  description: string;
-  basePriceCents: number;
-  productionTime: string;
-  accentColor: string;
-  imageUrl?: string | null;
-  imageAlt?: string;
-  badges: string[];
-  sizes: ProductSize[];
-  colors: ProductColor[];
-  designs: ProductDesign[];
-  personalization: ProductPersonalization;
-  stock?: ProductVariantStock[];
-};
-
-export type ProductVariantStock = {
-  sizeCode: string;
-  colorCode: string;
-  designId?: string | null;
-  quantityAvailable: number;
-  trackStock: boolean;
-};
+export type { CatalogProduct, ProductCategory, ProductStatus };
+export type ProductPersonalization = CatalogProduct["personalization"];
 
 export const catalogCategoryLabels: Record<ProductCategory, string> = {
   remeras: "Remeras",

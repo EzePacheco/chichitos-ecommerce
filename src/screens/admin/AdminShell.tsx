@@ -58,7 +58,9 @@ export async function AdminShell({ children }: { children: ReactNode }) {
   return (
     <div className="admin">
       <AdminNav email={authorization.email} displayName={displayName} />
-      <main className="admin__main">{children}</main>
+      <main className="admin__main">
+        <div className="admin__content">{children}</div>
+      </main>
     </div>
   );
 }

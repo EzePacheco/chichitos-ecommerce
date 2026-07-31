@@ -1,8 +1,9 @@
-import type { ProductEditorDraft } from "../ProductEditor";
+import type { ProductEditorDraft } from "../../model/product-editor-model";
 
 type ProductEditorPreviewProps = {
   draft: ProductEditorDraft;
   imageUrl?: string | null;
+  titleId: string;
 };
 
 function formatDraftPrice(value: string) {
@@ -20,14 +21,15 @@ function formatDraftPrice(value: string) {
 export function ProductEditorPreview({
   draft,
   imageUrl,
+  titleId,
 }: ProductEditorPreviewProps) {
   const firstColor = draft.variants.colors[0];
 
   return (
-    <aside className="admin-editor-preview" aria-labelledby="product-preview-title">
+    <aside className="admin-editor-preview" aria-labelledby={titleId}>
       <div className="admin-editor-preview__head">
         <span className="eyebrow">Vista previa</span>
-        <h2 id="product-preview-title">Así se reconoce el producto</h2>
+        <h2 id={titleId}>Así se reconoce el producto</h2>
         <p>Es una referencia rápida; la tienda puede ordenar el contenido distinto.</p>
       </div>
       <div className="admin-editor-preview__card">

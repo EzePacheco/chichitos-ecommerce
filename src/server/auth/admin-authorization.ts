@@ -16,7 +16,7 @@ export type AdminAuthorizationResult =
   | { status: "unauthenticated" }
   | {
       status: "authorized";
-      source: "persisted" | "bootstrap";
+      source: "persisted" | "bootstrap" | "development";
       user: User;
       email: string;
       adminUser: AdminUserRecord;
@@ -32,7 +32,50 @@ export type AdminAuthorizationResult =
       email?: string;
     };
 
+export function getDevelopmentAdminAuthorization({
+  nodeEnv,
+  enabled,
+}: {
+  nodeEnv: string | undefined;
+  enabled: string | undefined;
+}): AdminAuthorizationResult | null {
+  if (nodeEnv !== "development" || enabled !== "true") return null;
+
+  const email = "dev-admin@chichitos.local";
+  const userId = "local-development-admin";
+  const user = {
+    id: userId,
+    aud: "authenticated",
+    role: "authenticated",
+    email,
+    app_metadata: {},
+    user_metadata: {},
+    created_at: "1970-01-01T00:00:00.000Z",
+  } as User;
+
+  return {
+    status: "authorized",
+    source: "development",
+    user,
+    email,
+    adminUser: {
+      id: userId,
+      user_id: userId,
+      email,
+      role: "admin",
+      is_active: true,
+    },
+  };
+}
+
 export async function getAdminAuthorization(): Promise<AdminAuthorizationResult> {
+  const developmentAuthorization = getDevelopmentAdminAuthorization({
+    nodeEnv: process.env.NODE_ENV,
+    enabled: process.env.ADMIN_DEV_BYPASS,
+  });
+
+  if (developmentAuthorization) return developmentAuthorization;
+
   let supabase;
 
   try {

@@ -13,9 +13,10 @@ brand with DTF prints and original designs.
 ## Public Storefront
 
 - Home highlights the brand, featured products, DTF authorship, and buying flow.
+- Home lists active Admin designs with their catalog images.
 - Catalog lists active products with filters and sort controls.
 - Product detail lets shoppers select size, color, design, quantity and optional
-  personalization.
+  personalization, and previews the selected design on a 2D garment mockup.
 - Cart is browser-side state, hydrated after mount.
 - Checkout sends cart, buyer and delivery data to the server. The backend
   reloads authoritative products, recalculates prices, calculates delivery, and

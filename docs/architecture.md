@@ -13,6 +13,9 @@ payments, Google Maps delivery distance support, and Vercel deployment target.
 - `src/screens/**` owns page composition for store and admin routes.
 - `src/features/**` owns product feature UI, model/state, and feature server
   adapters. Use `ui/`, `model/`, and `server/` only when needed.
+- `src/features/catalog/public.ts` is Catalog's pure public surface for product
+  contracts, design options, and image policy. Consumers outside Catalog do not
+  import its feature internals.
 - `src/shared/**` owns product-agnostic reusable code. `shared/ui` is
   presentational.
 - `src/platform/**` owns technical infrastructure: Supabase clients, runtime
@@ -39,6 +42,9 @@ when they are pure types/helpers and contain no browser or React dependency.
 
 - Public catalog uses Supabase when configured and local typed fallback only
   outside production.
+- Home reads active designs through the public Catalog query boundary. Product
+  detail composes the selected design image over category-owned 2D garment
+  templates; arbitrary product photos remain independent references.
 - Checkout route validates idempotency, buyer, cart and delivery server-side,
   creates local order/payment rows, reserves stock, and claims one Mercado Pago
   preference creation per local payment. The idempotency key is tied to a
@@ -48,6 +54,10 @@ when they are pure types/helpers and contain no browser or React dependency.
   applies payment/order state plus stock capture/release through a
   transactional RPC.
 - Admin Server Actions authorize before mutation and revalidate affected routes.
+- Admin editor drafts and step resolution live in `features/admin/model`; editor
+  UI consumes those models without importing types from parent components.
+- Catalog image uploads use one server adapter under `src/server/catalog`, while
+  Admin owns the feedback-aware upload field and editor preview layout.
 
 ## Data And Security
 

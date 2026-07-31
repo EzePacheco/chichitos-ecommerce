@@ -1,13 +1,14 @@
 import type { Dispatch, SetStateAction } from "react";
 import { Sparkles } from "lucide-react";
+import type { CatalogDesignOption } from "@/features/catalog/public";
 import { Button } from "@/shared/ui/button";
+import { AdminCurrencyInput } from "../AdminCurrencyInput";
 import {
   generateStockCombinations,
   removeProductEditorRow,
   slugifyEditorValue,
   updateProductEditorRows,
   type ProductEditorDesign,
-  type ProductEditorDesignOption,
   type ProductEditorState,
 } from "../../model/product-editor-state";
 import { EditableList, IconRemove } from "./EditableList";
@@ -15,7 +16,7 @@ import { EditableList, IconRemove } from "./EditableList";
 type ProductVariantSectionsProps = {
   state: ProductEditorState;
   setState: Dispatch<SetStateAction<ProductEditorState>>;
-  availableDesigns: ProductEditorDesignOption[];
+  availableDesigns: CatalogDesignOption[];
 };
 
 function remapStockValue(
@@ -56,6 +57,7 @@ export function ProductVariantSections({
     <>
       <EditableList
         id="sizes"
+        itemCount={state.sizes.length}
         title="Talles"
         description="Agregá al menos un talle y una nota sólo cuando ayude a elegir."
         addLabel="Agregar talle"
@@ -115,6 +117,7 @@ export function ProductVariantSections({
 
       <EditableList
         id="colors"
+        itemCount={state.colors.length}
         title="Colores"
         description="Nombrá cada color y elegí una muestra aproximada."
         addLabel="Agregar color"
@@ -174,6 +177,7 @@ export function ProductVariantSections({
 
       <EditableList
         id="designs"
+        itemCount={state.designs.length}
         title="Diseños asociados"
         description="Elegí los diseños disponibles y definí su extra sobre el precio base."
         addLabel="Agregar diseño"
@@ -249,11 +253,10 @@ export function ProductVariantSections({
                 />
               </>
             )}
-            <input
-              className="input"
+            <AdminCurrencyInput
               inputMode="numeric"
               min={0}
-              placeholder="Extra $"
+              placeholder="Extra"
               step={1}
               type="number"
               value={design.extraPrice}
@@ -275,6 +278,7 @@ export function ProductVariantSections({
 
       <EditableList
         id="stock"
+        itemCount={state.stock.length}
         title="Stock"
         description="Paso 3 · Cargá la disponibilidad para cada combinación vendible."
         addLabel="Agregar stock"

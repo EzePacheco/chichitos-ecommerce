@@ -18,7 +18,32 @@ export function Logo({
       : variant === "full"
         ? "/brand/logo-chichitos-full.png"
         : "/brand/logo-chichitos-dark.png";
-  const width = Math.round(height * 1.5);
+  const paddedAsset = variant !== "full";
+  const width = paddedAsset
+    ? Math.round((height * 1050) / 438)
+    : Math.round(height * 1.5);
+
+  if (paddedAsset) {
+    const renderedHeight = Math.round((height * 1024) / 438);
+    const renderedWidth = Math.round((height * 1536) / 438);
+
+    return (
+      <span className="logo-frame" style={{ height, width }}>
+        <Image
+          className="logo-img"
+          src={src}
+          alt="Chichitos"
+          width={renderedWidth}
+          height={renderedHeight}
+          priority={priority}
+          style={{
+            left: -Math.round((height * 248) / 438),
+            top: -Math.round((height * 290) / 438),
+          }}
+        />
+      </span>
+    );
+  }
 
   return (
     <Image

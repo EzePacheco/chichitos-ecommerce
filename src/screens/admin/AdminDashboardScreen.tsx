@@ -80,41 +80,64 @@ export default async function AdminDashboardPage() {
               Ver todos →
             </Link>
           </div>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Pedido</th>
-                <th>Cliente</th>
-                <th>Fecha</th>
-                <th>Total</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.length === 0 ? (
+          <div className="admin-resource-table">
+            <table className="table">
+              <thead>
                 <tr>
-                  <td className="table__empty" colSpan={5}>
-                    Todavía no hay pedidos para mostrar.
-                  </td>
+                  <th>Pedido</th>
+                  <th>Cliente</th>
+                  <th>Fecha</th>
+                  <th>Total</th>
+                  <th>Estado</th>
                 </tr>
-              ) : null}
-              {orders.slice(0, 8).map((order) => (
-                <tr key={order.id}>
-                  <td>
-                    <Link href={`/admin/pedidos/${order.id}`}>
-                      <strong>{order.publicCode}</strong>
-                    </Link>
-                  </td>
-                  <td>{order.customer}</td>
-                  <td>{order.date}</td>
-                  <td>{formatMoney(order.totalCents)}</td>
-                  <td>
-                    <OrderStatusBadge status={order.status} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {orders.length === 0 ? (
+                  <tr>
+                    <td className="table__empty" colSpan={5}>
+                      Todavía no hay pedidos para mostrar.
+                    </td>
+                  </tr>
+                ) : null}
+                {orders.slice(0, 8).map((order) => (
+                  <tr key={order.id}>
+                    <td>
+                      <Link href={`/admin/pedidos/${order.id}`}>
+                        <strong>{order.publicCode}</strong>
+                      </Link>
+                    </td>
+                    <td>{order.customer}</td>
+                    <td>{order.date}</td>
+                    <td>{formatMoney(order.totalCents)}</td>
+                    <td>
+                      <OrderStatusBadge status={order.status} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="admin-resource-cards">
+            {orders.slice(0, 8).map((order) => (
+              <Link
+                className="card admin-resource-card"
+                href={`/admin/pedidos/${order.id}`}
+                key={order.id}
+              >
+                <div className="admin-resource-card__head">
+                  <strong>{order.publicCode}</strong>
+                  <OrderStatusBadge status={order.status} />
+                </div>
+                <span>{order.customer}</span>
+                <span className="caption">
+                  {order.date} · {formatMoney(order.totalCents)}
+                </span>
+              </Link>
+            ))}
+            {orders.length === 0 ? (
+              <p className="caption">Todavía no hay pedidos para mostrar.</p>
+            ) : null}
+          </div>
         </div>
 
         <div>
