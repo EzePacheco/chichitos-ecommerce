@@ -25,6 +25,10 @@ export const metadata: Metadata = {
   title: "Chichitos | Ropa infantil estampada a pedido",
   description:
     "Ecommerce argentino de ropa infantil estampada con DTF, disenos propios y compra online completa.",
+  icons: {
+    icon: "/favicon.ico?v=cream",
+    shortcut: "/favicon.ico?v=cream",
+  },
 };
 
 export default function RootLayout({
