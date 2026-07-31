@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { saveCatalogProductAction } from "@/features/admin/server/actions";
-import { AdminPageHeader } from "@/screens/admin/AdminShell";
+import { AdminPageHeader } from "@/features/admin/ui/AdminPageHeader";
 import { ProductEditor } from "@/features/admin/ui/ProductEditor";
 import { getAdminCatalogProducts } from "@/server/catalog/admin-catalog";
 import { getProductEditorDesignOptions } from "@/server/catalog/queries/product-editor-design-options";
@@ -21,7 +21,13 @@ export default async function EditAdminProductPage({ params }: PageProps) {
 
   return (
     <>
-      <AdminPageHeader eyebrow="Catálogo" title={product.name} />
+      <AdminPageHeader
+        backHref="/admin/productos"
+        backLabel="Productos"
+        eyebrow="Catálogo"
+        title={product.name}
+        subtitle="Actualizá la ficha sin perder de vista cómo se presenta."
+      />
       <ProductEditor
         action={saveCatalogProductAction}
         availableDesigns={availableDesigns}

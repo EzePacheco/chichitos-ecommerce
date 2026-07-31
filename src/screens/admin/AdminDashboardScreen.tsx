@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { Package, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { OrderStatusBadge } from "@/features/admin/ui/OrderStatusBadge";
-import { AdminPageHeader, getAdminDisplayName } from "@/screens/admin/AdminShell";
+import { AdminPageHeader } from "@/features/admin/ui/AdminPageHeader";
+import { AdminFeedback } from "@/features/admin/ui/AdminFeedback";
+import { getAdminDisplayName } from "@/screens/admin/AdminShell";
 import { formatMoney } from "@/shared/formatting/money";
 import { getAdminAuthorization } from "@/server/auth/admin-authorization";
 import { getAdminOrderSummaries } from "@/server/orders/admin-orders";
@@ -19,13 +21,12 @@ export default async function AdminDashboardPage() {
   const storeSettings = await getStoreSettings();
   const settingsComplete = isStoreSettingsOnboardingComplete(storeSettings);
   const missingSettingsFields = getMissingStoreSettingsFields(storeSettings);
-  const totalCents = orders.reduce((acc, order) => acc + order.totalCents, 0);
-
   return (
     <>
       <AdminPageHeader
         eyebrow={`Hola ${getAdminDisplayName(email)}`}
         title="Panel de Chichitos"
+        subtitle="Lo importante para preparar pedidos y mantener la tienda al día."
         action={
           <Button asChild variant="primary">
             <Link href="/admin/productos/nuevo">
@@ -36,15 +37,10 @@ export default async function AdminDashboardPage() {
       />
 
       {!settingsComplete ? (
-        <div className="disclaimer admin__notice">
-          <Package size={20} />
-          <div>
-            <strong>Configuración pendiente.</strong>
-            <p style={{ margin: "4px 0 0" }}>
-              Falta: {missingSettingsFields.join(", ")}.
-            </p>
-          </div>
-        </div>
+        <AdminFeedback tone="warning" title="Completá la configuración inicial">
+          Falta: {missingSettingsFields.join(", ")}.{" "}
+          <Link href="/admin/configuracion">Ir a configuración</Link>
+        </AdminFeedback>
       ) : null}
 
       <section className="stats" aria-label="Métricas de admin">
@@ -54,9 +50,11 @@ export default async function AdminDashboardPage() {
           <div className="stat__delta">Últimos 50</div>
         </div>
         <div className="stat">
-          <div className="stat__label">Ingresos</div>
-          <div className="stat__value">{formatMoney(totalCents)}</div>
-          <div className="stat__delta">Total listado</div>
+          <div className="stat__label">Nuevos</div>
+          <div className="stat__value">
+            {orders.filter((order) => order.status === "new").length}
+          </div>
+          <div className="stat__delta">Requieren revisión</div>
         </div>
         <div className="stat">
           <div className="stat__label">En producción</div>

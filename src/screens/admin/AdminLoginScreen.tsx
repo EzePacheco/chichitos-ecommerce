@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Info } from "lucide-react";
 import { AdminLoginForm } from "@/features/admin/ui/AdminLoginForm";
+import { AdminFeedback } from "@/features/admin/ui/AdminFeedback";
 import { GarmentPlaceholder } from "@/features/catalog/ui/GarmentVisuals";
 import { Eyebrow, Logo } from "@/shared/ui/design-system";
 import { getAdminAuthorization } from "@/server/auth/admin-authorization";
@@ -60,38 +60,33 @@ export default async function AdminLoginPage({
             <div className="mt-6">
               <Eyebrow>Admin seguro</Eyebrow>
               <h1 className="display-l mt-2">Ingresar al panel</h1>
-              <p>
-                Usá la cuenta Google autorizada para administrar Chichitos. La
-                autenticación por sí sola no habilita acceso: el email debe
-                estar en la allowlist inicial o en la tabla de admins activos.
+                <p>
+                Usá la cuenta de Google habilitada para administrar productos,
+                diseños, pedidos y ajustes de la tienda.
               </p>
             </div>
 
             {callbackError && callbackErrorMessages[callbackError] ? (
-              <div className="disclaimer" role="alert">
-                <Info size={18} />
-                <span>{callbackErrorMessages[callbackError]}</span>
-              </div>
+              <AdminFeedback tone="error">
+                {callbackErrorMessages[callbackError]}
+              </AdminFeedback>
             ) : null}
 
             {authorization.status === "denied" ? (
-              <div className="disclaimer" role="status">
-                <Info size={18} />
-                <div>
-                  <strong>Sesión actual no autorizada.</strong>
-                  <p style={{ margin: 0 }}>
-                    Si necesitás entrar con otra cuenta, seleccioná la cuenta
-                    Google correcta durante el próximo inicio de sesión.
-                  </p>
-                </div>
-              </div>
+              <AdminFeedback
+                tone="warning"
+                title="Esta cuenta no tiene acceso al panel"
+              >
+                Elegí otra cuenta de Google o pedile acceso a quien administra
+                la tienda.
+              </AdminFeedback>
             ) : null}
 
             <AdminLoginForm nextPath={nextPath} />
           </div>
 
           <aside
-            aria-label="Controles de seguridad admin"
+            aria-label="Resumen del panel de Chichitos"
             style={{
               background: "var(--cream-200)",
               borderRadius: "var(--r-xl)",
@@ -104,9 +99,9 @@ export default async function AdminLoginPage({
             }}
           >
             <div className="flex-row" style={{ flexWrap: "wrap" }}>
-              <span className="chip chip--salvia">Google Auth</span>
-              <span className="chip chip--celeste">Allowlist server-side</span>
-              <span className="chip chip--dashed">RLS Supabase</span>
+              <span className="chip chip--salvia">Catálogo</span>
+              <span className="chip chip--celeste">Pedidos</span>
+              <span className="chip chip--dashed">Tienda</span>
             </div>
             <div
               style={{
@@ -136,8 +131,8 @@ export default async function AdminLoginPage({
               </div>
             </div>
             <p style={{ margin: 0 }}>
-              No alcanza con conocer la URL privada: cada acceso se valida en
-              servidor contra Supabase.
+              Un solo lugar para mantener la tienda actualizada y seguir cada
+              pedido.
             </p>
           </aside>
         </div>

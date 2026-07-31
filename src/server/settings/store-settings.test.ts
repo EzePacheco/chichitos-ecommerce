@@ -3,6 +3,7 @@ import {
   formatCentsForAdminInput,
   formatDecimalForAdminInput,
   getMissingStoreSettingsFields,
+  getStoreSettings,
   isStoreSettingsOnboardingComplete,
   mergeStoreSettingsWithDefaults,
   parseMoneyToCents,
@@ -24,6 +25,14 @@ const baseInput = {
 };
 
 describe("store settings rules", () => {
+  it("uses safe defaults when the catalog backend is not configured", async () => {
+    await expect(getStoreSettings()).resolves.toMatchObject({
+      id: true,
+      store_name: "Chichitos",
+      checkout_enabled: false,
+    });
+  });
+
   it("normalizes admin form input for persistence", () => {
     const result = parseStoreSettingsInput(baseInput);
 
@@ -55,8 +64,14 @@ describe("store settings rules", () => {
     expect(result).toEqual({
       ok: false,
       errors: [
-        "WhatsApp debe tener al menos 8 digitos.",
-        "El radio base de envio debe ser mayor a cero.",
+        {
+          field: "whatsappNumber",
+          message: "Ingresá un WhatsApp válido con código de área.",
+        },
+        {
+          field: "deliveryBaseRadiusKm",
+          message: "El radio base de envio debe ser mayor a cero.",
+        },
       ],
     });
   });

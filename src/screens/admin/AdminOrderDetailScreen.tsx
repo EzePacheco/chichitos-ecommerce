@@ -1,27 +1,19 @@
 import { notFound } from "next/navigation";
-import { Check } from "lucide-react";
+import { AdminPageHeader } from "@/features/admin/ui/AdminPageHeader";
 import { OrderStatusBadge } from "@/features/admin/ui/OrderStatusBadge";
-import { AdminActionForm } from "@/features/admin/ui/AdminActionForm";
-import { saveOrderOperationAction } from "@/features/admin/server/actions";
-import { AdminPageHeader } from "@/screens/admin/AdminShell";
+import { OrderOperationForm } from "@/features/admin/ui/order-operation/OrderOperationForm";
 import { formatMoney } from "@/shared/formatting/money";
+import { SearchParamToast } from "@/shared/ui/SearchParamToast";
 import { getAdminOrderDetail } from "@/server/orders/admin-orders";
 
 type PageProps = {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ order?: string | string[] }>;
 };
-
-function firstParam(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
 
 export default async function AdminOrderDetailPage({
   params,
-  searchParams,
 }: PageProps) {
   const { id } = await params;
-  const status = firstParam((await searchParams)?.order);
   const order = await getAdminOrderDetail(id);
 
   if (!order) notFound();
@@ -29,150 +21,21 @@ export default async function AdminOrderDetailPage({
   return (
     <>
       <AdminPageHeader
+        backHref="/admin/pedidos"
+        backLabel="Volver a pedidos"
         eyebrow="Pedido"
         title={order.publicCode}
+        subtitle="Actualizá la preparación y los datos de entrega. El estado del pago es informativo."
         action={<OrderStatusBadge status={order.status} />}
       />
 
-      {status === "saved" ? (
-        <div className="disclaimer admin__notice">
-          <Check size={20} />
-          <div>El pedido se actualizó correctamente.</div>
-        </div>
-      ) : null}
+      <SearchParamToast
+        messages={{ saved: "El pedido se actualizó correctamente." }}
+        param="order"
+      />
 
       <div className="admin__row">
-        <AdminActionForm
-          action={saveOrderOperationAction}
-          submitLabel="Guardar operación"
-          pendingLabel="Guardando operación..."
-        >
-          <input name="orderId" type="hidden" value={order.id} />
-          <section className="admin-form__section">
-            <h3>Operación</h3>
-            <div className="field-grid">
-              <div className="field">
-                <label htmlFor="operationalStatus">Estado</label>
-                <select
-                  className="select"
-                  defaultValue={order.rawStatus}
-                  id="operationalStatus"
-                  name="operationalStatus"
-                >
-                  <option value="new">Nuevo</option>
-                  <option value="in_production">En producción</option>
-                  <option value="ready">Listo</option>
-                  <option value="shipped">Enviado</option>
-                  <option value="completed">Completado</option>
-                  <option value="cancelled">Cancelado</option>
-                </select>
-              </div>
-              <div className="field">
-                <label htmlFor="buyerPhone">Teléfono</label>
-                <input
-                  className="input"
-                  defaultValue={order.buyerPhone}
-                  id="buyerPhone"
-                  name="buyerPhone"
-                />
-              </div>
-            </div>
-            <div className="field-grid">
-              <div className="field">
-                <label htmlFor="buyerName">Cliente</label>
-                <input
-                  className="input"
-                  defaultValue={order.customer}
-                  id="buyerName"
-                  name="buyerName"
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="buyerEmail">Email</label>
-                <input
-                  className="input"
-                  defaultValue={order.buyerEmail ?? ""}
-                  id="buyerEmail"
-                  name="buyerEmail"
-                  type="email"
-                />
-              </div>
-            </div>
-            <div className="field">
-              <label htmlFor="adminNotes">Notas internas</label>
-              <textarea
-                className="textarea"
-                defaultValue={order.adminNotes ?? ""}
-                id="adminNotes"
-                name="adminNotes"
-                rows={4}
-              />
-            </div>
-          </section>
-
-          <section className="admin-form__section">
-            <h3>Entrega</h3>
-            <div className="field-grid">
-              <div className="field">
-                <label htmlFor="recipientName">Recibe</label>
-                <input
-                  className="input"
-                  defaultValue={order.delivery?.recipientName ?? ""}
-                  id="recipientName"
-                  name="recipientName"
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="postalCode">Código postal</label>
-                <input
-                  className="input"
-                  defaultValue={order.delivery?.postalCode ?? ""}
-                  id="postalCode"
-                  name="postalCode"
-                />
-              </div>
-            </div>
-            <div className="field">
-              <label htmlFor="addressLine">Dirección</label>
-              <input
-                className="input"
-                defaultValue={order.delivery?.addressLine ?? ""}
-                id="addressLine"
-                name="addressLine"
-              />
-            </div>
-            <div className="field-grid">
-              <div className="field">
-                <label htmlFor="city">Ciudad</label>
-                <input
-                  className="input"
-                  defaultValue={order.delivery?.city ?? ""}
-                  id="city"
-                  name="city"
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="province">Provincia</label>
-                <input
-                  className="input"
-                  defaultValue={order.delivery?.province ?? ""}
-                  id="province"
-                  name="province"
-                />
-              </div>
-            </div>
-            <div className="field">
-              <label htmlFor="instructions">Instrucciones</label>
-              <textarea
-                className="textarea"
-                defaultValue={order.delivery?.instructions ?? ""}
-                id="instructions"
-                name="instructions"
-                rows={3}
-              />
-            </div>
-          </section>
-        </AdminActionForm>
+        <OrderOperationForm order={order} />
 
         <aside className="card admin-form">
           <section className="admin-form__section">

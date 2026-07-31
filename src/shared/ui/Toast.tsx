@@ -1,6 +1,6 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 const TOAST_EVENT = "chichitos-toast";
@@ -40,7 +40,7 @@ type ToastProps = {
   onDone?: () => void;
 };
 
-export function Toast({ message, durationMs = 2200, onDone }: ToastProps) {
+export function Toast({ message, durationMs = 5000, onDone }: ToastProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -55,8 +55,16 @@ export function Toast({ message, durationMs = 2200, onDone }: ToastProps) {
   }, [message, durationMs, onDone]);
 
   return (
-    <div className={`toast ${visible ? "is-visible" : ""}`} role="status">
-      <Check size={16} /> {message}
+    <div
+      aria-live="polite"
+      className={`toast ${visible ? "is-visible" : ""}`}
+      role="status"
+    >
+      <Check size={16} />
+      <span>{message}</span>
+      <button aria-label="Cerrar aviso" onClick={() => onDone?.()} type="button">
+        <X size={16} />
+      </button>
     </div>
   );
 }

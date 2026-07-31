@@ -1,51 +1,64 @@
 import type { CatalogProduct } from "@/features/catalog/model/catalog-products";
+import { AdminField } from "../AdminField";
+import type { ProductEditorDraft } from "../ProductEditor";
 
 type ProductBasicsSectionProps = {
+  draft: ProductEditorDraft;
   product?: CatalogProduct | null;
   lockSlug: boolean;
+  onChange: (patch: Partial<ProductEditorDraft>) => void;
 };
 
 export function ProductBasicsSection({
+  draft,
   product,
   lockSlug,
+  onChange,
 }: ProductBasicsSectionProps) {
   return (
-    <section className="admin-form__section">
-      <h3>Datos principales</h3>
-      <p className="admin-form__hint">Los campos con * son obligatorios.</p>
+    <section
+      className="admin-form__section admin-editor__group"
+      id="product-data"
+    >
+      <div className="admin-editor__group-head">
+        <span className="eyebrow">Paso 1</span>
+        <h2>Datos principales</h2>
+        <p>La información que presenta el producto en el catálogo.</p>
+      </div>
       <div className="field-grid">
-        <div className="field">
-          <label htmlFor="productName">Nombre *</label>
+        <AdminField label="Nombre" name="name" requirement="required">
           <input
             className="input"
-            id="productName"
-            name="name"
             placeholder="Ej: Remera bosque de amigos"
-            required
-            defaultValue={product?.name ?? ""}
+            value={draft.name}
+            onChange={(event) => onChange({ name: event.target.value })}
           />
-        </div>
+        </AdminField>
         {lockSlug ? (
-          <div className="field">
-            <label htmlFor="productSlug">Dirección en la tienda</label>
+          <AdminField
+            label="Dirección en la tienda"
+            name="slug"
+            requirement="optional"
+            hint="Se conserva para no romper enlaces existentes."
+          >
             <input
               className="input"
-              id="productSlug"
-              name="slug"
               readOnly
               defaultValue={product?.slug ?? ""}
             />
-          </div>
+          </AdminField>
         ) : null}
       </div>
       <div className="field-grid">
-        <div className="field">
-          <label htmlFor="productCategory">Categoría</label>
+        <AdminField label="Categoría" name="category" requirement="required">
           <select
             className="select"
-            id="productCategory"
-            name="category"
-            defaultValue={product?.category ?? "remeras"}
+            value={draft.category}
+            onChange={(event) =>
+              onChange({
+                category: event.target.value as ProductEditorDraft["category"],
+              })
+            }
           >
             <option value="remeras">Remeras</option>
             <option value="bodies">Bodies</option>
@@ -53,43 +66,51 @@ export function ProductBasicsSection({
             <option value="sets">Sets</option>
             <option value="accesorios">Accesorios</option>
           </select>
-        </div>
-        <div className="field">
-          <label htmlFor="productStatus">Estado</label>
+        </AdminField>
+        <AdminField
+          label="Estado"
+          name="status"
+          requirement="required"
+          hint="Un borrador no aparece en la tienda."
+        >
           <select
             className="select"
-            id="productStatus"
-            name="status"
-            defaultValue={product?.status ?? "draft"}
+            value={draft.status}
+            onChange={(event) =>
+              onChange({
+                status: event.target.value as ProductEditorDraft["status"],
+              })
+            }
           >
             <option value="draft">Borrador</option>
             <option value="active">Activo</option>
           </select>
-        </div>
+        </AdminField>
       </div>
       <div className="field-grid">
-        <div className="field">
-          <label htmlFor="productPrice">Precio base en pesos *</label>
+        <AdminField
+          label="Precio base en pesos"
+          name="basePrice"
+          requirement="required"
+          hint="Ingresá pesos enteros, sin puntos ni centavos."
+        >
           <input
             className="input"
-            id="productPrice"
             inputMode="numeric"
             min={1}
-            name="basePrice"
-            required
             step={1}
             type="number"
-            defaultValue={
-              product ? String(Math.round(product.basePriceCents / 100)) : ""
-            }
+            value={draft.basePrice}
+            onChange={(event) => onChange({ basePrice: event.target.value })}
           />
-        </div>
+        </AdminField>
         <label className="radio-card" htmlFor="productFeatured">
           <input
-            defaultChecked={product?.featured ?? false}
+            checked={draft.featured}
             id="productFeatured"
             name="featured"
             type="checkbox"
+            onChange={(event) => onChange({ featured: event.target.checked })}
           />
           <div>
             <h4 className="radio-card__title">Destacado</h4>
@@ -97,49 +118,59 @@ export function ProductBasicsSection({
           </div>
         </label>
       </div>
-      <div className="field">
-        <label htmlFor="productSummary">Resumen *</label>
+      <AdminField
+        label="Resumen"
+        name="summary"
+        requirement="required"
+        hint="Una línea corta para las tarjetas del catálogo."
+      >
         <input
           className="input"
-          id="productSummary"
-          name="summary"
           placeholder="Una línea corta que se ve en el catálogo"
-          required
-          defaultValue={product?.summary ?? ""}
+          value={draft.summary}
+          onChange={(event) => onChange({ summary: event.target.value })}
         />
-      </div>
-      <div className="field">
-        <label htmlFor="productDescription">Descripción *</label>
+      </AdminField>
+      <AdminField
+        label="Descripción"
+        name="description"
+        requirement="required"
+      >
         <textarea
           className="textarea"
-          id="productDescription"
-          name="description"
-          required
           rows={3}
-          defaultValue={product?.description ?? ""}
+          value={draft.description}
+          onChange={(event) => onChange({ description: event.target.value })}
         />
-      </div>
+      </AdminField>
       <div className="field-grid">
-        <div className="field">
-          <label htmlFor="productImage">Imagen principal</label>
+        <AdminField
+          label="Imagen principal"
+          name="image"
+          requirement="optional"
+          hint="PNG, JPG, WebP o AVIF de hasta 5 MB."
+        >
           <input
             accept="image/png,image/jpeg,image/webp,image/avif"
             className="input"
-            id="productImage"
-            name="image"
             type="file"
           />
-        </div>
-        <div className="field">
-          <label htmlFor="productionTime">Tiempo de producción</label>
+        </AdminField>
+        <AdminField
+          label="Tiempo de producción"
+          name="productionTime"
+          requirement="optional"
+          hint="Indicá un rango realista para preparar el pedido."
+        >
           <input
             className="input"
-            id="productionTime"
-            name="productionTime"
             placeholder="Ej: 5 a 7 días hábiles"
-            defaultValue={product?.productionTime ?? ""}
+            value={draft.productionTime}
+            onChange={(event) =>
+              onChange({ productionTime: event.target.value })
+            }
           />
-        </div>
+        </AdminField>
       </div>
     </section>
   );

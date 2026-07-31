@@ -1,65 +1,87 @@
-import type { CatalogProduct } from "@/features/catalog/model/catalog-products";
+import { AdminField } from "../AdminField";
+import type { ProductEditorDraft } from "../ProductEditor";
 
 type ProductPersonalizationSectionProps = {
-  product?: CatalogProduct | null;
+  draft: ProductEditorDraft;
+  onChange: (patch: Partial<ProductEditorDraft>) => void;
 };
 
 export function ProductPersonalizationSection({
-  product,
+  draft,
+  onChange,
 }: ProductPersonalizationSectionProps) {
   return (
-    <section className="admin-form__section">
-      <h3>Personalización</h3>
+    <section
+      className="admin-form__section admin-editor__group"
+      id="personalization"
+    >
+      <div className="admin-editor__group-head">
+        <span className="eyebrow">Paso 4</span>
+        <h2>Personalización</h2>
+        <p>Configurá el texto opcional que puede sumar la clienta.</p>
+      </div>
       <div className="field-grid">
         <label className="radio-card" htmlFor="personalizationEnabled">
           <input
-            defaultChecked={product?.personalization.enabled ?? true}
+            checked={draft.personalizationEnabled}
             id="personalizationEnabled"
             name="personalizationEnabled"
             type="checkbox"
+            onChange={(event) =>
+              onChange({ personalizationEnabled: event.target.checked })
+            }
           />
           <div>
             <h4 className="radio-card__title">Permite personalizar</h4>
             <p className="radio-card__sub">Nombre, inicial o frase corta.</p>
           </div>
         </label>
-        <div className="field">
-          <label htmlFor="personalizationPrice">Extra en pesos</label>
+        <AdminField
+          label="Extra en pesos"
+          name="personalizationPrice"
+          requirement="optional"
+          hint="Usá 0 si no tiene costo adicional."
+        >
           <input
             className="input"
-            id="personalizationPrice"
             inputMode="numeric"
             min={0}
-            name="personalizationPrice"
             step={1}
             type="number"
-            defaultValue={
-              product
-                ? String(Math.round(product.personalization.extraPriceCents / 100))
-                : "0"
+            value={draft.personalizationPrice}
+            onChange={(event) =>
+              onChange({ personalizationPrice: event.target.value })
             }
           />
-        </div>
+        </AdminField>
       </div>
       <div className="field-grid">
-        <div className="field">
-          <label htmlFor="personalizationLabel">Label</label>
+        <AdminField
+          label="Etiqueta del campo"
+          name="personalizationLabel"
+          requirement="optional"
+        >
           <input
             className="input"
-            id="personalizationLabel"
-            name="personalizationLabel"
-            defaultValue={product?.personalization.label ?? "Nombre o frase corta"}
+            value={draft.personalizationLabel}
+            onChange={(event) =>
+              onChange({ personalizationLabel: event.target.value })
+            }
           />
-        </div>
-        <div className="field">
-          <label htmlFor="personalizationDescription">Descripción</label>
+        </AdminField>
+        <AdminField
+          label="Ayuda para la clienta"
+          name="personalizationDescription"
+          requirement="optional"
+        >
           <input
             className="input"
-            id="personalizationDescription"
-            name="personalizationDescription"
-            defaultValue={product?.personalization.description ?? ""}
+            value={draft.personalizationDescription}
+            onChange={(event) =>
+              onChange({ personalizationDescription: event.target.value })
+            }
           />
-        </div>
+        </AdminField>
       </div>
     </section>
   );

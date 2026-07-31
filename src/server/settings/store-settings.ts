@@ -1,6 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { sanitizeWhatsAppPhoneNumber } from "@/shared/contact/whatsapp";
-import { createAdminSupabaseClient } from "@/platform/supabase/admin";
+import type { ValidationIssue } from "@/shared/validation/validation-issue";
+import {
+  createAdminSupabaseClient,
+  isAdminSupabaseConfigured,
+} from "@/platform/supabase/admin";
 
 export type StoreSettingsRecord = {
   id: boolean;
@@ -37,7 +41,7 @@ export type StoreSettingsFormInput = {
 
 export type StoreSettingsValidationResult =
   | { ok: true; settings: StoreSettingsRecord }
-  | { ok: false; errors: string[] };
+  | { ok: false; errors: ValidationIssue[] };
 
 const DEFAULT_STORE_SETTINGS: StoreSettingsRecord = {
   id: true,
@@ -109,7 +113,7 @@ export function parseMoneyToCents(
 export function parseStoreSettingsInput(
   input: StoreSettingsFormInput,
 ): StoreSettingsValidationResult {
-  const errors: string[] = [];
+  const errors: ValidationIssue[] = [];
   const storeName = textValue(input.storeName) || "Chichitos";
   const rawWhatsappNumber = textValue(input.whatsappNumber);
   const whatsappNumber = rawWhatsappNumber
@@ -117,7 +121,10 @@ export function parseStoreSettingsInput(
     : null;
 
   if (rawWhatsappNumber && !whatsappNumber) {
-    errors.push("WhatsApp debe tener al menos 8 digitos.");
+    errors.push({
+      field: "whatsappNumber",
+      message: "Ingresá un WhatsApp válido con código de área.",
+    });
   }
 
   const deliveryBaseRadius = parsePositiveDecimal(
@@ -141,15 +148,17 @@ export function parseStoreSettingsInput(
     "El costo de personalizacion",
   );
 
-  for (const result of [
-    deliveryBaseRadius,
-    deliveryExtraStepKm,
-    deliveryBasePrice,
-    deliveryExtraStepPrice,
-    defaultPersonalizationExtraPrice,
-  ]) {
+  const numericResults = [
+    ["deliveryBaseRadiusKm", deliveryBaseRadius],
+    ["deliveryExtraStepKm", deliveryExtraStepKm],
+    ["deliveryBasePrice", deliveryBasePrice],
+    ["deliveryExtraStepPrice", deliveryExtraStepPrice],
+    ["defaultPersonalizationExtraPrice", defaultPersonalizationExtraPrice],
+  ] as const;
+
+  for (const [field, result] of numericResults) {
     if (result.error) {
-      errors.push(result.error);
+      errors.push({ field, message: result.error });
     }
   }
 
@@ -245,9 +254,14 @@ export function formatDecimalForAdminInput(value: number) {
 }
 
 export async function getStoreSettings(
-  supabase: SupabaseClient = createAdminSupabaseClient(),
+  supabase?: SupabaseClient,
 ) {
-  const { data, error } = await supabase
+  if (!supabase && !isAdminSupabaseConfigured()) {
+    return mergeStoreSettingsWithDefaults(null);
+  }
+
+  const client = supabase ?? createAdminSupabaseClient();
+  const { data, error } = await client
     .from("store_settings")
     .select("*")
     .eq("id", true)

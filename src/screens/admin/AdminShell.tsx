@@ -1,20 +1,19 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import { Info } from "lucide-react";
-import { Eyebrow } from "@/shared/ui/design-system";
 import { getAdminAuthorization } from "@/server/auth/admin-authorization";
 import { buildAdminLoginPath } from "@/server/auth/redirects";
 import { AdminNav } from "@/features/admin/ui/AdminNav";
+import { AdminFeedback } from "@/features/admin/ui/AdminFeedback";
 
 const deniedReasonLabels: Record<string, string> = {
   admin_lookup_failed:
-    "No pudimos validar tu rol admin. Probá nuevamente o revisá la configuración server-side.",
+    "No pudimos validar el acceso en este momento. Volvé a intentar.",
   bootstrap_failed:
-    "Tu email está en la allowlist, pero no pudimos crear el registro admin.",
-  inactive_admin: "Tu usuario admin existe pero está desactivado.",
+    "No pudimos habilitar esta cuenta en este momento. Volvé a intentar.",
+  inactive_admin: "El acceso de esta cuenta está desactivado.",
   missing_email: "La cuenta autenticada no tiene email verificable.",
   not_allowlisted:
-    "Tu cuenta Google no está autorizada para administrar Chichitos.",
+    "Esta cuenta no tiene permiso para administrar Chichitos.",
 };
 
 export function getAdminDisplayName(email: string) {
@@ -36,19 +35,18 @@ export async function AdminShell({ children }: { children: ReactNode }) {
       <section className="section">
         <div className="container">
           <div className="card admin__denied">
-            <Eyebrow>Acceso restringido</Eyebrow>
-            <h1 className="display-l mt-2">No tenés acceso al admin</h1>
-            <p>{deniedReasonLabels[authorization.reason]}</p>
+            <span className="eyebrow">Acceso restringido</span>
+            <h1 className="display-l mt-2">Esta cuenta no tiene acceso</h1>
+            <AdminFeedback tone="warning" title="Probá con la cuenta autorizada">
+              {deniedReasonLabels[authorization.reason]}
+            </AdminFeedback>
             {authorization.email ? (
               <span className="chip">Cuenta actual: {authorization.email}</span>
             ) : null}
-            <div className="disclaimer">
-              <Info size={20} />
-              <div>
-                El panel mantiene los controles globales: sesión Google válida,
-                rol persistido en Supabase y bootstrap limitado por allowlist.
-              </div>
-            </div>
+            <p className="caption">
+              Si el problema continúa, compartí la cuenta actual con la persona
+              responsable de la tienda.
+            </p>
           </div>
         </div>
       </section>
@@ -61,26 +59,6 @@ export async function AdminShell({ children }: { children: ReactNode }) {
     <div className="admin">
       <AdminNav email={authorization.email} displayName={displayName} />
       <main className="admin__main">{children}</main>
-    </div>
-  );
-}
-
-export function AdminPageHeader({
-  eyebrow,
-  title,
-  action,
-}: {
-  eyebrow: string;
-  title: string;
-  action?: ReactNode;
-}) {
-  return (
-    <div className="admin__head">
-      <div>
-        <Eyebrow>{eyebrow}</Eyebrow>
-        <h1>{title}</h1>
-      </div>
-      {action}
     </div>
   );
 }

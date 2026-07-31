@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Info, User } from "lucide-react";
+import { User } from "lucide-react";
+import { AdminFeedback } from "@/features/admin/ui/AdminFeedback";
 import { Button } from "@/shared/ui/button";
 import { createBrowserSupabaseClient } from "@/platform/supabase/browser";
 
@@ -59,10 +60,7 @@ export function AdminLoginForm({ nextPath }: AdminLoginFormProps) {
         {isSubmitting ? "Redirigiendo a Google..." : "Ingresar con Google"}
       </Button>
       {errorMessage ? (
-        <div className="disclaimer" role="alert">
-          <Info size={18} />
-          <span>{errorMessage}</span>
-        </div>
+        <AdminFeedback tone="error">{errorMessage}</AdminFeedback>
       ) : null}
     </div>
   );

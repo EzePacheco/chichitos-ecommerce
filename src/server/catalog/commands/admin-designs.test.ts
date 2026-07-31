@@ -30,8 +30,15 @@ describe("admin design parsing", () => {
     const formData = new FormData();
     formData.set("status", "published");
 
-    expect(parseAdminDesignInput(getAdminDesignFormInput(formData))).toMatchObject({
+    expect(
+      parseAdminDesignInput(getAdminDesignFormInput(formData)),
+    ).toMatchObject({
       ok: false,
+      errors: expect.arrayContaining([
+        expect.objectContaining({ field: "name" }),
+        expect.objectContaining({ field: "summary" }),
+        expect.objectContaining({ field: "status" }),
+      ]),
     });
   });
 });

@@ -1,7 +1,9 @@
 import { revalidatePath } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { ValidationIssue } from "@/shared/validation/validation-issue";
 import { parseMoneyToCents } from "@/server/settings/store-settings";
 import { createAdminSupabaseClient } from "@/platform/supabase/admin";
+import { isSupabaseCatalogConfigured } from "../queries/public-catalog";
 import { slugifyCatalogValue } from "./admin-catalog";
 
 export type AdminDesign = {
@@ -88,20 +90,46 @@ export function getAdminDesignFormInput(formData: FormData): AdminDesignFormInpu
 }
 
 export function parseAdminDesignInput(input: AdminDesignFormInput) {
-  const errors: string[] = [];
+  const errors: ValidationIssue[] = [];
   const name = text(input.name);
   const slug = slugifyCatalogValue(text(input.slug) || name);
   const status = (text(input.status) || "draft") as AdminDesign["status"];
   const baseExtraPrice = parseMoneyToCents(input.baseExtraPrice, "Extra base");
   const image = getImage(input.image);
 
-  if (!slug) errors.push("Slug requerido.");
-  if (!name) errors.push("Nombre requerido.");
-  if (!text(input.summary)) errors.push("Resumen requerido.");
-  if (!statuses.includes(status)) errors.push("Estado inválido.");
-  if (baseExtraPrice.error) errors.push(baseExtraPrice.error);
-  if (image && !allowedImageTypes.has(image.type)) errors.push("Imagen inválida.");
-  if (image && image.size > 5 * 1024 * 1024) errors.push("Imagen mayor a 5 MB.");
+  if (!slug) {
+    errors.push({
+      field: "name",
+      message: "Ingresá un nombre para generar la dirección.",
+    });
+  }
+  if (!name) {
+    errors.push({ field: "name", message: "Ingresá el nombre del diseño." });
+  }
+  if (!text(input.summary)) {
+    errors.push({
+      field: "summary",
+      message: "Ingresá un resumen del diseño.",
+    });
+  }
+  if (!statuses.includes(status)) {
+    errors.push({ field: "status", message: "Elegí un estado válido." });
+  }
+  if (baseExtraPrice.error) {
+    errors.push({
+      field: "baseExtraPrice",
+      message: "Ingresá un extra base válido.",
+    });
+  }
+  if (image && !allowedImageTypes.has(image.type)) {
+    errors.push({
+      field: "image",
+      message: "Elegí una imagen PNG, JPG, WebP o AVIF.",
+    });
+  }
+  if (image && image.size > 5 * 1024 * 1024) {
+    errors.push({ field: "image", message: "Elegí una imagen de hasta 5 MB." });
+  }
 
   if (errors.length > 0) return { ok: false as const, errors };
 
@@ -136,9 +164,12 @@ async function uploadDesignImage(file: File | null, slug: string, supabase: Supa
 }
 
 export async function getAdminDesigns(
-  supabase: SupabaseClient = createAdminSupabaseClient(),
+  supabase?: SupabaseClient,
 ) {
-  const { data, error } = await supabase
+  if (!supabase && !isSupabaseCatalogConfigured()) return [];
+
+  const client = supabase ?? createAdminSupabaseClient();
+  const { data, error } = await client
     .from("designs")
     .select(
       "id,slug,name,summary,description,status,base_extra_price_cents,image_url,image_alt,product_designs(product_id)",
@@ -153,9 +184,12 @@ export async function getAdminDesigns(
 
 export async function getAdminDesignBySlug(
   slug: string,
-  supabase: SupabaseClient = createAdminSupabaseClient(),
+  supabase?: SupabaseClient,
 ) {
-  const { data, error } = await supabase
+  if (!supabase && !isSupabaseCatalogConfigured()) return null;
+
+  const client = supabase ?? createAdminSupabaseClient();
+  const { data, error } = await client
     .from("designs")
     .select(
       "id,slug,name,summary,description,status,base_extra_price_cents,image_url,image_alt,product_designs(product_id)",

@@ -94,3 +94,15 @@ Entregable:
 - Tono de voz.
 - Numero de WhatsApp Business.
 
+## Criterios vigentes para el panel admin
+
+- Desktop es la superficie operativa principal; mobile debe conservar todos los
+  flujos desde 360 px sin desborde horizontal.
+- Mantener la identidad cálida de Chichitos y aumentar la densidad sólo en
+  navegación, tablas y controles operativos.
+- Formularios largos viven en páginas dedicadas, organizados por tarea y con
+  preview contextual cuando la edición modifica una pieza visual.
+- Cada campo indica si es obligatorio u opcional. Los errores quedan visibles
+  junto al campo y en un resumen accesible; las advertencias no desaparecen.
+- Los toasts se reservan para confirmaciones breves. Acciones con consecuencias
+  requieren una confirmación explícita y contextual.

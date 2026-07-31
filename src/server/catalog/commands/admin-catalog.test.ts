@@ -64,8 +64,15 @@ describe("admin catalog parsing", () => {
     formData.set("colors", "natural|Natural|red");
     formData.set("designs", "bosque|Bosque|Hojas|0");
 
-    expect(parseCatalogProductInput(getCatalogProductFormInput(formData))).toMatchObject({
+    expect(
+      parseCatalogProductInput(getCatalogProductFormInput(formData)),
+    ).toMatchObject({
       ok: false,
+      errors: [
+        expect.objectContaining({
+          field: "colors",
+        }),
+      ],
     });
   });
 

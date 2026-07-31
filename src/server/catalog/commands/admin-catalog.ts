@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { ValidationIssue } from "@/shared/validation/validation-issue";
 import type { ProductCategory, ProductStatus } from "@/features/catalog/model/catalog-products";
 import { parseMoneyToCents } from "@/server/settings/store-settings";
 import { createAdminSupabaseClient } from "@/platform/supabase/admin";
@@ -99,7 +100,7 @@ export function getCatalogProductFormInput(formData: FormData): CatalogProductFo
 }
 
 export function parseCatalogProductInput(input: CatalogProductFormInput) {
-  const errors: string[] = [];
+  const errors: ValidationIssue[] = [];
   const name = text(input.name);
   const slug = slugifyCatalogValue(text(input.slug) || name);
   const category = text(input.category) as ProductCategory;
@@ -134,20 +135,65 @@ export function parseCatalogProductInput(input: CatalogProductFormInput) {
     }),
   );
 
-  if (!slug) errors.push("Slug requerido.");
-  if (!name) errors.push("Nombre requerido.");
-  if (!text(input.summary)) errors.push("Resumen requerido.");
-  if (!text(input.description)) errors.push("Descripcion requerida.");
-  if (!categories.includes(category)) errors.push("Categoria invalida.");
-  if (!statuses.includes(status)) errors.push("Estado invalido.");
-  if (basePrice.error || !basePrice.value) errors.push("Precio base invalido.");
-  if (sizes.length === 0) errors.push("Agrega al menos un talle.");
-  if (colors.length === 0) errors.push("Agrega al menos un color.");
-  if (designs.length === 0) errors.push("Agrega al menos un diseno.");
-  if (image && !allowedImageTypes.has(image.type)) errors.push("Imagen invalida.");
-  if (image && image.size > 5 * 1024 * 1024) errors.push("Imagen mayor a 5 MB.");
+  if (!slug) {
+    errors.push({
+      field: "name",
+      message: "Ingresá un nombre para generar la dirección.",
+    });
+  }
+  if (!name) {
+    errors.push({ field: "name", message: "Ingresá el nombre del producto." });
+  }
+  if (!text(input.summary)) {
+    errors.push({
+      field: "summary",
+      message: "Ingresá un resumen para el catálogo.",
+    });
+  }
+  if (!text(input.description)) {
+    errors.push({
+      field: "description",
+      message: "Ingresá una descripción del producto.",
+    });
+  }
+  if (!categories.includes(category)) {
+    errors.push({ field: "category", message: "Elegí una categoría válida." });
+  }
+  if (!statuses.includes(status)) {
+    errors.push({ field: "status", message: "Elegí un estado válido." });
+  }
+  if (basePrice.error || !basePrice.value) {
+    errors.push({
+      field: "basePrice",
+      message: "Ingresá un precio base mayor a cero.",
+    });
+  }
+  if (sizes.length === 0) {
+    errors.push({ field: "sizes", message: "Agregá al menos un talle." });
+  }
+  if (colors.length === 0) {
+    errors.push({ field: "colors", message: "Agregá al menos un color." });
+  }
+  if (designs.length === 0) {
+    errors.push({ field: "designs", message: "Agregá al menos un diseño." });
+  }
+  if (image && !allowedImageTypes.has(image.type)) {
+    errors.push({
+      field: "image",
+      message: "Elegí una imagen PNG, JPG, WebP o AVIF.",
+    });
+  }
+  if (image && image.size > 5 * 1024 * 1024) {
+    errors.push({ field: "image", message: "Elegí una imagen de hasta 5 MB." });
+  }
   for (const color of colors) {
-    if (!/^#[0-9A-Fa-f]{6}$/.test(color.hex)) errors.push(`Color invalido: ${color.name}.`);
+    const validColor = new RegExp("^#[0-9A-Fa-f]{6}$").test(color.hex);
+    if (!validColor) {
+      errors.push({
+        field: "colors",
+        message: `Revisá el color ${color.name || "sin nombre"}.`,
+      });
+    }
   }
 
   if (errors.length > 0) return { ok: false as const, errors };
@@ -197,11 +243,12 @@ async function uploadProductImage(file: File | null, slug: string, supabase: Sup
 }
 
 export async function getAdminCatalogProducts(
-  supabase: SupabaseClient = createAdminSupabaseClient(),
+  supabase?: SupabaseClient,
 ) {
-  if (!isSupabaseCatalogConfigured()) return [];
+  if (!supabase && !isSupabaseCatalogConfigured()) return [];
 
-  const { data, error } = await supabase
+  const client = supabase ?? createAdminSupabaseClient();
+  const { data, error } = await client
     .from("products")
     .select(
       `

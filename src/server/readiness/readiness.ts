@@ -1,6 +1,6 @@
 import { getOptionalEnv } from "@/platform/config/env";
 import { isProductionRuntime } from "@/platform/config/runtime";
-import { getSupabaseElevatedKey } from "@/platform/supabase/admin";
+import { isAdminSupabaseConfigured } from "@/platform/supabase/admin";
 import { getStoreSettings } from "@/server/settings/store-settings";
 
 const EXAMPLE_SUPABASE_URL = "https://example.supabase.co";
@@ -20,7 +20,7 @@ export function hasRealSupabaseConfig() {
       key &&
       url !== EXAMPLE_SUPABASE_URL &&
       !key.startsWith("replace-with") &&
-      getSupabaseElevatedKey(),
+      isAdminSupabaseConfigured(),
   );
 }
 

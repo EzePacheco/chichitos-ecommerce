@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { Button } from "@/shared/ui/button";
 import {
   Dialog,
@@ -18,6 +19,32 @@ type ProductStatusToggleProps = {
   slug: string;
   status: "active" | "draft";
 };
+
+function StatusSubmitButton({
+  isPublished,
+  onDisable,
+}: {
+  isPublished: boolean;
+  onDisable: () => void;
+}) {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button
+      disabled={pending}
+      onClick={isPublished ? onDisable : undefined}
+      size="sm"
+      type={isPublished ? "button" : "submit"}
+      variant="outline"
+    >
+      {pending
+        ? "Actualizando..."
+        : isPublished
+          ? "Deshabilitar"
+          : "Publicar"}
+    </Button>
+  );
+}
 
 export function ProductStatusToggle({
   productId,
@@ -39,20 +66,10 @@ export function ProductStatusToggle({
           type="hidden"
           value={isPublished ? "draft" : "active"}
         />
-        {isPublished ? (
-          <Button
-            onClick={() => setConfirmOpen(true)}
-            size="sm"
-            type="button"
-            variant="outline"
-          >
-            Deshabilitar
-          </Button>
-        ) : (
-          <Button size="sm" type="submit" variant="outline">
-            Publicar
-          </Button>
-        )}
+        <StatusSubmitButton
+          isPublished={isPublished}
+          onDisable={() => setConfirmOpen(true)}
+        />
       </form>
 
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>

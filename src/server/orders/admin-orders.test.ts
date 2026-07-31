@@ -1,10 +1,22 @@
 import { describe, expect, it } from "vitest";
 import {
+  getAdminOrderPage,
   getAdminOrderOperationInput,
+  getAdminOrderSummaries,
   parseAdminOrderOperationInput,
 } from "./admin-orders";
 
 describe("admin order operation parsing", () => {
+  it("returns safe empty states when the catalog backend is not configured", async () => {
+    await expect(getAdminOrderSummaries()).resolves.toEqual([]);
+    await expect(getAdminOrderPage({ page: 2 })).resolves.toEqual({
+      items: [],
+      total: 0,
+      page: 2,
+      pageCount: 0,
+    });
+  });
+
   it("normalizes editable order operation fields", () => {
     const formData = new FormData();
     formData.set("orderId", "order-id");
@@ -45,6 +57,18 @@ describe("admin order operation parsing", () => {
 
     expect(
       parseAdminOrderOperationInput(getAdminOrderOperationInput(formData)),
-    ).toMatchObject({ ok: false });
+    ).toEqual({
+      ok: false,
+      errors: [
+        {
+          field: "operationalStatus",
+          message: "Elegí un estado válido.",
+        },
+        {
+          field: "buyerPhone",
+          message: "Ingresá un teléfono válido con código de área.",
+        },
+      ],
+    });
   });
 });

@@ -8,6 +8,12 @@ export function getSupabaseElevatedKey() {
   );
 }
 
+export function isAdminSupabaseConfigured() {
+  return Boolean(
+    getOptionalEnv("NEXT_PUBLIC_SUPABASE_URL") && getSupabaseElevatedKey(),
+  );
+}
+
 export function createAdminSupabaseClient() {
   const elevatedKey = getSupabaseElevatedKey();
 

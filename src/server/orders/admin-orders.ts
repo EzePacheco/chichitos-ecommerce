@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { ValidationIssue } from "@/shared/validation/validation-issue";
 import { sanitizeWhatsAppPhoneNumber } from "@/shared/contact/whatsapp";
 import { isSupabaseCatalogConfigured } from "@/server/catalog/public-catalog";
 import { createAdminSupabaseClient } from "@/platform/supabase/admin";
@@ -12,6 +13,21 @@ export type AdminOrderSummary = {
   date: string;
   status: "new" | "prod" | "ready" | "shipped" | "done" | "cancelled";
   paymentStatus: string;
+};
+
+export type AdminOrderPage = {
+  items: AdminOrderSummary[];
+  total: number;
+  page: number;
+  pageCount: number;
+};
+
+export type AdminOrderPageFilters = {
+  query?: string;
+  status?: OrderRow["operational_status"] | "";
+  paymentStatus?: string;
+  page?: number;
+  pageSize?: number;
 };
 
 export type AdminOrderDetail = AdminOrderSummary & {
@@ -243,11 +259,12 @@ const orderSelect = `
 `;
 
 export async function getAdminOrderSummaries(
-  supabase: SupabaseClient = createAdminSupabaseClient(),
+  supabase?: SupabaseClient,
 ) {
-  if (!isSupabaseCatalogConfigured()) return [];
+  if (!supabase && !isSupabaseCatalogConfigured()) return [];
 
-  const { data, error } = await supabase
+  const client = supabase ?? createAdminSupabaseClient();
+  const { data, error } = await client
     .from("orders")
     .select(orderSelect)
     .order("created_at", { ascending: false })
@@ -258,13 +275,60 @@ export async function getAdminOrderSummaries(
   return (data as unknown as OrderRow[]).map(mapOrderSummary);
 }
 
+export async function getAdminOrderPage(
+  filters: AdminOrderPageFilters = {},
+  supabase?: SupabaseClient,
+): Promise<AdminOrderPage> {
+  const pageSize = Math.min(Math.max(filters.pageSize ?? 25, 1), 50);
+  const page = Math.max(filters.page ?? 1, 1);
+
+  if (!supabase && !isSupabaseCatalogConfigured()) {
+    return { items: [], total: 0, page, pageCount: 0 };
+  }
+
+  const client = supabase ?? createAdminSupabaseClient();
+  let query = client
+    .from("orders")
+    .select(orderSelect, { count: "exact" })
+    .order("created_at", { ascending: false });
+
+  if (filters.status && statuses.includes(filters.status)) {
+    query = query.eq("operational_status", filters.status);
+  }
+
+  if (filters.paymentStatus) {
+    query = query.eq("payment_status", filters.paymentStatus);
+  }
+
+  const search = filters.query?.trim().replace(/[%(),]/g, " ");
+  if (search) {
+    query = query.or(
+      `public_code.ilike.%${search}%,buyer_name.ilike.%${search}%`,
+    );
+  }
+
+  const from = (page - 1) * pageSize;
+  const { data, error, count } = await query.range(from, from + pageSize - 1);
+
+  if (error) throw new Error(`No pudimos leer pedidos: ${error.message}`);
+
+  const total = count ?? 0;
+  return {
+    items: (data as unknown as OrderRow[]).map(mapOrderSummary),
+    total,
+    page,
+    pageCount: total === 0 ? 0 : Math.ceil(total / pageSize),
+  };
+}
+
 export async function getAdminOrderDetail(
   id: string,
-  supabase: SupabaseClient = createAdminSupabaseClient(),
+  supabase?: SupabaseClient,
 ) {
-  if (!isSupabaseCatalogConfigured()) return null;
+  if (!supabase && !isSupabaseCatalogConfigured()) return null;
 
-  const { data, error } = await supabase
+  const client = supabase ?? createAdminSupabaseClient();
+  const { data, error } = await client
     .from("orders")
     .select(orderSelect)
     .eq("id", id)
@@ -294,16 +358,33 @@ export function getAdminOrderOperationInput(
 }
 
 export function parseAdminOrderOperationInput(input: AdminOrderOperationInput) {
-  const errors: string[] = [];
+  const errors: ValidationIssue[] = [];
   const orderId = text(input.orderId);
   const operationalStatus = text(input.operationalStatus) as OrderRow["operational_status"];
   const buyerName = text(input.buyerName);
   const buyerPhone = sanitizeWhatsAppPhoneNumber(text(input.buyerPhone));
 
-  if (!orderId) errors.push("Pedido requerido.");
-  if (!statuses.includes(operationalStatus)) errors.push("Estado inválido.");
-  if (!buyerName) errors.push("Nombre del cliente requerido.");
-  if (!buyerPhone) errors.push("Teléfono inválido.");
+  if (!orderId) {
+    errors.push({ message: "No pudimos identificar el pedido." });
+  }
+  if (!statuses.includes(operationalStatus)) {
+    errors.push({
+      field: "operationalStatus",
+      message: "Elegí un estado válido.",
+    });
+  }
+  if (!buyerName) {
+    errors.push({
+      field: "buyerName",
+      message: "Ingresá el nombre del cliente.",
+    });
+  }
+  if (!buyerPhone) {
+    errors.push({
+      field: "buyerPhone",
+      message: "Ingresá un teléfono válido con código de área.",
+    });
+  }
 
   if (errors.length > 0) return { ok: false as const, errors };
 

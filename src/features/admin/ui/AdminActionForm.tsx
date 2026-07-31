@@ -1,15 +1,18 @@
 "use client";
 
 import {
+  createContext,
   startTransition,
   useActionState,
+  useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type FormEvent,
   type ReactNode,
 } from "react";
-import { Check, Info } from "lucide-react";
+import { AlertCircle, Check, Info } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import {
   idleAdminActionState,
@@ -17,6 +20,20 @@ import {
 } from "../model/admin-action-state";
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+
+type AdminFormFeedback = {
+  fieldErrors: Record<string, string[]>;
+  getFieldErrors: (name: string) => string[];
+};
+
+const AdminFormFeedbackContext = createContext<AdminFormFeedback>({
+  fieldErrors: {},
+  getFieldErrors: () => [],
+});
+
+export function useAdminFormFeedback() {
+  return useContext(AdminFormFeedbackContext);
+}
 
 type AdminActionFormProps = {
   action: (
@@ -40,31 +57,52 @@ export function AdminActionForm({
     action,
     idleAdminActionState,
   );
-  const [fileError, setFileError] = useState<string | null>(null);
+  const [clientFieldErrors, setClientFieldErrors] = useState<
+    Record<string, string[]>
+  >({});
   const alertsRef = useRef<HTMLDivElement>(null);
+  const formErrors = state.status === "invalid" ? state.formErrors : [];
+  const fieldErrors = useMemo(
+    () => ({
+      ...(state.status === "invalid" ? state.fieldErrors : {}),
+      ...clientFieldErrors,
+    }),
+    [clientFieldErrors, state],
+  );
+  const feedback = useMemo<AdminFormFeedback>(
+    () => ({
+      fieldErrors,
+      getFieldErrors: (name) => fieldErrors[name] ?? [],
+    }),
+    [fieldErrors],
+  );
   const hasAlerts =
-    state.status === "invalid" || state.status === "error" || Boolean(fileError);
+    state.status === "invalid" ||
+    state.status === "error" ||
+    Object.keys(clientFieldErrors).length > 0;
 
   useEffect(() => {
     if (hasAlerts) {
-      alertsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      alertsRef.current?.focus();
     }
-  }, [hasAlerts, state, fileError]);
+  }, [hasAlerts, state, clientFieldErrors]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const fileErrors: Record<string, string[]> = {};
 
-    for (const value of formData.values()) {
+    for (const [name, value] of formData.entries()) {
       if (value instanceof File && value.size > MAX_UPLOAD_BYTES) {
-        setFileError(
-          "La imagen supera los 5 MB. Elegí una foto más liviana y volvé a intentar.",
-        );
-        return;
+        fileErrors[name] = [
+          "La imagen supera los 5 MB. Elegí una foto más liviana.",
+        ];
       }
     }
 
-    setFileError(null);
+    setClientFieldErrors(fileErrors);
+    if (Object.keys(fileErrors).length > 0) return;
+
     startTransition(() => dispatch(formData));
   }
 
@@ -72,43 +110,73 @@ export function AdminActionForm({
     <form
       className={className}
       encType="multipart/form-data"
+      noValidate
       onSubmit={handleSubmit}
     >
-      {children}
+      <AdminFormFeedbackContext.Provider value={feedback}>
+        {children}
 
-      <div ref={alertsRef}>
-        {fileError ? (
-          <div className="disclaimer" role="alert">
-            <Info size={20} />
-            <div>{fileError}</div>
-          </div>
-        ) : null}
-
-        {state.status === "invalid" ? (
-          <div className="disclaimer" role="alert">
-            <Info size={20} />
+        {state.status === "invalid" ||
+        Object.keys(clientFieldErrors).length > 0 ? (
+          <div
+            className="admin-feedback"
+            data-tone="error"
+            ref={alertsRef}
+            role="alert"
+            tabIndex={-1}
+          >
+            <AlertCircle size={20} />
             <div>
-              <strong>Revisá estos campos antes de guardar:</strong>
+              <strong>Revisá los datos antes de guardar</strong>
               <ul className="admin-form__errors">
-                {state.errors.map((error) => (
+                {formErrors.map((error) => (
                   <li key={error}>{error}</li>
                 ))}
+                {Object.entries(fieldErrors).flatMap(([field, errors]) =>
+                  errors.map((error) => (
+                    <li key={`${field}-${error}`}>
+                      <a href={`#${field}`}>{error}</a>
+                    </li>
+                  )),
+                )}
               </ul>
             </div>
           </div>
         ) : null}
 
         {state.status === "error" ? (
-          <div className="disclaimer" role="alert">
+          <div
+            className="admin-feedback"
+            data-tone="error"
+            ref={alertsRef}
+            role="alert"
+            tabIndex={-1}
+          >
             <Info size={20} />
-            <div>{state.message}</div>
+            <div>
+              <strong>No pudimos guardar los cambios</strong>
+              <p>{state.message}</p>
+              {state.retryable ? (
+                <span>Revisá tu conexión y volvé a intentar.</span>
+              ) : null}
+              {state.errorId ? (
+                <span className="admin-feedback__code">
+                  Código de soporte: {state.errorId}
+                </span>
+              ) : null}
+            </div>
           </div>
         ) : null}
-      </div>
 
-      <Button type="submit" variant="primary" disabled={isPending}>
-        <Check size={20} /> {isPending ? pendingLabel : submitLabel}
-      </Button>
+        <div className="admin-form__submit-bar">
+          <span className="admin-form__submit-hint">
+            Revisá los datos antes de confirmar.
+          </span>
+          <Button type="submit" variant="primary" disabled={isPending}>
+            <Check size={20} /> {isPending ? pendingLabel : submitLabel}
+          </Button>
+        </div>
+      </AdminFormFeedbackContext.Provider>
     </form>
   );
 }

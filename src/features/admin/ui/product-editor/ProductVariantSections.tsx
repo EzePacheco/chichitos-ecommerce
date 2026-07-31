@@ -55,7 +55,9 @@ export function ProductVariantSections({
   return (
     <>
       <EditableList
+        id="sizes"
         title="Talles"
+        description="Agregá al menos un talle y una nota sólo cuando ayude a elegir."
         addLabel="Agregar talle"
         onAdd={() =>
           setState((current) => ({
@@ -112,7 +114,9 @@ export function ProductVariantSections({
       </EditableList>
 
       <EditableList
+        id="colors"
         title="Colores"
+        description="Nombrá cada color y elegí una muestra aproximada."
         addLabel="Agregar color"
         onAdd={() =>
           setState((current) => ({
@@ -169,7 +173,9 @@ export function ProductVariantSections({
       </EditableList>
 
       <EditableList
+        id="designs"
         title="Diseños asociados"
+        description="Elegí los diseños disponibles y definí su extra sobre el precio base."
         addLabel="Agregar diseño"
         onAdd={() =>
           setState((current) => ({
@@ -268,7 +274,9 @@ export function ProductVariantSections({
       </EditableList>
 
       <EditableList
+        id="stock"
         title="Stock"
+        description="Paso 3 · Cargá la disponibilidad para cada combinación vendible."
         addLabel="Agregar stock"
         extraAction={
           <Button

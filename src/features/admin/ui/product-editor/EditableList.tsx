@@ -3,7 +3,9 @@ import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 
 type EditableListProps = {
+  id: string;
   title: string;
+  description: string;
   addLabel: string;
   children: ReactNode;
   onAdd: () => void;
@@ -11,16 +13,21 @@ type EditableListProps = {
 };
 
 export function EditableList({
+  id,
   title,
+  description,
   addLabel,
   children,
   onAdd,
   extraAction,
 }: EditableListProps) {
   return (
-    <section className="admin-form__section">
+    <section className="admin-form__section admin-editor__subsection" id={id}>
       <div className="admin-form__section-head">
-        <h3>{title}</h3>
+        <div>
+          <h3>{title}</h3>
+          <p className="admin-form__hint">{description}</p>
+        </div>
         <div className="admin-form__section-actions">
           {extraAction}
           <Button type="button" variant="outline" size="sm" onClick={onAdd}>
